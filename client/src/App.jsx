@@ -1,5 +1,5 @@
 import './index.css';
-// import logo from './assets/logo-placeholder.svg'; // coloque a imagem na pasta src/assets/
+import logo from './assets/logo-placeholder.svg'; // descomentei a linha
 
 export default function App() {
   return (
@@ -20,7 +20,7 @@ export default function App() {
       <main
         className="flex items-end h-[90vh] px-[50px] py-[40px]"
         style={{
-          backgroundImage: 'url("background-guitar.jpg")',
+          backgroundImage: 'url("/background-guitar.jpg")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
