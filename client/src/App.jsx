@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './pages/Home'; // Importa a página Home
-import Login from './pages/Login'; // Importa a página de Login
-import Register from './pages/Register'; // Importa a página de Cadastro
-import HowItWorks from './pages/HowItWorks'; // Importa a página "Veja como funciona"
+import Home from '../pages/Home'; // Importa a página Home
+import Login from '../pages/Login'; // Importa a página de Login
+import Register from '../pages/Register'; // Importa a página de Cadastro
+import HowItWorks from '../pages/HowItWorks'; // Importa a página "Veja como funciona"
 
 function App() {
   return (
