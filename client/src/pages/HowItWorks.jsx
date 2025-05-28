@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 function HowItWorks() {
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text flex flex-col">
+    <div >
       <Header /> {/* Renderiza o Header */}
       <main className="flex-grow p-8 pt-20"> {/* pt-20 para espaçar do Header fixo */}
         <h1 className="text-4xl font-bold text-center mb-10">Como o Sonatta funciona?</h1>
