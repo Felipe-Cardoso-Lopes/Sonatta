@@ -17,9 +17,15 @@ function Home() {
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 max-w-lg leading-tight">
             Aprenda no seu ritmo,<br />com tecnologia que escuta você.
           </h1>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="primary">Comece Agora Gratuitamente</Button>
-            <Link to="/how-it-works"> {/* Usamos Link para navegação interna */}
+           <div className="flex flex-col sm:flex-row gap-4">
+            {/* Botão "Comece Agora Gratuitamente" que vai para o Cadastro */}
+            {/* O Link envolve o Button. Adicionamos a classe 'no-underline' para remover o sublinhado padrão do link */}
+            <Link to="/register" className="no-underline"> 
+              <Button variant="primary">Comece Agora Gratuitamente</Button>
+            </Link>
+
+            {/* Botão "Veja como funciona" que vai para a página de explicação */}
+            <Link to="/how-it-works" className="no-underline"> 
               <Button variant="secondary">Veja como funciona</Button>
             </Link>
           </div>
