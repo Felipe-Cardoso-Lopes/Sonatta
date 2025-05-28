@@ -1,7 +1,7 @@
 import React from 'react';
 import Header from '../components/Header'; // Importa o Header
 import Button from '../components/Button'; // Importa o componente Button
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom'; // Certifique-se de importar Link
 
 function Home() {
   return (
@@ -18,8 +18,14 @@ function Home() {
             Aprenda no seu ritmo,<br />com tecnologia que escuta você.
           </h1>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Button variant="primary">Comece Agora Gratuitamente</Button>
-            <Link to="/how-it-works"> {/* Usamos Link para navegação interna */}
+            {/* Botão "Comece Agora Gratuitamente" que vai para o Cadastro */}
+            {/* O Link envolve o Button. Adicionamos a classe 'no-underline' para remover o sublinhado padrão do link */}
+            <Link to="/register" className="no-underline"> 
+              <Button variant="primary">Comece Agora Gratuitamente</Button>
+            </Link>
+
+            {/* Botão "Veja como funciona" que vai para a página de explicação */}
+            <Link to="/how-it-works" className="no-underline"> 
               <Button variant="secondary">Veja como funciona</Button>
             </Link>
           </div>
