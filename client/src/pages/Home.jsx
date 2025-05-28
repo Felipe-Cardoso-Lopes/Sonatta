@@ -5,12 +5,12 @@ import { Link } from 'react-router-dom'; // Certifique-se de importar Link
 
 function Home() {
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
+    <div >
       <Header /> {/* Renderiza o componente Header */}
       
       {/* O main ocupa o resto da altura da tela e posiciona o conteúdo */}
       <main 
-        className="flex flex-col justify-end h-screen p-6 pb-16 bg-cover bg-center" 
+        className=" h-screen-full flex flex-col justify-center min-h-[calc(100vh-96px)] p-10" 
         style={{ backgroundImage: "url('/assets/background-guitar.jpg')" }}
       >
         <div className="pt-20"> {/* Adiciona padding top para não ficar por baixo do Header fixo */}
@@ -18,14 +18,8 @@ function Home() {
             Aprenda no seu ritmo,<br />com tecnologia que escuta você.
           </h1>
           <div className="flex flex-col sm:flex-row gap-4">
-            {/* Botão "Comece Agora Gratuitamente" que vai para o Cadastro */}
-            {/* O Link envolve o Button. Adicionamos a classe 'no-underline' para remover o sublinhado padrão do link */}
-            <Link to="/register" className="no-underline"> 
-              <Button variant="primary">Comece Agora Gratuitamente</Button>
-            </Link>
-
-            {/* Botão "Veja como funciona" que vai para a página de explicação */}
-            <Link to="/how-it-works" className="no-underline"> 
+            <Button variant="primary">Comece Agora Gratuitamente</Button>
+            <Link to="/how-it-works"> {/* Usamos Link para navegação interna */}
               <Button variant="secondary">Veja como funciona</Button>
             </Link>
           </div>

@@ -27,7 +27,7 @@ function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text flex flex-col items-center">
+    <div className="h-screen">
       <Header /> {/* Renderiza o Header */}
       <main className="flex-grow flex items-center justify-center w-full pt-20"> {/* pt-20 para espaçar do Header fixo */}
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
