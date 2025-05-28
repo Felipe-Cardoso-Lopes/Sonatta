@@ -1,40 +1,28 @@
-import './index.css';
-// import logo from './assets/logo-placeholder.svg'; // coloque a imagem na pasta src/assets/
+import NavigationBar from "./components/NavigationBar";
 
-export default function App() {
+function App() {
   return (
-    <div>
-      {/* Header */}
-      <header className="flex justify-between items-center px-[50px] py-[30px]">
-        <div className="flex items-center gap-[10px]">
-          <img src={logo} alt="Logo Sonatta" className="w-7 h-7" />
-          <span className="text-lg font-semibold">Sonatta</span>
-        </div>
-        <div>
-          <a href="#" className="ml-6 text-white text-sm font-semibold hover:underline">Cadastrar</a>
-          <a href="#" className="ml-6 text-white text-sm font-semibold hover:underline">Entrar</a>
-        </div>
-      </header>
+    <div className="h-screen-full w-screen-full bg-bgDarkSonatta font-raleway p-1">
+      <NavigationBar />
 
-      {/* Hero */}
-      <main
-        className="flex items-end h-[90vh] px-[50px] py-[40px]"
-        style={{
-          backgroundImage: 'url("background-guitar.jpg")',
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      >
-        <div>
-          <h1 className="text-2xl max-w-[400px] mb-6">
-            Aprenda no seu ritmo,<br />com tecnologia que escuta você.
-          </h1>
-          <div className="flex gap-4">
-            <button className="bg-white text-[#0C0C0C] font-bold py-3 px-5 rounded">Comece Agora Gratuitamente</button>
-            <button className="border border-white text-white py-3 px-5 rounded">Veja como funciona</button>
-          </div>
+      <main className="flex flex-col justify-center min-h-[calc(100vh-96px)] p-10">
+        
+        <h1 className="text-white text-4xl md:text-6xl max-w-2xl leading-tight">
+          Aprenda no seu ritmo, com tecnologia que escuta você.
+        </h1>
+
+        <div className="mt-10 flex flex-col gap-4 w-full max-w-sm">
+          <button className="bg-[#222222] text-white p-5 rounded-xl hover:bg-neutral-800 hover:font-bold">
+            Comece Agora Gratuitamente
+          </button>
+
+          <button className="bg-[#222222] text-white p-5 rounded-xl hover:bg-neutral-800 hover:font-bold">
+            Veja como funciona
+          </button>
         </div>
       </main>
     </div>
   );
 }
+
+export default App;
