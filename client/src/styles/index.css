@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Define a fonte Poppins como padrão para todo o corpo da página */
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0; /* Garante que não haja margens padrão no body */
+}
