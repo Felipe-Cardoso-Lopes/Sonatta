@@ -280,9 +280,9 @@ const MusicParticles = () => {
   }, []);
 
   return (
-    <div className="relative w-screen h-screen bg-[#0C0C0C]">
+    <div className="absolute inset-0 z-0"> {/* Remove o bg-[#0C0C0C] e garante que ele se estenda por toda a tela, ficando na camada de fundo */}
       <canvas ref={canvasRef} className="absolute inset-0" />
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-lg bg-white/10 text-[#a0b8f7] backdrop-blur-md shadow-md">
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-lg bg-white/10 text-[#a0b8f7] backdrop-blur-md shadow-md z-20"> {/* Ajusta o z-index da mensagem para ficar acima do canvas, mas abaixo do conteúdo principal */}
         {msg}
       </div>
     </div>

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 function Header() {
   // Nome da função agora é Header
   return (
-    <nav className="flex justify-between items-center p-5">
+    <nav className="relative z-10 flex justify-between items-center p-5">
       <div className="flex items-center gap-3 transition-transform hover:scale-125">
         <Link to="/">
         <img

@@ -2,10 +2,12 @@ import React from 'react';
 import Header from '../components/Header'; // Importa o Header
 import Button from '../components/Button'; // Importa o componente Button
 import { Link } from 'react-router-dom';
+import MusicParticles from '../components/MusicParticles';
 
 function HowItWorks() {
   return (
     <div >
+      <MusicParticles /> 
       <Header /> {/* Renderiza o Header */}
       <main className="flex-grow p-8 pt-20"> {/* pt-20 para espaçar do Header fixo */}
         <h1 className="text-4xl font-bold text-center mb-10">Como o Sonatta funciona?</h1>
