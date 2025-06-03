@@ -8,8 +8,9 @@ function HowItWorks() {
   return (
     <div >
       <MusicParticles /> 
-      <Header /> {/* Renderiza o Header */}
-      <main className="flex-grow p-8 pt-20"> {/* pt-20 para espaçar do Header fixo */}
+      <Header /> 
+      
+      <main className="flex-grow p-8 pt-20 relative z-10"> 
         <h1 className="text-4xl font-bold text-center mb-10">Como o Sonatta funciona?</h1>
         
         <section className="mb-12 max-w-4xl mx-auto">

@@ -3,6 +3,7 @@ import Header from '../components/Header'; // Importa o Header
 import Input from '../components/Input'; // Importa o componente Input
 import Button from '../components/Button'; // Importa o componente Button
 import { Link } from 'react-router-dom';
+import MusicParticles from '../components/MusicParticles';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -17,8 +18,10 @@ function Login() {
 
   return (
     <div className='h-screen'>
-      <Header /> {/* Renderiza o Header */}
-      <main className="flex-grow flex items-center justify-center w-full pt-20"> {/* pt-20 para espaçar do Header fixo */}
+      <MusicParticles /> 
+      <Header /> 
+      
+      <main className="relative z-10 flex-grow flex items-center justify-center w-full pt-20"> 
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-3xl font-bold mb-6 text-center">Entrar</h2>
           <form onSubmit={handleSubmit}>

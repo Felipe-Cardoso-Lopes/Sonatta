@@ -2,9 +2,8 @@ import React, { useRef, useEffect, useState } from "react";
 
 const MusicParticles = () => {
   const canvasRef = useRef(null);
-  const [msg, setMsg] = useState("Aguardando permissão do microfone...");
   const mouse = useRef({ x: null, y: null });
-  const audioLevel = useRef(0);
+  const [particleCount, setParticleCount] = useState(0); // Estado para controlar a quantidade de partículas
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -15,10 +14,25 @@ const MusicParticles = () => {
     canvas.width = width;
     canvas.height = height;
 
-    const PARTICLE_COUNT = 30;
-    const MAX_DISTANCE = 210;
-    const MOUSE_MAX_DISTANCE = 190;
-    const NOTE_TYPES = ["standard", "eighth", "quarter", "pause"];
+    const calculateParticleCount = (currentWidth) => {
+      if (currentWidth < 640) {
+        // Telas pequenas (mobile)
+        return 20;
+      } else if (currentWidth < 1024) {
+        // Telas médias (tablet)
+        return 35;
+      } else {
+        // Telas grandes (desktop)
+        return 45;
+      }
+    };
+
+    // Define a quantidade inicial de partículas
+    setParticleCount(calculateParticleCount(width));
+
+    const MAX_DISTANCE = 250; // Ajustado para conexões mais visíveis
+    const MOUSE_MAX_DISTANCE = 300; // Ajustado para interação do mouse
+    const NOTE_TYPES = ["standard", "eighth", "quarter", "half", "whole"]; // Adicionado 'half', 'whole'
     let particles = [];
 
     const resize = () => {
@@ -26,6 +40,10 @@ const MusicParticles = () => {
       height = window.innerHeight;
       canvas.width = width;
       canvas.height = height;
+      // Recalcula a quantidade de partículas no redimensionamento
+      setParticleCount(calculateParticleCount(width));
+      // Re-inicializa as partículas para aplicar a nova contagem
+      initParticles();
     };
     window.addEventListener("resize", resize);
 
@@ -33,14 +51,17 @@ const MusicParticles = () => {
       constructor() {
         this.x = Math.random() * width;
         this.y = Math.random() * height;
-        this.vx = (Math.random() - 0.5) * 0.85;
-        this.vy = (Math.random() - 0.5) * 0.85;
-        this.baseRadius = 4.2;
+        this.vx = (Math.random() - 0.5) * 0.8; // Velocidade um pouco maior
+        this.vy = (Math.random() - 0.5) * 0.8; // Velocidade um pouco maior
+        this.baseRadius = 3.5; // Raio base ligeiramente maior para a cabeça da nota
         this.radius = this.baseRadius;
-        this.color = "rgba(160, 184, 247, 0.55)";
-        this.pulseSpeed = 0.03 + Math.random() * 0.02;
+        this.color = "rgba(160, 184, 247, 0.65)"; // Cor ligeiramente mais opaca
+        this.pulseSpeed = 0.025 + Math.random() * 0.015; // Pulsação mais suave
         this.pulsePhase = Math.random() * Math.PI * 2;
         this.type = NOTE_TYPES[Math.floor(Math.random() * NOTE_TYPES.length)];
+        this.stemLength = 25; // Comprimento da haste
+        // Define a direção da haste (para cima ou para baixo) com base na posição Y
+        this.stemDirection = this.y > height / 2 ? -1 : 1;
       }
 
       update() {
@@ -51,108 +72,156 @@ const MusicParticles = () => {
         if (this.y < 0 || this.y > height) this.vy *= -1;
 
         this.pulsePhase += this.pulseSpeed;
-        const audioPulse = audioLevel.current * 9;
-        this.radius = this.baseRadius + Math.sin(this.pulsePhase) * 1.5 + audioPulse;
+        this.radius = this.baseRadius + Math.sin(this.pulsePhase) * 1.0; // Pulsação mais notável
         if (this.radius < this.baseRadius) this.radius = this.baseRadius;
       }
 
       draw() {
+        // Gradiente de brilho ao redor da nota
         const gradient = ctx.createRadialGradient(
           this.x,
           this.y,
           this.radius * 0.2,
           this.x,
           this.y,
-          this.radius * 2
+          this.radius * 2.5 // Aumenta a área do brilho
         );
         gradient.addColorStop(0, "rgba(160, 184, 247, 0.55)");
         gradient.addColorStop(1, "rgba(160, 184, 247, 0)");
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius * 2, 0, Math.PI * 2);
+        ctx.arc(this.x, this.y, this.radius * 2.5, 0, Math.PI * 2);
         ctx.fill();
 
+        // Sombra para dar profundidade
         ctx.shadowColor = "rgba(160, 184, 247, 0.7)";
-        ctx.shadowBlur = 8;
+        ctx.shadowBlur = 10; // Sombra mais suave
+
+        ctx.fillStyle = this.color;
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2; // Linhas um pouco mais grossas
 
         switch (this.type) {
           case "standard":
-            this.drawStandardNote();
-            break;
-          case "eighth":
-            this.drawEighthNote();
-            break;
-          case "quarter":
+          case "quarter": // Semínima
             this.drawQuarterNote();
             break;
-          case "pause":
-            this.drawPause();
+          case "eighth": // Colcheia
+            this.drawEighthNote();
+            break;
+          case "half": // Mínima
+            this.drawHalfNote();
+            break;
+          case "whole": // Semibreve
+            this.drawWholeNote();
             break;
           default:
+            this.drawQuarterNote(); // Padrão
             break;
         }
 
-        ctx.shadowBlur = 0;
+        ctx.shadowBlur = 0; // Reseta a sombra para não afetar outras coisas
       }
 
-      drawStandardNote() {
+      // Desenha a cabeça da nota (oval inclinada)
+      drawNoteHead(filled = true) {
         ctx.beginPath();
-        ctx.fillStyle = this.color;
-        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        ctx.fill();
+        // Elipse inclinada para simular a cabeça da nota musical
+        ctx.ellipse(
+          this.x,
+          this.y,
+          this.radius * 1.5, // Proporção da cabeça da nota ajustada
+          this.radius * 1.1, // Proporção da cabeça da nota ajustada
+          -Math.PI / 8,
+          0,
+          Math.PI * 2
+        );
+        if (filled) {
+          ctx.fill();
+        } else {
+          ctx.stroke();
+        }
+      }
+
+      // Desenha a haste da nota
+      drawStem() {
+        // Calcula a posição da haste com base na direção
+        const stemXOffset =
+          this.radius * 1.5 * (this.stemDirection === 1 ? 0.8 : -0.8);
+        const stemYStartOffset = this.radius * 1.1 * this.stemDirection;
+        const stemYEndOffset = this.stemLength * this.stemDirection;
+
+        const stemX = this.x + stemXOffset;
+        const stemYStart = this.y - stemYStartOffset;
+        const stemYEnd = this.y - stemYEndOffset;
 
         ctx.beginPath();
-        ctx.strokeStyle = "rgba(160, 184, 247, 0.45)";
-        ctx.lineWidth = 2;
-        ctx.moveTo(this.x + this.radius * 0.7, this.y);
-        ctx.lineTo(this.x + this.radius * 0.7, this.y - 18);
+        ctx.moveTo(stemX, stemYStart);
+        ctx.lineTo(stemX, stemYEnd);
+        ctx.stroke();
+        return { x: stemX, y: stemYEnd };
+      }
+
+      // Desenha uma semibreve (cabeça oval vazia)
+      drawWholeNote() {
+        ctx.beginPath();
+        ctx.ellipse(
+          this.x,
+          this.y,
+          this.radius * 1.8,
+          this.radius * 1.4,
+          -Math.PI / 8,
+          0,
+          Math.PI * 2
+        );
         ctx.stroke();
       }
 
-      drawEighthNote() {
-        this.drawStandardNote();
-        ctx.beginPath();
-        ctx.strokeStyle = "rgba(160, 184, 247, 0.5)";
-        ctx.lineWidth = 2;
-        ctx.moveTo(this.x + this.radius * 0.7, this.y - 6);
-        ctx.lineTo(this.x + this.radius * 1.5, this.y - 14);
-        ctx.stroke();
+      // Desenha uma mínima (cabeça vazia com haste)
+      drawHalfNote() {
+        this.drawNoteHead(false); // Cabeça vazia
+        this.drawStem();
       }
 
+      // Desenha uma semínima (cabeça preenchida com haste)
       drawQuarterNote() {
-        this.drawStandardNote();
-        ctx.beginPath();
-        ctx.fillStyle = "rgba(160, 184, 247, 0.35)";
-        ctx.moveTo(this.x + this.radius * 0.7, this.y - 28);
-        ctx.quadraticCurveTo(
-          this.x + this.radius * 2,
-          this.y - 20,
-          this.x + this.radius * 0.7,
-          this.y - 16
-        );
-        ctx.closePath();
-        ctx.fill();
+        this.drawNoteHead(true); // Cabeça preenchida
+        this.drawStem();
       }
 
-      drawPause() {
+      // Desenha uma colcheia (semínima com flag)
+      drawEighthNote() {
+        this.drawQuarterNote(); // Desenha a semínima
+        const stemEnd = this.drawStem(); // Obtém o final da haste
+
+        // Desenha a flag, com base na direção da haste
         ctx.beginPath();
-        ctx.strokeStyle = "rgba(160, 184, 247, 0.5)";
-        ctx.lineWidth = 3;
-        ctx.moveTo(this.x - this.radius * 0.5, this.y - 10);
-        ctx.quadraticCurveTo(
-          this.x + this.radius * 1,
-          this.y - 16,
-          this.x + this.radius * 0.5,
-          this.y + 10
-        );
+        ctx.lineWidth = 1.5;
+        if (this.stemDirection === 1) {
+          // Haste para cima, flag para a direita
+          ctx.moveTo(stemEnd.x, stemEnd.y);
+          ctx.bezierCurveTo(
+            stemEnd.x + 10,
+            stemEnd.y + 5,
+            stemEnd.x + 10,
+            stemEnd.y + 15,
+            stemEnd.x + 5,
+            stemEnd.y + 20
+          );
+        }
         ctx.stroke();
+      }
+      // Desenha uma pausa de semínima
+      drawQuarterRest() {
+        ctx.beginPath();
+        ctx.lineWidth = 2;
       }
     }
 
     const initParticles = () => {
       particles = [];
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
+      for (let i = 0; i < particleCount; i++) {
         particles.push(new Particle());
       }
     };
@@ -167,7 +236,7 @@ const MusicParticles = () => {
           if (distance < MAX_DISTANCE) {
             const opacity = 0.3 * (1 - distance / MAX_DISTANCE);
             ctx.strokeStyle = `rgba(160, 184, 247, ${opacity})`;
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = 1.5; // Linha de conexão mais fina
             ctx.beginPath();
             ctx.moveTo(particles[a].x, particles[a].y);
             ctx.lineTo(particles[b].x, particles[b].y);
@@ -202,7 +271,7 @@ const MusicParticles = () => {
           const distance = Math.sqrt(dx * dx + dy * dy);
           const opacity = 0.55 * (1 - distance / distToCursor);
           ctx.strokeStyle = `rgba(160, 184, 247, ${opacity})`;
-          ctx.lineWidth = 3.2;
+          ctx.lineWidth = 3.5; // Linha de conexão com o mouse ajustada
           ctx.beginPath();
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(mouse.current.x, mouse.current.y);
@@ -221,40 +290,6 @@ const MusicParticles = () => {
       requestAnimationFrame(animate);
     };
 
-    const setupAudio = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          audio: true,
-        });
-        const audioCtx = new AudioContext();
-        const source = audioCtx.createMediaStreamSource(stream);
-        const analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 256;
-        source.connect(analyser);
-
-        const dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-        const analyze = () => {
-          analyser.getByteFrequencyData(dataArray);
-          let values = 0;
-          for (let i = 0; i < dataArray.length; i++) {
-            values += dataArray[i];
-          }
-          const average = values / dataArray.length;
-          audioLevel.current = average / 255;
-
-          setMsg("Visualização ativada — faça algum som para ver o efeito");
-          requestAnimationFrame(analyze);
-        };
-        analyze();
-      } catch (e) {
-        setMsg(
-          "Permissão de microfone negada ou erro no áudio. Atualize e tente novamente."
-        );
-        audioLevel.current = 0;
-      }
-    };
-
     const mouseMove = (e) => {
       mouse.current.x = e.clientX;
       mouse.current.y = e.clientY;
@@ -268,23 +303,21 @@ const MusicParticles = () => {
     window.addEventListener("mousemove", mouseMove);
     window.addEventListener("mouseleave", mouseLeave);
 
-    initParticles();
-    animate();
-    setupAudio();
+    if (particleCount > 0) {
+      initParticles();
+      animate();
+    }
 
     return () => {
       window.removeEventListener("resize", resize);
       window.removeEventListener("mousemove", mouseMove);
       window.removeEventListener("mouseleave", mouseLeave);
     };
-  }, []);
+  }, [particleCount]);
 
   return (
-    <div className="absolute inset-0 z-0"> {/* Remove o bg-[#0C0C0C] e garante que ele se estenda por toda a tela, ficando na camada de fundo */}
+    <div className="absolute inset-0 z-0">
       <canvas ref={canvasRef} className="absolute inset-0" />
-      <div className="absolute top-4 left-1/2 -translate-x-1/2 text-xs px-3 py-1 rounded-lg bg-white/10 text-[#a0b8f7] backdrop-blur-md shadow-md z-20"> {/* Ajusta o z-index da mensagem para ficar acima do canvas, mas abaixo do conteúdo principal */}
-        {msg}
-      </div>
     </div>
   );
 };
