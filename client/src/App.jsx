@@ -31,4 +31,4 @@ function App() {
 }
 
 export default App;
-//Felipe é gay
+//Felipe
