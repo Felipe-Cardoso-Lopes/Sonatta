@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Header from "../components/Header"; // Importa o Header
-import Input from "../components/Input"; // Importa o componente Input
-import Button from "../components/Button"; // Importa o componente Button
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Importe o useNavigate
+import Header from "../components/Header";
+import Input from "../components/Input";
+import Button from "../components/Button";
 import MusicParticles from '../components/MusicParticles';
 
 function Register() {
@@ -11,6 +11,7 @@ function Register() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
+  const navigate = useNavigate(); // Hook para navegação
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -24,18 +25,22 @@ function Register() {
     }
     console.log("Register attempt:", { name, email, password, acceptTerms });
     // Futura lógica de cadastro com o backend Node.js aqui
-    alert("Função de cadastro ainda não implementada!");
+    alert("Cadastro inicial realizado! Vamos configurar seu perfil.");
+
+    // Redireciona para a próxima etapa do cadastro
+    navigate('/about-you');
   };
 
   return (
     <div className="h-screen">
-      <MusicParticles /> 
+      <MusicParticles />
       <Header />
 
       <main className="relative z-10 flex-grow flex items-center justify-center w-full pt-20">
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-3xl font-bold mb-6 text-center">Cadastre-se</h2>
           <form onSubmit={handleSubmit}>
+            {/* O restante do seu formulário continua o mesmo */}
             <Input
               label="Nome Completo"
               id="name"
