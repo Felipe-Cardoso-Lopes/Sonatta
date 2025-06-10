@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
   return (
+    <div className="w-screen-full h-screen-full  bg-dark-bg text-white-text font-poppins flex flex-col p-1">
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
@@ -27,6 +28,7 @@ function App() {
         {/* Ex: <Route path="/student/lessons" element={<StudentLessons />} /> */}
       </Routes>
     </Router>
+    </div>
   );
 }
 
