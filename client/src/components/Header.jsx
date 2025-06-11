@@ -1,11 +1,22 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-function Header() {
-  // Nome da função agora é Header
+// Adicionamos a prop 'variant' com um valor padrão 'public'
+function Header({ variant = 'public' }) { 
+  const navigate = useNavigate();
+
+  // Função para lidar com o logout
+  const handleLogout = () => {
+    // Futuramente, aqui você limpará o token de autenticação (localStorage, etc.)
+    console.log("Usuário deslogado!");
+    
+    // Redireciona o usuário para a página inicial
+    navigate('/'); 
+  };
+
   return (
-    <nav className="relative z-10 flex justify-between items-center p-5">
-      <div className="flex items-center gap-3 transition-transform hover:scale-125">
+    <header className="relative z-10 flex justify-between items-center p-5">
+       <div className="flex items-center gap-3 transition-transform hover:scale-125">
         <Link to="/">
         <img
           src="../public/assets/sonatta-logo.png"
@@ -18,7 +29,23 @@ function Header() {
         </Link>
       </div>
 
-      <div className="flex gap-6">
+
+      {/* Navegação que muda com base na 'variant' */}
+      <nav>
+        {variant === 'dashboard' ? (
+          // Se a variant for 'dashboard', mostra a navegação para usuários LOGADOS
+          <div className="flex items-center gap-4">
+            <Link to="/profile" className="hover:underline">Meu Perfil</Link>
+            <button 
+              onClick={handleLogout} 
+              className="bg-red-500 hover:bg-red-600 transition-colors text-white font-bold py-2 px-4 rounded-md"
+            >
+              Sair
+            </button>
+          </div>
+        ) : (
+          // Senão, mostra a navegação para visitantes (padrão)
+          <div className="flex gap-6">
         <Link to="/register" className="text-xl hover:font-bold">
           Cadastrar
         </Link>
@@ -27,8 +54,11 @@ function Header() {
           Entrar
         </Link>
       </div>
-    </nav>
+
+        )}
+      </nav>
+    </header>
   );
 }
 
-export default Header; // Exporta como Header
+export default Header;

@@ -9,7 +9,7 @@ function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
-      <Header />
+      <Header variant="dashboard" />
       
       <main className="flex-grow p-8 pt-20">
         <h1 className="text-4xl font-bold text-center mb-10">Painel Administrativo Sonatta</h1>
