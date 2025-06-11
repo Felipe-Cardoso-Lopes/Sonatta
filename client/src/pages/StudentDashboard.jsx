@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import { Link } from 'react-router-dom';
 
 function StudentDashboard() {
-  const userName = "João Gay";
+  const userName = "João Estudante";
 
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
