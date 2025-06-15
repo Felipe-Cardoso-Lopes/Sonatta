@@ -23,7 +23,7 @@ const registerUser = async (req, res) => {
 
     const newUser = await db.query(
       'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-      [name, email, password_hash, role || 'aluno']
+      [name, email, password_hash, role || 'aluno'] // Role padrão é 'aluno'
     );
 
     const user = newUser.rows[0];
@@ -74,4 +74,40 @@ const loginUser = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+// Nova função para atualizar o perfil do usuário
+const updateUserProfile = async (req, res) => {
+  const { id } = req.params; // Obtém o ID do usuário da URL
+  const { name, role } = req.body; // Obtém os dados a serem atualizados do corpo da requisição
+
+  // Você pode adicionar validações aqui se necessário
+  if (!role) {
+    return res.status(400).json({ message: 'O campo objetivo (role) é obrigatório.' });
+  }
+
+  try {
+    const result = await db.query(
+      'UPDATE users SET name = COALESCE($1, name), role = $2 WHERE id = $3 RETURNING id, name, email, role',
+      [name, role, id]
+    );
+
+    const updatedUser = result.rows[0];
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    res.json({
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      role: updatedUser.role,
+      message: 'Perfil atualizado com sucesso!'
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro no servidor ao atualizar perfil.' });
+  }
+};
+
+module.exports = { registerUser, loginUser, updateUserProfile };

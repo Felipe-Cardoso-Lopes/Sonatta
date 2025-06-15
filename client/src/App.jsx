@@ -8,6 +8,10 @@ import HowItWorks from './pages/HowItWorks';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AboutYou from './pages/AboutYou';
+import MusicalProfile from './pages/MusicalProfile'; // 1. Importe o componente MusicalProfile
+import ProfessionalProfile from './pages/ProfessionalProfile'; // 2. Importe o componente ProfessionalProfile
+import Experience from './pages/Experience';
 
 function App() {
   return (
@@ -18,6 +22,16 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
+        
+        {/* Rota para AboutYou (já adicionada) */}
+        <Route path="/about-you/:id" element={<AboutYou />} />
+        
+        {/* Adicione as novas rotas para MusicalProfile e ProfessionalProfile */}
+        <Route path="/musical-profile" element={<MusicalProfile />} />
+        <Route path="/professional-profile" element={<ProfessionalProfile />} />
+
+        {/* Rota para experiencia do professor*/}
+        <Route path='/experience' element={<Experience />}/>
         
         {/* Rotas das Dashboards (para acesso direto para teste antes do backend) */}
         <Route path="/student-dashboard" element={<StudentDashboard />} />

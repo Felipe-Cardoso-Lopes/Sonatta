@@ -74,11 +74,11 @@ function Register() {
               {/* 8. Inputs atualizados para usar o estado 'formData' e a função 'handleChange' */}
               <Input
                 label="Nome Completo" id="name" name="name" type="text"
-                placeholder="João da Silva" value={formData.name} onChange={handleChange} required
+                placeholder="Nome Completo" value={formData.name} onChange={handleChange} required
               />
               <Input
                 label="E-mail" id="email" name="email" type="email"
-                placeholder="seuemail@exemplo.com" value={formData.email} onChange={handleChange} required
+                placeholder="email@exemplo.com" value={formData.email} onChange={handleChange} required
               />
               <Input
                 label="Senha" id="password" name="password" type="password"

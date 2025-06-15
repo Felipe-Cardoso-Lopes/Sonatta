@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+// client/src/pages/AboutYou.jsx
+import React, { useState, /*useEffect*/ } from 'react'; // Importe useEffect
+import { useNavigate, useParams } from 'react-router-dom'; // Importe useParams
+import axios from 'axios'; // Importe axios
 import Header from '../components/Header';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -12,16 +14,49 @@ function AboutYou() {
   const [ano, setAno] = useState('');
   const [objetivo, setObjetivo] = useState('aprender'); // 'aprender' ou 'ensinar'
   const navigate = useNavigate();
+  const { id: userId } = useParams(); // Obtenha o ID do usuário da URL
 
-  const handleSubmit = (e) => {
+  // Opcional: Carregar dados existentes do usuário (nome, etc.) se necessário
+  // useEffect(() => {
+  //   if (userId) {
+  //     // Lógica para buscar dados do usuário com base no userId
+  //     // Ex: const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
+  //     // setNome(response.data.name);
+  //     // setObjetivo(response.data.role); // Se você quiser pré-selecionar
+  //   }
+  // }, [userId]);
+
+  const handleSubmit = async (e) => { // Torne a função assíncrona
     e.preventDefault();
-    // Lógica para salvar os dados (futuramente)
-    console.log({ nome, dia, mes, ano, objetivo });
+    
+    // Validação básica da data
+    if (dia && mes && ano) {
+      const dataNascimento = `${ano}-${mes}-${dia}`;
+      // Você pode adicionar mais validações aqui, como se a data é válida
+      console.log('Data de Nascimento:', dataNascimento);
+    }
 
-    if (objetivo === 'aprender') {
-      navigate('/musical-profile');
-    } else {
-      navigate('/professional-profile');
+    try {
+      // 1. Enviar a role (objetivo) para o backend para atualizar o usuário
+      // Você precisará de um novo endpoint no backend para isso.
+      const response = await axios.put(`http://localhost:5000/api/users/${userId}/profile`, {
+        name: nome, // Você pode enviar o nome também, se quiser atualizar
+        role: objetivo,
+        // birthDate: dataNascimento // Se você for armazenar a data de nascimento
+      });
+
+      console.log('Perfil do usuário atualizado com sucesso:', response.data);
+
+      // 2. Redirecionar com base no objetivo (role) selecionado
+      if (objetivo === 'aprender') {
+        navigate('/musical-profile');
+      } else {
+        navigate('/professional-profile');
+      }
+
+    } catch (error) {
+      console.error('Erro ao atualizar o perfil:', error.response ? error.response.data.message : error.message);
+      alert(`Erro ao salvar seu perfil: ${error.response ? error.response.data.message : 'Tente novamente.'}`);
     }
   };
 
