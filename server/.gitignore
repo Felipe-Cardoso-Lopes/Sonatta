@@ -3,3 +3,6 @@ node_modules
 
 # Arquivo com senhas e chaves secretas
 .env
+
+# senha do admin
+gerar_hash.js
