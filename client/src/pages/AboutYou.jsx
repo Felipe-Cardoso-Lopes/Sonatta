@@ -1,53 +1,38 @@
 // client/src/pages/AboutYou.jsx
-import React, { useState, /*useEffect*/ } from 'react'; // Importe useEffect
-import { useNavigate, useParams } from 'react-router-dom'; // Importe useParams
-import axios from 'axios'; // Importe axios
+import React, { useState, /*useEffect*/ } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import axios from 'axios';
 import Header from '../components/Header';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import MusicParticles from '../components/MusicParticles';
 
 function AboutYou() {
-  const [nome, setNome] = useState('');
+  const [apelido, setApelido] = useState(''); // 1. Alterado de 'nome' para 'apelido'
   const [dia, setDia] = useState('');
   const [mes, setMes] = useState('');
   const [ano, setAno] = useState('');
-  const [objetivo, setObjetivo] = useState('aprender'); // 'aprender' ou 'ensinar'
+  const [objetivo, setObjetivo] = useState('aprender');
   const navigate = useNavigate();
-  const { id: userId } = useParams(); // Obtenha o ID do usuário da URL
+  const { id: userId } = useParams();
 
-  // Opcional: Carregar dados existentes do usuário (nome, etc.) se necessário
-  // useEffect(() => {
-  //   if (userId) {
-  //     // Lógica para buscar dados do usuário com base no userId
-  //     // Ex: const response = await axios.get(`http://localhost:5000/api/users/${userId}`);
-  //     // setNome(response.data.name);
-  //     // setObjetivo(response.data.role); // Se você quiser pré-selecionar
-  //   }
-  // }, [userId]);
-
-  const handleSubmit = async (e) => { // Torne a função assíncrona
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validação básica da data
+   
     if (dia && mes && ano) {
       const dataNascimento = `${ano}-${mes}-${dia}`;
-      // Você pode adicionar mais validações aqui, como se a data é válida
       console.log('Data de Nascimento:', dataNascimento);
     }
 
     try {
-      // 1. Enviar a role (objetivo) para o backend para atualizar o usuário
-      // Você precisará de um novo endpoint no backend para isso.
+      // 2. Enviamos o 'apelido' no campo 'name' que o backend espera
       const response = await axios.put(`http://localhost:5000/api/users/${userId}/profile`, {
-        name: nome, // Você pode enviar o nome também, se quiser atualizar
+        name: apelido, // Enviando o estado 'apelido'
         role: objetivo,
-        // birthDate: dataNascimento // Se você for armazenar a data de nascimento
       });
 
       console.log('Perfil do usuário atualizado com sucesso:', response.data);
 
-      // 2. Redirecionar com base no objetivo (role) selecionado
       if (objetivo === 'aprender') {
         navigate('/musical-profile');
       } else {
@@ -68,13 +53,15 @@ function AboutYou() {
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-3xl font-bold mb-6 text-center">Sobre Você</h2>
           <form onSubmit={handleSubmit}>
+            {/* 3. Todos os atributos foram atualizados para 'apelido' */}
             <Input
-              label="Nome"
-              id="nome"
+              label="Apelido"
+              id="apelido"
+              name="apelido"
               type="text"
               placeholder="Como prefere ser chamado?"
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
+              value={apelido}
+              onChange={(e) => setApelido(e.target.value)}
               required
             />
             <div className="mb-4">
@@ -106,4 +93,4 @@ function AboutYou() {
   );
 }
 
-export default AboutYou;
+export default AboutYou; 

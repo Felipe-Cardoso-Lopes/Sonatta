@@ -1,7 +1,7 @@
 // client/src/pages/Login.jsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // Importe useNavigate
-import axios from 'axios'; // Importe axios
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Header from '../components/Header';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -10,37 +10,36 @@ import MusicParticles from '../components/MusicParticles';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Inicialize useNavigate
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => { // Tornar a função assíncrona
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Login attempt:', { email, password });
 
     try {
-      // Chamada à API de login
       const response = await axios.post('http://localhost:5000/api/users/login', {
         email,
         password,
       });
 
-      const { token, role } = response.data; // Obter o token e a role da resposta
+      // 1. Extraia também o 'name' da resposta da API
+      const { name, token, role } = response.data;
 
-      // Salvar o token no localStorage (boa prática para autenticação)
+      // 2. Salve o nome do usuário no localStorage
       localStorage.setItem('token', token);
-      localStorage.setItem('userRole', role); // Salvar a role para futuras verificações
+      localStorage.setItem('userRole', role);
+      localStorage.setItem('userName', name); // Adicionado!
 
       console.log('Login bem-sucedido:', response.data);
 
-      // Redirecionar com base na role
       if (role === 'aprender') {
-        navigate('/student-dashboard'); // Redireciona para o painel do estudante
+        navigate('/student-dashboard');
       } else if (role === 'ensinar') {
-        navigate('/teacher-dashboard'); // Redireciona para o painel do professor
-      } else if (role === 'admin') { // Adicione um caso para admin, se aplicável
-        navigate('/admin-dashboard'); // Redireciona para o painel do administrador
+        navigate('/teacher-dashboard');
+      } else if (role === 'admin') {
+        navigate('/admin-dashboard');
       } else {
-        // Caso a role não seja reconhecida ou para um fallback
-        navigate('/'); // Redireciona para a home ou uma página de erro
+        navigate('/');
       }
 
     } catch (error) {

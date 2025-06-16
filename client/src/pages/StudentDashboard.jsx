@@ -1,20 +1,29 @@
-import React from 'react';
-import Header from '../components/Header'; // A importação continua a mesma
+// client/src/pages/StudentDashboard.jsx
+import React, { useState, useEffect } from 'react'; // 1. Importe useState e useEffect
+import Header from '../components/Header';
 import Button from '../components/Button';
 import { Link } from 'react-router-dom';
 
 function StudentDashboard() {
-  const userName = "João Estudante";
+  // 2. Crie um estado para armazenar o nome do usuário
+  const [userName, setUserName] = useState('');
+
+  // 3. Use useEffect para buscar o nome do localStorage quando o componente carregar
+  useEffect(() => {
+    const storedName = localStorage.getItem('userName');
+    if (storedName) {
+      setUserName(storedName);
+    }
+  }, []); // O array vazio [] garante que isso rode apenas uma vez
 
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
-      {/* A única mudança é aqui: adicionamos a prop 'variant' */}
       <Header variant="dashboard" />
-      
+     
       <main className="flex-grow p-8 pt-20">
+        {/* 4. Use a variável de estado 'userName' no título */}
         <h1 className="text-4xl font-bold text-center mb-10">Bem-vindo(a), {userName}!</h1>
-        
-        {/* O resto do seu código da dashboard continua igual... */}
+       
         <section className="mb-12 max-w-4xl mx-auto text-center">
           <h2 className="text-3xl font-semibold mb-6">Seu Caminho Musical no Sonatta</h2>
           <p className="text-lg leading-relaxed mb-8">

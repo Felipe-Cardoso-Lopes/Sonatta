@@ -5,7 +5,7 @@ import Button from '../components/Button';
 import { Link } from 'react-router-dom';
 
 function AdminDashboard() {
-  const userName = "Carlos Administrador"; // Mock de nome do usuário
+  const userName = "Administrador"; // Mock de nome do usuário
 
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
