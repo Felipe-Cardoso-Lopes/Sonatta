@@ -1,4 +1,4 @@
-// client/src/pages/Login.jsx
+// felipe-cardoso-lopes/sonatta/Sonatta-d63186ec006a2e56cd14b87d9cb8564ef4006ca1/client/src/pages/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -15,23 +15,16 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Login attempt:', { email, password });
-
     try {
       const response = await axios.post('http://localhost:5000/api/users/login', {
         email,
         password,
       });
-
-      // 1. Extraia também o 'name' da resposta da API
       const { name, token, role } = response.data;
-
-      // 2. Salve o nome do usuário no localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('userRole', role);
-      localStorage.setItem('userName', name); // Adicionado!
-
+      localStorage.setItem('userName', name);
       console.log('Login bem-sucedido:', response.data);
-
       if (role === 'aprender') {
         navigate('/student-dashboard');
       } else if (role === 'ensinar') {
@@ -41,7 +34,6 @@ function Login() {
       } else {
         navigate('/');
       }
-
     } catch (error) {
       console.error('Erro no login:', error.response ? error.response.data.message : error.message);
       alert(`Erro no login: ${error.response ? error.response.data.message : 'Verifique suas credenciais.'}`);
@@ -54,7 +46,7 @@ function Login() {
       <div className="relative z-10 flex flex-col h-screen">
         <Header />
         <main className="flex-grow flex items-center justify-center w-full">
-          <div className="bg-gray-900/80 backdrop-blur-sm p-8 rounded-lg shadow-lg w-full max-w-md">
+          <div className="bg-dark-gray p-8 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-3xl font-bold mb-6 text-center">Entrar</h2>
             <form onSubmit={handleSubmit}>
               <Input
@@ -84,6 +76,19 @@ function Login() {
                 Entrar
               </Button>
             </form>
+            <div className="flex items-center my-4">
+              <div className="flex-grow border-t border-gray-600"></div>
+              <span className="flex-shrink mx-4 text-gray-400">ou</span>
+              <div className="flex-grow border-t border-gray-600"></div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Button variant="secondary" className="w-full">
+                Entrar com Google
+              </Button>
+              <Button variant="secondary" className="w-full">
+                Entrar com Microsoft
+              </Button>
+            </div>
             <p className="text-center mt-4">
               Não tem uma conta? <Link to="/register" className="text-white-text font-bold hover:underline">Cadastre-se</Link>
             </p>

@@ -1,5 +1,5 @@
-// client/src/pages/AboutYou.jsx
-import React, { useState, /*useEffect*/ } from 'react';
+// felipe-cardoso-lopes/sonatta/Sonatta-d63186ec006a2e56cd14b87d9cb8564ef4006ca1/client/src/pages/AboutYou.jsx
+import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
@@ -8,37 +8,26 @@ import Button from '../components/Button';
 import MusicParticles from '../components/MusicParticles';
 
 function AboutYou() {
-  const [apelido, setApelido] = useState(''); // 1. Alterado de 'nome' para 'apelido'
+  const [apelido, setApelido] = useState('');
   const [dia, setDia] = useState('');
   const [mes, setMes] = useState('');
   const [ano, setAno] = useState('');
-  const [objetivo, setObjetivo] = useState('aprender');
   const navigate = useNavigate();
   const { id: userId } = useParams();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-   
     if (dia && mes && ano) {
       const dataNascimento = `${ano}-${mes}-${dia}`;
       console.log('Data de Nascimento:', dataNascimento);
     }
-
     try {
-      // 2. Enviamos o 'apelido' no campo 'name' que o backend espera
       const response = await axios.put(`http://localhost:5000/api/users/${userId}/profile`, {
-        name: apelido, // Enviando o estado 'apelido'
-        role: objetivo,
+        name: apelido,
+        role: 'aprender', // Definido como 'aprender' por padrão
       });
-
       console.log('Perfil do usuário atualizado com sucesso:', response.data);
-
-      if (objetivo === 'aprender') {
-        navigate('/musical-profile');
-      } else {
-        navigate('/professional-profile');
-      }
-
+      navigate('/musical-profile');
     } catch (error) {
       console.error('Erro ao atualizar o perfil:', error.response ? error.response.data.message : error.message);
       alert(`Erro ao salvar seu perfil: ${error.response ? error.response.data.message : 'Tente novamente.'}`);
@@ -53,7 +42,6 @@ function AboutYou() {
         <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-3xl font-bold mb-6 text-center">Sobre Você</h2>
           <form onSubmit={handleSubmit}>
-            {/* 3. Todos os atributos foram atualizados para 'apelido' */}
             <Input
               label="Apelido"
               id="apelido"
@@ -72,18 +60,7 @@ function AboutYou() {
                 <Input type="text" placeholder="Ano" value={ano} onChange={(e) => setAno(e.target.value)} className="w-1/3" />
               </div>
             </div>
-            <div className="mb-6">
-              <label className="block text-white-text text-sm font-bold mb-2">Objetivo</label>
-              <div className="flex justify-around">
-                <Button type="button" variant={objetivo === 'aprender' ? 'primary' : 'secondary'} onClick={() => setObjetivo('aprender')}>
-                  Aprender
-                </Button>
-                <Button type="button" variant={objetivo === 'ensinar' ? 'primary' : 'secondary'} onClick={() => setObjetivo('ensinar')}>
-                  Ensinar
-                </Button>
-              </div>
-            </div>
-            <Button type="submit" variant="primary" className="w-full">
+            <Button type="submit" variant="primary" className="w-full mt-4">
               Avançar
             </Button>
           </form>
@@ -93,4 +70,4 @@ function AboutYou() {
   );
 }
 
-export default AboutYou; 
+export default AboutYou;

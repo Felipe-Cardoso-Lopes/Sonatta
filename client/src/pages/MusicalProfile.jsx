@@ -25,7 +25,7 @@ function MusicalProfile() {
       <MusicParticles />
       <Header />
       <main className="relative z-10 flex-grow flex items-center justify-center w-full pt-20">
-        <div className="bg-gray-900 p-8 rounded-lg shadow-lg w-full max-w-md">
+        <div className="bg-dark-gray p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-3xl font-bold mb-6 text-center">Perfil Musical</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-6">

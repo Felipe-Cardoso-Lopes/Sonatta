@@ -1,66 +1,63 @@
-// client/src/pages/AdminDashboard.jsx
 import React from 'react';
-import Header from '../components/Header';
-import Button from '../components/Button';
 import { Link } from 'react-router-dom';
+import AdminSidebar from '../components/AdminSidebar'; // <-- IMPORTE O NOVO COMPONENTE
 
 function AdminDashboard() {
-  const userName = "Administrador"; // Mock de nome do usuário
+  const userName = "Administrador";
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
-      <Header variant="dashboard" />
-      
-      <main className="flex-grow p-8 pt-20">
-        <h1 className="text-4xl font-bold text-center mb-10">Painel Administrativo Sonatta</h1>
-        <h2 className="text-3xl font-semibold mb-6 text-center">Bem-vindo(a), {userName}!</h2>
-        
-        <section className="mb-12 max-w-4xl mx-auto text-center">
-          <p className="text-lg leading-relaxed mb-8">
-            Controle total sobre usuários, conteúdo e configurações do sistema.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Card de Gerenciamento de Usuários */}
-            <div className="bg-gray-900 p-6 rounded-lg shadow-lg flex flex-col items-center">
-              <div className="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-white-text text-xl">
-                <span role="img" aria-label="Usuários">👥</span>
-              </div>
-              <h3 className="text-2xl font-bold mb-2">Gerenciar Usuários</h3>
-              <p className="text-sm text-gray-400 mb-4">Adicione, edite ou remova contas de alunos/professores.</p>
-              <Link to="/admin/users">
-                <Button variant="primary">Gerenciar</Button>
-              </Link>
-            </div>
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
+      <AdminSidebar />
 
-            {/* Card de Conteúdo do Curso */}
-            <div className="bg-gray-900 p-6 rounded-lg shadow-lg flex flex-col items-center">
-              <div className="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-white-text text-xl">
-                <span role="img" aria-label="Ajustes">⚙️</span>
-              </div>
-              <h3 className="text-2xl font-bold mb-2">Gerenciar Conteúdo</h3>
-              <p className="text-sm text-gray-400 mb-4">Aprove ou edite aulas e materiais de estudo.</p>
-              <Link to="/admin/content">
-                <Button variant="primary">Gerenciar</Button>
-              </Link>
-            </div>
-
-            {/* Card de Configurações do Sistema */}
-            <div className="bg-gray-900 p-6 rounded-lg shadow-lg flex flex-col items-center">
-              <div className="w-24 h-24 bg-gray-700 rounded-full mx-auto mb-4 flex items-center justify-center text-white-text text-xl">
-                <span role="img" aria-label="Configurações">🛠️</span>
-              </div>
-              <h3 className="text-2xl font-bold mb-2">Configurações</h3>
-              <p className="text-sm text-gray-400 mb-4">Ajustes globais do sistema e permissões.</p>
-              <Link to="/admin/settings">
-                <Button variant="secondary">Configurar</Button>
-              </Link>
-            </div>
+      {/* Conteúdo Principal */}
+      <div className="flex-grow flex flex-col">
+        <main className="flex-grow flex flex-col items-center justify-center p-8">
+          <div className="text-center w-full mb-12">
+            <h1 className="text-4xl font-bold mb-2">Bem-Vindo(a), {userName}!</h1>
+            <h2 className="text-2xl mb-4">Painel Administrativo Sonatta</h2>
+            <p className="text-lg leading-relaxed max-w-3xl mx-auto">
+              Acompanhe o crescimento do negócio, gerencie o conteúdo e administre os professores da plataforma.
+            </p>
           </div>
-        </section>
+          <section className="flex flex-wrap justify-center gap-12">
+            <Link to="" className="group flex flex-col items-center text-center">
+              <img 
+                src="/assets/icon-visao-geral.png" 
+                alt="Visão Geral" 
+                className="w-[260px] h-[390px] rounded-[15px] object-cover transition-transform group-hover:scale-105"
+              />
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4">Visão Geral</span>
+            </Link>
+            
+            <Link to="" className="group flex flex-col items-center text-center">
+              <img 
+                src="/assets/icon-gerenciamento.png" 
+                alt="Gerenciamento" 
+                className="w-[260px] h-[390px] rounded-[15px] object-cover transition-transform group-hover:scale-105"
+              />
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4">Gerenciamento</span>
+            </Link>
 
-        {/* Adicione outras seções para administradores aqui */}
-      </main>
+            <Link to="" className="group flex flex-col items-center text-center">
+              <img 
+                src="../public/assets/Financeiro.jpeg" 
+                alt="Financeiro" 
+                className="w-[260px] h-[390px] rounded-[15px] object-cover transition-transform group-hover:scale-105"
+              />
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4">Financeiro</span>
+            </Link>
+
+            <Link to="" className="group flex flex-col items-center text-center">
+              <img 
+                src="../public/assets/Escola.jpeg" 
+                alt="Configurações da Escola" 
+                className="w-[260px] h-[390px] rounded-[15px] object-cover transition-transform group-hover:scale-105"
+              />
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4">Configurações da Escola</span>
+            </Link>
+          </section>
+        </main>
+      </div>
     </div>
   );
 }

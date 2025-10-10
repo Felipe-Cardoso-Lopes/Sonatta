@@ -13,8 +13,10 @@ export default {
       },
       // Define suas cores personalizadas
       colors: {
-        'dark-bg': '#0C0C0C', // Cor de fundo principal (quase preto)
-        'white-text': '#FFFFFF', // Cor de texto principal (branco)
+        'dark-bg': '#0C0C0C', 
+        'white-text': '#FFFFFF', 
+        'sidebar-bg': '#393E46', 
+        'dark-gray': '#222831',
       }
     },
   },

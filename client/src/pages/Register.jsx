@@ -1,6 +1,7 @@
+// felipe-cardoso-lopes/sonatta/Sonatta-d63186ec006a2e56cd14b87d9cb8564ef4006ca1/client/src/pages/Register.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios'; // 1. Importe o axios para fazer a chamada à API
+import axios from 'axios';
 import Header from "../components/Header";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -8,24 +9,19 @@ import MusicParticles from '../components/MusicParticles';
 
 function Register() {
   const navigate = useNavigate();
-
-  // 2. Usar um único objeto de estado 'formData' é mais prático para enviar para a API
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'aluno', // Perfil padrão
+    role: 'aluno',
   });
-
   const [acceptTerms, setAcceptTerms] = useState(false);
 
-  // 3. Uma única função para lidar com todas as mudanças nos inputs
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // 4. A função de submit agora é 'async' para esperar a resposta do backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
@@ -36,42 +32,31 @@ function Register() {
       alert("Você deve aceitar os termos de uso!");
       return;
     }
-
     try {
-      // 5. ETAPA DE BACKEND: Envia os dados de autenticação para a API
       const response = await axios.post('http://localhost:5000/api/users/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role,
       });
-
       console.log('Usuário base criado com sucesso:', response.data);
       alert("Cadastro inicial realizado! Agora, vamos configurar seu perfil.");
-
-      // 6. ETAPA DE FRONTEND: Redireciona para a próxima etapa do seu fluxo
-      // Você pode até passar o ID do novo usuário na rota, se precisar
       navigate(`/about-you/${response.data.id}`);
-
     } catch (error) {
-      // Se der erro no backend (ex: e-mail já existe), mostra o alerta
       console.error('Erro no cadastro:', error.response ? error.response.data.message : error.message);
       alert(`Erro no cadastro: ${error.response ? error.response.data.message : 'Tente novamente.'}`);
     }
   };
 
   return (
-    // 7. Estrutura de layout para o fundo animado funcionar corretamente
-    <div className="relative min-h-screen bg-dark-bg text-white-text font-poppins overflow-hidden">
+    <div>
       <MusicParticles />
-
       <div className="relative z-10 flex flex-col h-screen">
         <Header />
         <main className="flex-grow flex items-center justify-center w-full">
-          <div className="bg-gray-900/80 backdrop-blur-sm p-8 rounded-lg shadow-lg w-full max-w-md">
+          <div className="bg-dark-gray p-8 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-3xl font-bold mb-6 text-center">Crie sua Conta</h2>
             <form onSubmit={handleSubmit}>
-              {/* 8. Inputs atualizados para usar o estado 'formData' e a função 'handleChange' */}
               <Input
                 label="Nome Completo" id="name" name="name" type="text"
                 placeholder="Nome Completo" value={formData.name} onChange={handleChange} required
@@ -102,6 +87,19 @@ function Register() {
                 Próximo
               </Button>
             </form>
+            <div className="flex items-center my-4">
+              <div className="flex-grow border-t border-gray-600"></div>
+              <span className="flex-shrink mx-4 text-gray-400">ou</span>
+              <div className="flex-grow border-t border-gray-600"></div>
+            </div>
+            <div className="flex flex-col gap-4">
+              <Button variant="secondary" className="w-full">
+                Entrar com Google
+              </Button>
+              <Button variant="secondary" className="w-full">
+                Entrar com Microsoft
+              </Button>
+            </div>
             <p className="text-center mt-4">
               Já tem uma conta? <Link to="/login" className="text-white-text font-bold hover:underline">Entrar</Link>
             </p>
