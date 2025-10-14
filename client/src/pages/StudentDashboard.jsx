@@ -28,7 +28,7 @@ function StudentDashboard() {
           </div>
           <section className="flex gap-12">
             
-            <Link to="/lessons" className="group flex flex-col items-center text-center">
+             <Link to="/lessons" className="group flex flex-col items-center text-center">
               {/* Card Branco do Botão */}
               <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img 

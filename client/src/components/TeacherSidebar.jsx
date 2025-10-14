@@ -1,5 +1,25 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+
+// Sub-componente para cada item de navegação
+const NavItem = ({ to, imgSrc, altText }) => {
+  const location = useLocation();
+  const isActive = location.pathname.startsWith(to); // Usando startsWith para rotas filhas
+
+  return (
+    <div className="relative flex items-center justify-center">
+      {isActive && (
+        <div className="absolute -left-3 w-1.5 h-10 bg-white rounded-full"></div>
+      )}
+      
+      <Link to={to} className="group transition-transform hover:scale-110">
+        <div className="w-[80px] h-[80px] bg-white rounded-[15px] flex items-center justify-center">
+          <img src={imgSrc} alt={altText} className="w-[60px] h-[60px]" />
+        </div>
+      </Link>
+    </div>
+  );
+};
 
 function TeacherSidebar() {
   return (

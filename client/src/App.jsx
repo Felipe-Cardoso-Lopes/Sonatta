@@ -10,6 +10,8 @@ import TeacherDashboard from './pages/TeacherDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import AboutYou from './pages/AboutYou';
 import MusicalProfile from './pages/MusicalProfile';
+import StudentProfile from './pages/StudentProfile';
+import StudentLessons from './pages/StudentLessons';
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/about-you/:id" element={<AboutYou />} />
           <Route path="/musical-profile" element={<MusicalProfile />} />
+          <Route path="/student-profile" element={<StudentProfile />} />
+           <Route path="/lessons" element={<StudentLessons />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
