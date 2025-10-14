@@ -1,11 +1,9 @@
-// felipe-cardoso-lopes/sonatta/Sonatta-d63186ec006a2e56cd14b87d9cb8564ef4006ca1/client/src/pages/StudentDashboard.jsx
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import StudentSidebar from '../components/StudentSidebar';
 
 function StudentDashboard() {
   const [userName, setUserName] = useState('');
-
 
   useEffect(() => {
     const storedName = localStorage.getItem('userName');
@@ -15,10 +13,10 @@ function StudentDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
-  <StudentSidebar />
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
+      <StudentSidebar />
 
-     {/* Conteúdo Principal */}
+      {/* Conteúdo Principal */}
       <div className="flex-grow flex flex-col">
         <main className="flex-grow flex flex-col items-center justify-center p-8">
           <div className="text-center w-full mb-12">
@@ -29,25 +27,31 @@ function StudentDashboard() {
             </p>
           </div>
           <section className="flex gap-12">
-            {/* 3. BOTÃO "MINHAS AULAS" ATUALIZADO */}
-            <Link to="" className="group flex flex-col items-center text-center">
-              <img 
-                src="/assets/Minhas Aulas.png" 
-                alt="Minhas Aulas" 
-                className="w-[260px] h-[390px] rounded-[15px] object-cover transition-transform group-hover:scale-105"
-              />
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4">Minhas Aulas</span>
+            
+            <Link to="/lessons" className="group flex flex-col items-center text-center">
+              {/* Card Branco do Botão */}
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
+                <img 
+                  src="/assets/Minhas Aulas.png" // Substitua pelo caminho da sua nova imagem sem fundo
+                  alt="Minhas Aulas" 
+                  className="w-55 h-55" // Tamanho do ícone dentro do card
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Minhas Aulas</span>
             </Link>
             
-            {/* 4. BOTÃO "PRATICAR" ATUALIZADO */}
-            <Link to="" className="group flex flex-col items-center text-center">
-              <img 
-                src="/assets/Praticar.png" 
-                alt="Praticar" 
-                className="w-[260px] h-[390px] rounded-[15px] object-cover transition-transform group-hover:scale-105"
-              />
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4">Praticar</span>
+            <Link to="/practice" className="group flex flex-col items-center text-center">
+              {/* Card Branco do Botão */}
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
+                <img 
+                  src="/assets/Praticar.png" // Substitua pelo caminho da sua nova imagem sem fundo
+                  alt="Praticar" 
+                  className="w-55 h-55" // Tamanho do ícone dentro do card
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Praticar</span>
             </Link>
+
           </section>
         </main>
       </div>

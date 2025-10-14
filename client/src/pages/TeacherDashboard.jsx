@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import TeacherSidebar from '../components/TeacherSidebar'; // <-- IMPORTE O NOVO COMPONENTE
+import TeacherSidebar from '../components/TeacherSidebar';
 
 function TeacherDashboard() {
   const [userName, setUserName] = useState('');
@@ -13,7 +13,7 @@ function TeacherDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
       <TeacherSidebar />
 
       {/* Conteúdo Principal */}
@@ -27,23 +27,29 @@ function TeacherDashboard() {
             </p>
           </div>
           <section className="flex gap-12">
+
             <Link to="" className="group flex flex-col items-center text-center">
-              <img 
-                src="/assets/icon-gerenciamento.png" 
-                alt="Gerenciamento" 
-                className="w-[260px] h-[390px] rounded-[15px] object-cover transition-transform group-hover:scale-105"
-              />
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4">Gerenciamento</span>
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
+                <img 
+                  src="/assets/Gerenciamento.png" // Substitua pela sua imagem sem fundo
+                  alt="Gerenciamento" 
+                  className="w-32 h-32"
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Gerenciamento</span>
             </Link>
             
             <Link to="" className="group flex flex-col items-center text-center">
-              <img 
-                src="/assets/icon-visao-geral.png" 
-                alt="Visão Geral" 
-                className="w-[260px] h-[390px] rounded-[15px] object-cover transition-transform group-hover:scale-105"
-              />
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4">Visão Geral</span>
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
+                <img 
+                  src="/assets/Overview.png" // Substitua pela sua imagem sem fundo
+                  alt="Visão Geral" 
+                  className="w-32 h-32"
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Visão Geral</span>
             </Link>
+
           </section>
         </main>
       </div>
