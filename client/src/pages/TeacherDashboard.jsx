@@ -28,7 +28,7 @@ function TeacherDashboard() {
           </div>
           <section className="flex gap-12">
 
-            <Link to="" className="group flex flex-col items-center text-center">
+            <Link to="/teacher/management" className="group flex flex-col items-center text-center">
               <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img 
                   src="/assets/Gerenciamento.png" // Substitua pela sua imagem sem fundo
@@ -39,7 +39,7 @@ function TeacherDashboard() {
               <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Gerenciamento</span>
             </Link>
             
-            <Link to="" className="group flex flex-col items-center text-center">
+            <Link to="/teacher/overview" className="group flex flex-col items-center text-center">
               <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img 
                   src="/assets/Overview.png" // Substitua pela sua imagem sem fundo

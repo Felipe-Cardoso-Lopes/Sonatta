@@ -41,6 +41,7 @@ function StudentLessons() {
     { title: 'Piano para Iniciantes', professor: 'Professor', instrument: 'Pianista', modules: [{ label: 'Menu Label', description: 'Menu description.' }, { label: 'Menu Label', description: 'Menu description.' }] },
     { title: 'Violão do Zero', professor: 'Professor', instrument: 'Violonista', modules: [] },
     { title: 'Como tocar Guitarra', professor: 'Professor', instrument: 'Guitarrista', modules: [] },
+    
   ];
 
   return (

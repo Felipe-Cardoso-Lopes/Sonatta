@@ -12,6 +12,13 @@ import AboutYou from './pages/AboutYou';
 import MusicalProfile from './pages/MusicalProfile';
 import StudentProfile from './pages/StudentProfile';
 import StudentLessons from './pages/StudentLessons';
+import StudentPractice from './pages/StudentPractice';
+import TeacherOverview from './pages/TeacherOverview';
+import TeacherManagement from './pages/TeacherManagement';
+import AdminOverview from './pages/AdminOverview';
+import AdminManagement from './pages/AdminManagement';
+import AdminFinancial from './pages/AdminFinancial';
+import AdminSettings from './pages/AdminSettings';
 
 function App() {
   return (
@@ -24,11 +31,25 @@ function App() {
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/about-you/:id" element={<AboutYou />} />
           <Route path="/musical-profile" element={<MusicalProfile />} />
+          
+          {/*Rotas do aluno*/}
           <Route path="/student-profile" element={<StudentProfile />} />
-           <Route path="/lessons" element={<StudentLessons />} />
+          <Route path="/lessons" element={<StudentLessons />} />
+          <Route path="/practice" element={<StudentPractice />} />
           <Route path="/student-dashboard" element={<StudentDashboard />} />
+
+          {/*Rotas do professor*/}
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+          <Route path="/teacher/overview" element={<TeacherOverview />} />
+          <Route path="/teacher/management" element={<TeacherManagement />} />
+
+          {/*Rotas do admin*/}
           <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/overview" element={<AdminOverview />} />
+          <Route path="/admin/management" element={<AdminManagement />} />
+          <Route path="/admin/financial" element={<AdminFinancial />} />
+          <Route path="/admin/settings" element={<AdminSettings />} />
+
         </Routes>
       </Router>
     </div>
