@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 
 function AdminDashboard() {
-  const userName = "Administrador";
+  const userName = "Instituição";
 
   return (
     <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
@@ -17,7 +17,7 @@ function AdminDashboard() {
             <h2 className="text-2xl mb-4">Painel Administrativo Sonatta</h2>
             <p className="text-lg leading-relaxed max-w-3xl mx-auto">
               Acompanhe o crescimento do negócio, gerencie o conteúdo e administre os professores da plataforma.
-            </p>
+            </p>  
           </div>
           <section className="flex gap-12">
 
