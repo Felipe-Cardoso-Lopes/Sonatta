@@ -315,8 +315,9 @@ const MusicParticles = () => {
     };
   }, [particleCount]);
 
-  return (
-    <div className="absolute inset-0 z-0">
+ return (
+    // MUDANÇA AQUI: De 'absolute' para 'fixed' e z-index negativo para garantir que fique atrás de tudo
+    <div className="fixed inset-0 -z-0 pointer-events-none">
       <canvas ref={canvasRef} className="absolute inset-0" />
     </div>
   );
