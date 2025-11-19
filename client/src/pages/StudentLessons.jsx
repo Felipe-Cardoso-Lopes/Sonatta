@@ -45,14 +45,14 @@ function StudentLessons() {
   ];
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
       <StudentSidebar />
 
       {/* Conteúdo Principal */}
-      <main className="flex-grow p-8 flex gap-8">
+      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
         
         {/* Coluna da Esquerda: Lista de Cursos */}
-        <aside className="w-1/3 bg-gray-800 rounded-lg p-4 flex flex-col gap-4 overflow-y-auto">
+        <aside className="w-full lg:w-1/3 bg-gray-800 rounded-lg p-4 flex flex-col gap-4 overflow-y-auto">
           <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold hover:bg-opacity-80">
             Aprender
           </button>
@@ -63,7 +63,7 @@ function StudentLessons() {
 
         {/* Coluna da Direita: Detalhes da Aula */}
         <section className="flex-grow flex flex-col gap-6">
-          <div className="relative w-full h-3/5 bg-gray-800 rounded-lg flex items-center justify-center">
+          <div className="relative w-full h-64 md:h-3/5 bg-gray-800 rounded-lg flex items-center justify-center">
             <button className="absolute top-4 left-4 w-10 h-10 bg-black/30 rounded-full flex items-center justify-center">♡</button>
             {/* Placeholder para imagem/video */}
             <div className="w-40 h-40 bg-gray-700 rounded-lg"></div>

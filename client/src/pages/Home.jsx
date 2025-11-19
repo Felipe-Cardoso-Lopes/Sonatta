@@ -12,7 +12,7 @@ function Home() {
       
      
       <main 
-        className=" relative z-10 flex flex-col justify-center min-h-[calc(100vh-96px)] p-10" 
+        className=" relative z-10 flex flex-col justify-center min-h-[calc(100vh-96px)] p-6 md:p-10" 
       >
         <div className="pt-20"> 
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-6 max-w-lg leading-tight">

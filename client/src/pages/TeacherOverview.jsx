@@ -27,14 +27,14 @@ function TeacherOverview() {
   ];
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
       <TeacherSidebar />
 
       {/* Conteúdo Principal */}
-      <main className="flex-grow p-8 flex gap-8">
+      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
         
         {/* Coluna de Menu Secundária */}
-        <aside className="w-1/4 max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
+        <aside className="w-full lg:w-1/4 lg:max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
           <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold hover:bg-opacity-80">
             Visão Geral
           </button>
@@ -61,7 +61,7 @@ function TeacherOverview() {
         </aside>
 
         {/* Coluna Principal: Chat */}
-        <section className="flex-grow flex flex-col bg-black rounded-lg p-6">
+        <section className="flex-grow flex flex-col bg-black rounded-lg p-6 min-h-[500px] lg:min-h-0">
           <div className="flex-grow overflow-y-auto">
             {/* Mensagens do Chat */}
             <div className="mb-4">
@@ -77,7 +77,7 @@ function TeacherOverview() {
           </div>
 
           {/* Input de Mensagem */}
-          <div className="mt-4 flex gap-4">
+          <div className="mt-4 flex flex-col sm:flex-row gap-4">
             <input 
               type="text" 
               placeholder="Mensagem" 
