@@ -1,69 +1,60 @@
 🎶 Sonatta
 A revolução no ensino musical potencializada por IA.
 
-O Sonatta é uma plataforma educacional de ponta desenvolvida para transformar a forma como as pessoas aprendem e ensinam música. O sistema foi projetado para ser um ecossistema multi-nível, permitindo a gestão global pela equipe de desenvolvedores e a administração independente por parte de escolas de música parceiras.
+O Sonatta é uma plataforma educacional de ponta desenvolvida para transformar a forma como as pessoas aprendem e ensinam música. Projetado como uma solução SaaS (Software as a Service), o ecossistema permite que instituições de ensino musical gerenciem suas operações de forma independente e profissional.
 
 🚀 O que há de novo? (Atualização de Modernização)
-Recentemente, o projeto passou por uma refatoração focada em competitividade e escalabilidade:
+Recentemente, o projeto passou por uma refatoração focada em escalabilidade e UX:
 
-Arquitetura Multi-Tenant: Separação clara entre a gestão global (Equipe Sonatta) e a gestão administrativa das escolas clientes.
+Arquitetura Multi-Escolas: Preparado para suportar múltiplas instituições com bancos de dados e gestões isoladas.
 
-Onboarding Gamificado: Modal de tags interativo para definição de perfil musical do aluno.
+Onboarding Gamificado: Novo sistema de seleção de interesses via tags, substituindo formulários cansativos.
 
-Responsividade Total: Dashboards adaptados para todos os dispositivos.
+Responsividade Nativa: Toda a interface foi reconstruída para ser 100% funcional em celulares e tablets.
 
-✨ Níveis de Acesso e Funcionalidades
-🔐 Super Administrador (Uso Interno)
-Acesso exclusivo do grupo de desenvolvimento Sonatta para controle total do ecossistema.
+✨ Funcionalidades do Produto (Níveis de Acesso)
+🏫 Painel da Instituição (Conta Master do Cliente)
+Este é o nível mais alto de acesso disponível para as escolas parceiras.
 
-Gestão da Plataforma: Monitoramento global de todas as instituições, professores e alunos.
+Gestão Administrativa: Controle total sobre o corpo docente e matrículas de alunos.
 
-Saúde do Negócio: Visão consolidada de faturamento e métricas de crescimento.
+Painel Financeiro: Monitoramento de faturamento da unidade, relatórios de receitas e saúde financeira da escola.
 
-Suporte de Alto Nível: Configurações de sistema e manutenção da infraestrutura.
+Customização: Configurações específicas da unidade e métricas de desempenho dos cursos.
 
-🏫 Contas da Instituição (Escolas Clientes)
-Painel administrativo dedicado para que cada escola gerencie sua própria unidade.
+🧑‍🏫 Painel do Professor
+Gestão Pedagógica: Criação e organização de cursos, módulos e materiais didáticos.
 
-Gestão de Equipe: Cadastro e administração de professores vinculados à escola.
+Interação Direta: Canal de comunicação e chat em tempo real com os alunos.
 
-Controle de Alunos: Monitoramento de matrículas e desempenho dos estudantes da instituição.
+🎓 Área do Aluno
+Aprendizado Personalizado: Dashboard com trilhas de aulas e progresso individual.
 
-Painel Financeiro: Gestão de mensalidades, faturamento da unidade e relatórios de lucro.
+Perfil Musical: Seleção de tags (instrumentos e gêneros) para personalização do feed.
 
-🧑‍🏫 Professores
-Gestão de Conteúdo: Criação e organização de cursos, aulas e materiais didáticos.
+🛠️ Informações para Desenvolvedores (Uso Interno)
+🔐 Gestão do Ecossistema (Autores)
+Para fins de manutenção e sustentação da plataforma, o grupo de desenvolvimento dispõe de ferramentas de Super Administração não visíveis aos clientes, permitindo:
 
-Interação: Chat integrado com alunos e feedback sobre as atividades.
+Suporte técnico de alto nível e manutenção de infraestrutura.
 
-🎓 Estudantes
-Jornada Personalizada: Dashboard com acesso a aulas, trilhas de prática e progresso.
+Monitoramento global de estabilidade do sistema.
 
-Perfil Musical: Personalização de interesses via tags (instrumentos e gêneros).
+Gestão de licenciamento e ativação de novas instituições parceiras.
 
-🛠️ Stack Tecnológica
-Frontend
-React 19 & Vite: Performance extrema e UI reativa.
+Stack Tecnológica
+Frontend: React 19, Vite, Tailwind CSS.
 
-Tailwind CSS: Design responsivo e moderno.
+Backend: Node.js, Express, PostgreSQL.
 
-React Router DOM: Gestão de rotas por nível de acesso.
+Segurança: Autenticação via JWT com níveis de permissão (RBAC - Role Based Access Control).
 
-Backend
-Node.js & Express: API RESTful robusta.
+🗺️ Roadmap de Evolução (Priorizado via Matriz GUT)
+Integração de API (G:5 U:5 T:5): Conexão completa dos dashboards com dados reais do PostgreSQL.
 
-PostgreSQL: Banco de dados relacional para armazenamento seguro.
+Módulo de Inteligência Artificial (G:5 U:2 T:3): Implementação de análise de áudio para feedback de afinação.
 
-JWT & Bcrypt: Autenticação segura com diferentes permissões (roles).
-
-🗺️ Roadmap de Evolução (GUT Prioritizado)
-[ ] Integração de Dados: Substituição total de mocks pela integração real com o banco de dados.
-
-[ ] Módulo Institucional: Refinamento das permissões específicas para contas de Escolas.
-
-[ ] Análise de IA: Implementação de feedback em tempo real para afinação e ritmo.
-
-[ ] Gamificação: Sistema de badges e recompensas para engajamento dos alunos.
+Gamificação (G:3 U:2 T:2): Sistema de conquistas e medalhas para retenção de alunos.
 
 📄 Licença
-Este projeto é parte do Projeto Integrador para o CEUB. Todos os direitos reservados à equipe Sonatta.
+Projeto Integrador desenvolvido para o CEUB. Todos os direitos reservados aos autores.
