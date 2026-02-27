@@ -24,16 +24,16 @@ function MusicalProfile() {
     <div className="h-screen">
       <MusicParticles />
       <Header />
-      <main className="relative z-10 flex-grow flex items-center justify-center w-full pt-20">
+      <main className="relative z-10 flex-grow flex items-center justify-center w-full pt-20 px-4">
         <div className="bg-dark-gray p-8 rounded-lg shadow-lg w-full max-w-md">
           <h2 className="text-3xl font-bold mb-6 text-center">Perfil Musical</h2>
           <form onSubmit={handleSubmit}>
             <div className="mb-6">
               <label className="block text-white-text text-sm font-bold mb-2">Nível musical</label>
-              <div className="flex justify-between">
-                <Button type="button" variant={nivelMusical === 'iniciante' ? 'primary' : 'secondary'} onClick={() => setNivelMusical('iniciante')}>Iniciante</Button>
-                <Button type="button" variant={nivelMusical === 'intermediario' ? 'primary' : 'secondary'} onClick={() => setNivelMusical('intermediario')}>Intermediário</Button>
-                <Button type="button" variant={nivelMusical === 'avancado' ? 'primary' : 'secondary'} onClick={() => setNivelMusical('avancado')}>Avançado</Button>
+              <div className="flex flex-col sm:flex-row justify-between gap-2">
+                <Button type="button" variant={nivelMusical === 'iniciante' ? 'primary' : 'secondary'} onClick={() => setNivelMusical('iniciante')} className="w-full sm:w-auto">Iniciante</Button>
+                <Button type="button" variant={nivelMusical === 'intermediario' ? 'primary' : 'secondary'} onClick={() => setNivelMusical('intermediario')} className="w-full sm:w-auto">Intermediário</Button>
+                <Button type="button" variant={nivelMusical === 'avancado' ? 'primary' : 'secondary'} onClick={() => setNivelMusical('avancado')} className="w-full sm:w-auto">Avançado</Button>
               </div>
             </div>
             <Input label="Instrumento Experiente" id="instrumentoExperiente" type="text" placeholder="Ex: Violão" value={instrumentoExperiente} onChange={(e) => setInstrumentoExperiente(e.target.value)} />

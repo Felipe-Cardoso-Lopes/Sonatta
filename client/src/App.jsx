@@ -33,10 +33,10 @@ function App() {
           <Route path="/musical-profile" element={<MusicalProfile />} />
           
           {/*Rotas do aluno*/}
+          <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/student-profile" element={<StudentProfile />} />
           <Route path="/lessons" element={<StudentLessons />} />
           <Route path="/practice" element={<StudentPractice />} />
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
 
           {/*Rotas do professor*/}
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />

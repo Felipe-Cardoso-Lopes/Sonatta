@@ -47,14 +47,14 @@ function TeacherManagement() {
   ];
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
       <TeacherSidebar />
 
       {/* Conteúdo Principal */}
-      <main className="flex-grow p-8 flex gap-8">
+      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
         
         {/* Coluna de Menu Secundária */}
-        <aside className="w-1/4 max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
+        <aside className="w-full lg:w-1/4 lg:max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
           <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold">
             Gerenciamento
           </button>

@@ -35,14 +35,14 @@ function StudentPractice() {
   ];
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
       <StudentSidebar />
 
       {/* Conteúdo Principal */}
-      <main className="flex-grow p-8 flex gap-8">
+      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
         
         {/* Coluna da Esquerda: Lista de Cursos para Praticar */}
-        <aside className="w-1/3 max-w-sm bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
+        <aside className="w-full lg:w-1/3 lg:max-w-sm bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
           <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold hover:bg-opacity-80">
             Praticar
           </button>
@@ -54,11 +54,11 @@ function StudentPractice() {
         </aside>
 
         {/* Coluna da Direita: Trilha de Exercícios */}
-        <section className="flex-grow flex items-center justify-center bg-black rounded-lg">
+        <section className="flex-grow flex items-center justify-center bg-black rounded-lg min-h-[400px] lg:min-h-0">
           {/* Este é o espaço reservado para o seu futuro componente de trilha.
             Ele já está centralizado dentro da área preta.
           */}
-          <div className="text-center text-gray-500">
+          <div className="text-center text-gray-500 p-4">
             <h2 className="text-2xl font-bold">Trilha de Exercícios</h2>
             <p>(Componente a ser implementado)</p>
           </div>
