@@ -1,38 +1,60 @@
-# Sonatta: Sua Jornada Musical com o Poder da IA 🎶
+🎶 Sonatta
+A revolução no ensino musical potencializada por IA.
 
-O **Sonatta** é uma plataforma web inovadora, desenvolvida como Projeto Integrador para o Centro Universitário de Brasília (CEUB). Nossa missão é revolucionar o ensino e aprendizado musical, utilizando a **inteligência artificial** para oferecer uma experiência educacional **personalizada e interativa** para músicos de todos os níveis. 🚀
+O Sonatta é uma plataforma educacional de ponta desenvolvida para transformar a forma como as pessoas aprendem e ensinam música. Projetado como uma solução SaaS (Software as a Service), o ecossistema permite que instituições de ensino musical gerenciem suas operações de forma independente e profissional.
 
-Com foco em **feedback em tempo real** e **adaptação às suas necessidades**, o Sonatta capacita alunos a aprimorarem suas habilidades e professores a oferecerem um ensino mais eficaz.
+🚀 O que há de novo? (Atualização de Modernização)
+Recentemente, o projeto passou por uma refatoração focada em escalabilidade e UX:
 
----
+Arquitetura Multi-Escolas: Preparado para suportar múltiplas instituições com bancos de dados e gestões isoladas.
 
-## Funcionalidades Incríveis ✨
+Onboarding Gamificado: Novo sistema de seleção de interesses via tags, substituindo formulários cansativos.
 
-* **Jornada de Usuário Adaptável:** ➡️ Oferecemos fluxos de registro e login personalizados, direcionando você para perfis específicos (musical para alunos, profissional para professores) com base nos seus objetivos na plataforma.
-* **Dashboards Otimizados por Papel:** 📊 Desfrute de painéis de controle intuitivos e específicos para **estudantes** 🎓, **professores** 🧑‍🏫 e **administradores** ⚙️, garantindo acesso rápido a funcionalidades relevantes para cada perfil.
-* **Sistema de Perfis Robustos:** 📝 Crie e atualize perfis detalhados, incluindo informações como apelido, data de nascimento e papel (aluno, professor, admin), além de dados musicais e profissionais específicos.
-* **Experiência Visual Imersiva:** 🌌 Mergulhe em um sistema de partículas animadas em segundo plano que simulam notas musicais 🎶 e reagem à sua interação, enriquecendo a estética da plataforma.
-* **Análise Musical por IA (Futuro):** 🤖 Implementação futura de inteligência artificial para fornecer feedback preciso e em tempo real sobre afinação, ritmo e técnica durante a prática instrumental. Prepare-se para evoluir!
-* **Gamificação para Engajamento (Futuro):** 🎮 Desenvolvimento de um sistema de gamificação com desafios, recompensas e acompanhamento de progresso para motivar e engajar você ainda mais no aprendizado musical.
+Responsividade Nativa: Toda a interface foi reconstruída para ser 100% funcional em celulares e tablets.
 
----
+✨ Funcionalidades do Produto (Níveis de Acesso)
+🏫 Painel da Instituição (Conta Master do Cliente)
+Este é o nível mais alto de acesso disponível para as escolas parceiras.
 
-## Tecnologias e Arquitetura 🛠️
+Gestão Administrativa: Controle total sobre o corpo docente e matrículas de alunos.
 
-O Sonatta é construído com uma arquitetura robusta e moderna, utilizando as seguintes tecnologias de ponta:
+Painel Financeiro: Monitoramento de faturamento da unidade, relatórios de receitas e saúde financeira da escola.
 
-### Frontend 💻
+Customização: Configurações específicas da unidade e métricas de desempenho dos cursos.
 
-* **React:** Construção de interfaces de usuário reativas e componentizadas.
-* **Vite:** Ferramenta de build de alta performance para um desenvolvimento ágil e otimizado.
-* **Tailwind CSS:** Framework CSS que agiliza a estilização com classes utilitárias, garantindo um design responsivo e consistente.
-* **React Router DOM:** Gerenciamento de rotas e navegação fluida entre as páginas da aplicação.
-* **Axios:** Cliente HTTP para comunicação eficiente com a API RESTful do backend.
+🧑‍🏫 Painel do Professor
+Gestão Pedagógica: Criação e organização de cursos, módulos e materiais didáticos.
 
-### Backend ☁️
+Interação Direta: Canal de comunicação e chat em tempo real com os alunos.
 
-* **Node.js & Express:** Criação de uma API RESTful escalável e de alto desempenho para gerenciar as operações do sistema.
-* **PostgreSQL:** Banco de dados relacional robusto e confiável para armazenamento persistente de dados de usuários e perfis.
-* **bcryptjs:** Implementação segura de hash de senhas, protegendo as informações de autenticação dos usuários.
-* **jsonwebtoken:** Geração e validação de tokens JWT para um sistema de autenticação baseado em tokens seguro e eficiente.
-* **dotenv & cors:** Gerenciamento de variáveis de ambiente e configuração de Cross-Origin Resource Sharing (CORS) para comunicação segura entre frontend e backend.
+🎓 Área do Aluno
+Aprendizado Personalizado: Dashboard com trilhas de aulas e progresso individual.
+
+Perfil Musical: Seleção de tags (instrumentos e gêneros) para personalização do feed.
+
+🛠️ Informações para Desenvolvedores (Uso Interno)
+🔐 Gestão do Ecossistema (Autores)
+Para fins de manutenção e sustentação da plataforma, o grupo de desenvolvimento dispõe de ferramentas de Super Administração não visíveis aos clientes, permitindo:
+
+Suporte técnico de alto nível e manutenção de infraestrutura.
+
+Monitoramento global de estabilidade do sistema.
+
+Gestão de licenciamento e ativação de novas instituições parceiras.
+
+Stack Tecnológica
+Frontend: React 19, Vite, Tailwind CSS.
+
+Backend: Node.js, Express, PostgreSQL.
+
+Segurança: Autenticação via JWT com níveis de permissão (RBAC - Role Based Access Control).
+
+🗺️ Roadmap de Evolução (Priorizado via Matriz GUT)
+Integração de API (G:5 U:5 T:5): Conexão completa dos dashboards com dados reais do PostgreSQL.
+
+Módulo de Inteligência Artificial (G:5 U:2 T:3): Implementação de análise de áudio para feedback de afinação.
+
+Gamificação (G:3 U:2 T:2): Sistema de conquistas e medalhas para retenção de alunos.
+
+📄 Licença
+Projeto Integrador desenvolvido para o CEUB. Todos os direitos reservados aos autores.
