@@ -1,38 +1,69 @@
-# Sonatta: Sua Jornada Musical com o Poder da IA 🎶
+🎶 Sonatta
+A revolução no ensino musical potencializada por IA.
 
-O **Sonatta** é uma plataforma web inovadora, desenvolvida como Projeto Integrador para o Centro Universitário de Brasília (CEUB). Nossa missão é revolucionar o ensino e aprendizado musical, utilizando a **inteligência artificial** para oferecer uma experiência educacional **personalizada e interativa** para músicos de todos os níveis. 🚀
+O Sonatta é uma plataforma educacional de ponta desenvolvida para transformar a forma como as pessoas aprendem e ensinam música. O sistema foi projetado para ser um ecossistema multi-nível, permitindo a gestão global pela equipe de desenvolvedores e a administração independente por parte de escolas de música parceiras.
 
-Com foco em **feedback em tempo real** e **adaptação às suas necessidades**, o Sonatta capacita alunos a aprimorarem suas habilidades e professores a oferecerem um ensino mais eficaz.
+🚀 O que há de novo? (Atualização de Modernização)
+Recentemente, o projeto passou por uma refatoração focada em competitividade e escalabilidade:
 
----
+Arquitetura Multi-Tenant: Separação clara entre a gestão global (Equipe Sonatta) e a gestão administrativa das escolas clientes.
 
-## Funcionalidades Incríveis ✨
+Onboarding Gamificado: Modal de tags interativo para definição de perfil musical do aluno.
 
-* **Jornada de Usuário Adaptável:** ➡️ Oferecemos fluxos de registro e login personalizados, direcionando você para perfis específicos (musical para alunos, profissional para professores) com base nos seus objetivos na plataforma.
-* **Dashboards Otimizados por Papel:** 📊 Desfrute de painéis de controle intuitivos e específicos para **estudantes** 🎓, **professores** 🧑‍🏫 e **administradores** ⚙️, garantindo acesso rápido a funcionalidades relevantes para cada perfil.
-* **Sistema de Perfis Robustos:** 📝 Crie e atualize perfis detalhados, incluindo informações como apelido, data de nascimento e papel (aluno, professor, admin), além de dados musicais e profissionais específicos.
-* **Experiência Visual Imersiva:** 🌌 Mergulhe em um sistema de partículas animadas em segundo plano que simulam notas musicais 🎶 e reagem à sua interação, enriquecendo a estética da plataforma.
-* **Análise Musical por IA (Futuro):** 🤖 Implementação futura de inteligência artificial para fornecer feedback preciso e em tempo real sobre afinação, ritmo e técnica durante a prática instrumental. Prepare-se para evoluir!
-* **Gamificação para Engajamento (Futuro):** 🎮 Desenvolvimento de um sistema de gamificação com desafios, recompensas e acompanhamento de progresso para motivar e engajar você ainda mais no aprendizado musical.
+Responsividade Total: Dashboards adaptados para todos os dispositivos.
 
----
+✨ Níveis de Acesso e Funcionalidades
+🔐 Super Administrador (Uso Interno)
+Acesso exclusivo do grupo de desenvolvimento Sonatta para controle total do ecossistema.
 
-## Tecnologias e Arquitetura 🛠️
+Gestão da Plataforma: Monitoramento global de todas as instituições, professores e alunos.
 
-O Sonatta é construído com uma arquitetura robusta e moderna, utilizando as seguintes tecnologias de ponta:
+Saúde do Negócio: Visão consolidada de faturamento e métricas de crescimento.
 
-### Frontend 💻
+Suporte de Alto Nível: Configurações de sistema e manutenção da infraestrutura.
 
-* **React:** Construção de interfaces de usuário reativas e componentizadas.
-* **Vite:** Ferramenta de build de alta performance para um desenvolvimento ágil e otimizado.
-* **Tailwind CSS:** Framework CSS que agiliza a estilização com classes utilitárias, garantindo um design responsivo e consistente.
-* **React Router DOM:** Gerenciamento de rotas e navegação fluida entre as páginas da aplicação.
-* **Axios:** Cliente HTTP para comunicação eficiente com a API RESTful do backend.
+🏫 Contas da Instituição (Escolas Clientes)
+Painel administrativo dedicado para que cada escola gerencie sua própria unidade.
 
-### Backend ☁️
+Gestão de Equipe: Cadastro e administração de professores vinculados à escola.
 
-* **Node.js & Express:** Criação de uma API RESTful escalável e de alto desempenho para gerenciar as operações do sistema.
-* **PostgreSQL:** Banco de dados relacional robusto e confiável para armazenamento persistente de dados de usuários e perfis.
-* **bcryptjs:** Implementação segura de hash de senhas, protegendo as informações de autenticação dos usuários.
-* **jsonwebtoken:** Geração e validação de tokens JWT para um sistema de autenticação baseado em tokens seguro e eficiente.
-* **dotenv & cors:** Gerenciamento de variáveis de ambiente e configuração de Cross-Origin Resource Sharing (CORS) para comunicação segura entre frontend e backend.
+Controle de Alunos: Monitoramento de matrículas e desempenho dos estudantes da instituição.
+
+Painel Financeiro: Gestão de mensalidades, faturamento da unidade e relatórios de lucro.
+
+🧑‍🏫 Professores
+Gestão de Conteúdo: Criação e organização de cursos, aulas e materiais didáticos.
+
+Interação: Chat integrado com alunos e feedback sobre as atividades.
+
+🎓 Estudantes
+Jornada Personalizada: Dashboard com acesso a aulas, trilhas de prática e progresso.
+
+Perfil Musical: Personalização de interesses via tags (instrumentos e gêneros).
+
+🛠️ Stack Tecnológica
+Frontend
+React 19 & Vite: Performance extrema e UI reativa.
+
+Tailwind CSS: Design responsivo e moderno.
+
+React Router DOM: Gestão de rotas por nível de acesso.
+
+Backend
+Node.js & Express: API RESTful robusta.
+
+PostgreSQL: Banco de dados relacional para armazenamento seguro.
+
+JWT & Bcrypt: Autenticação segura com diferentes permissões (roles).
+
+🗺️ Roadmap de Evolução (GUT Prioritizado)
+[ ] Integração de Dados: Substituição total de mocks pela integração real com o banco de dados.
+
+[ ] Módulo Institucional: Refinamento das permissões específicas para contas de Escolas.
+
+[ ] Análise de IA: Implementação de feedback em tempo real para afinação e ritmo.
+
+[ ] Gamificação: Sistema de badges e recompensas para engajamento dos alunos.
+
+📄 Licença
+Este projeto é parte do Projeto Integrador para o CEUB. Todos os direitos reservados à equipe Sonatta.
