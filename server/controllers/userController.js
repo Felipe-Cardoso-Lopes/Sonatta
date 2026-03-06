@@ -1,8 +1,6 @@
-// server/controllers/userController.js
-
-const db = require('../config/db'); // Importa a conexão com o banco
-const bcrypt = require('bcryptjs'); // Para criptografar senhas
-const jwt = require('jsonwebtoken'); // Para gerar tokens
+const db = require('../config/db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // Função para registrar um novo usuário
 const registerUser = async (req, res) => {
@@ -23,7 +21,7 @@ const registerUser = async (req, res) => {
 
     const newUser = await db.query(
       'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-      [name, email, password_hash, role || 'aluno'] // Role padrão é 'aluno'
+      [name, email, password_hash, role || 'aluno']
     );
 
     const user = newUser.rows[0];
@@ -74,12 +72,11 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Nova função para atualizar o perfil do usuário
+// Função para atualizar o perfil do usuário
 const updateUserProfile = async (req, res) => {
-  const { id } = req.params; // Obtém o ID do usuário da URL
-  const { name, role } = req.body; // Obtém os dados a serem atualizados do corpo da requisição
+  const { id } = req.params;
+  const { name, role } = req.body;
 
-  // Você pode adicionar validações aqui se necessário
   if (!role) {
     return res.status(400).json({ message: 'O campo objetivo (role) é obrigatório.' });
   }
@@ -110,4 +107,25 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, updateUserProfile };
+// Função para salvar preferências do perfil musical (tags do modal)
+const saveMusicalPreferences = async (req, res) => {
+  const { userId, nivel, instrumentos, generos } = req.body;
+
+  try {
+    const result = await db.query(
+      `INSERT INTO user_preferences (user_id, nivel_musical, instrumentos, generos)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id) 
+       DO UPDATE SET nivel_musical = $2, instrumentos = $3, generos = $4
+       RETURNING *`,
+      [userId, nivel, instrumentos, generos]
+    );
+
+    res.json({ message: 'Preferências salvas com sucesso!', data: result.rows[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao salvar preferências no banco.' });
+  }
+};
+
+module.exports = { registerUser, loginUser, updateUserProfile, saveMusicalPreferences };
