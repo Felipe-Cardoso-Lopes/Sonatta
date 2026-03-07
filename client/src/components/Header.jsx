@@ -7,10 +7,14 @@ function Header({ variant = 'public' }) {
 
   // Função para lidar com o logout
   const handleLogout = () => {
-    // Futuramente, aqui você limpará o token de autenticação (localStorage, etc.)
-    console.log("Usuário deslogado!");
+    // Limpa os dados de autenticação armazenados
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
     
-    // Redireciona o usuário para a página inicial
+    console.log("Usuário deslogado e sessão limpa!");
+    
+    // Redireciona o utilizador para a página inicial
     navigate('/'); 
   };
 
