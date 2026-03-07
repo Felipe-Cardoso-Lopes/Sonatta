@@ -7,10 +7,14 @@ function Header({ variant = 'public' }) {
 
   // Função para lidar com o logout
   const handleLogout = () => {
-    // Futuramente, aqui você limpará o token de autenticação (localStorage, etc.)
-    console.log("Usuário deslogado!");
+    // Limpa os dados de autenticação armazenados
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userName');
     
-    // Redireciona o usuário para a página inicial
+    console.log("Usuário deslogado e sessão limpa!");
+    
+    // Redireciona o utilizador para a página inicial
     navigate('/'); 
   };
 
@@ -19,7 +23,7 @@ function Header({ variant = 'public' }) {
        <div className="flex items-center gap-3 transition-transform hover:scale-125">
         <Link to="/">
         <img
-          src="../public/assets/sonatta-logo.png"
+          src="/assets/sonatta-logo.png"
           alt="Sonatta Logo"
           className="w-12 h-12 scale-150 "
         />
