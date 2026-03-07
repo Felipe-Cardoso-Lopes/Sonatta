@@ -20,20 +20,26 @@ function Login() {
         email,
         password,
       });
+      
       const { name, token, role } = response.data;
+      
       localStorage.setItem('token', token);
       localStorage.setItem('userRole', role);
       localStorage.setItem('userName', name);
       console.log('Login bem-sucedido:', response.data);
-      if (role === 'aprender') {
+      
+      // SOLUÇÃO: Condicionais ajustadas para a string correta
+      if (role === 'aluno') { 
         navigate('/student-dashboard');
-      } else if (role === 'ensinar') {
+      } else if (role === 'professor' || role === 'ensinar') { 
+        // Adicionada a checagem por 'professor' para já prevenir o mesmo erro no cadastro de docentes
         navigate('/teacher-dashboard');
       } else if (role === 'admin') {
         navigate('/admin-dashboard');
       } else {
         navigate('/');
       }
+      
     } catch (error) {
       console.error('Erro no login:', error.response ? error.response.data.message : error.message);
       alert(`Erro no login: ${error.response ? error.response.data.message : 'Verifique suas credenciais.'}`);
