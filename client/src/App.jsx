@@ -22,7 +22,7 @@ import AdminSettings from './pages/AdminSettings';
 
 function App() {
   return (
-    <div className="w-screen-full h-screen-full bg-dark-bg text-white-text font-poppins flex flex-col ">
+    <div className="w-screen h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
