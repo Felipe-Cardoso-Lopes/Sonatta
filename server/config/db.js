@@ -9,6 +9,11 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
 });
 
+pool.on('error', (err, client) => {
+  console.error('Erro inesperado no banco de dados', err);
+  process.exit(-1);
+});
+
 // Exporta um objeto com um método query para ser usado em outros arquivos
 module.exports = {
   query: (text, params) => pool.query(text, params),
