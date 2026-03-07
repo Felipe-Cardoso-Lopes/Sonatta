@@ -16,8 +16,8 @@ function Login() {
     e.preventDefault();
     console.log('Login attempt:', { email, password });
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
-        email,
+const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, {
+          email,
         password,
       });
       
