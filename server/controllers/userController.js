@@ -1,12 +1,11 @@
-// server/controllers/userController.js
-
-const db = require('../config/db'); // Importa a conexão com o banco
-const bcrypt = require('bcryptjs'); // Para criptografar senhas
-const jwt = require('jsonwebtoken'); // Para gerar tokens
+const db = require('../config/db');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 // Função para registrar um novo usuário
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  // 1. O 'role' foi removido do req.body
+  const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Por favor, preencha todos os campos.' });
@@ -21,9 +20,10 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
+    // 2. A query agora força a criação do usuário com o papel 'aluno'
     const newUser = await db.query(
       'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-      [name, email, password_hash, role || 'aluno'] // Role padrão é 'aluno'
+      [name, email, password_hash, 'aluno'] 
     );
 
     const user = newUser.rows[0];
@@ -45,7 +45,7 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Função para autenticar (login) um usuário
+// Função para autenticar (login) um usuário (Mantida sem alterações)
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
@@ -76,18 +76,15 @@ const loginUser = async (req, res) => {
 
 // Nova função para atualizar o perfil do usuário
 const updateUserProfile = async (req, res) => {
-  const { id } = req.params; // Obtém o ID do usuário da URL
-  const { name, role } = req.body; // Obtém os dados a serem atualizados do corpo da requisição
-
-  // Você pode adicionar validações aqui se necessário
-  if (!role) {
-    return res.status(400).json({ message: 'O campo objetivo (role) é obrigatório.' });
-  }
+  const { id } = req.params; 
+  // 3. O 'role' foi removido do req.body. O usuário só pode alterar o nome por aqui.
+  const { name } = req.body; 
 
   try {
+    // 4. A query de update agora só altera o 'name' e preserva a 'role' intacta.
     const result = await db.query(
-      'UPDATE users SET name = COALESCE($1, name), role = $2 WHERE id = $3 RETURNING id, name, email, role',
-      [name, role, id]
+      'UPDATE users SET name = COALESCE($1, name) WHERE id = $2 RETURNING id, name, email, role',
+      [name, id]
     );
 
     const updatedUser = result.rows[0];
