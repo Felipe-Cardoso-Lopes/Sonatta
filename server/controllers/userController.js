@@ -76,8 +76,10 @@ const loginUser = async (req, res) => {
 
 // Função para atualizar o perfil do usuário
 const updateUserProfile = async (req, res) => {
-  // Pega o ID de forma segura diretamente do token validado (req.user)
+  // O ID agora vem exclusivamente do token JWT validado pelo middleware
   const id = req.user.id; 
+  
+  // O 'role' não é mais extraído por segurança (conforme correção anterior)
   const { name } = req.body; 
 
   try {

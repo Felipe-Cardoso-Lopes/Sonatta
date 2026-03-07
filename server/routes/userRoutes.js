@@ -1,15 +1,14 @@
-// server/routes/userRoutes.js
-
 const express = require('express');
 const router = express.Router();
 
 const { registerUser, loginUser, updateUserProfile } = require('../controllers/userController'); 
-const { protect } = require('../middlewares/authMiddleware'); // Importação do middleware
+const { protect } = require('../middlewares/authMiddleware'); // Certifique-se de que o middleware está importado
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
 
-// Rota protegida: o parâmetro /:id foi removido e o middleware 'protect' foi inserido
+// Rota atualizada: o '/:id' foi removido.
+// A rota agora é apenas PUT /profile e exige o token (protect)
 router.put('/profile', protect, updateUserProfile); 
 
 module.exports = router;
