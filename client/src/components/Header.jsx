@@ -19,7 +19,7 @@ function Header({ variant = 'public' }) {
        <div className="flex items-center gap-3 transition-transform hover:scale-125">
         <Link to="/">
         <img
-          src="../public/assets/sonatta-logo.png"
+          src="/assets/sonatta-logo.png"
           alt="Sonatta Logo"
           className="w-12 h-12 scale-150 "
         />
