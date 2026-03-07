@@ -13,7 +13,7 @@ function StudentDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
       <StudentSidebar />
 
       {/* Conteúdo Principal */}
