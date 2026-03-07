@@ -74,14 +74,13 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Nova função para atualizar o perfil do usuário
+// Função para atualizar o perfil do usuário
 const updateUserProfile = async (req, res) => {
-  const { id } = req.params; 
-  // 3. O 'role' foi removido do req.body. O usuário só pode alterar o nome por aqui.
+  // Pega o ID de forma segura diretamente do token validado (req.user)
+  const id = req.user.id; 
   const { name } = req.body; 
 
   try {
-    // 4. A query de update agora só altera o 'name' e preserva a 'role' intacta.
     const result = await db.query(
       'UPDATE users SET name = COALESCE($1, name) WHERE id = $2 RETURNING id, name, email, role',
       [name, id]
