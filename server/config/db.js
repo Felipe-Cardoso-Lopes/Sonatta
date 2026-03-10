@@ -7,6 +7,7 @@ require('dotenv').config(); // Carrega as variáveis do arquivo .env
 // A connection string é lida do seu arquivo .env
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // Necessário para conexões externas com Supabase
 });
 
 pool.on('error', (err, client) => {

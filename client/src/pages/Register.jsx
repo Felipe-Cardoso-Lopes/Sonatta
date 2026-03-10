@@ -1,7 +1,5 @@
-// felipe-cardoso-lopes/sonatta/Sonatta-d63186ec006a2e56cd14b87d9cb8564ef4006ca1/client/src/pages/Register.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from 'axios';
 import Header from "../components/Header";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -24,27 +22,40 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validações básicas
     if (formData.password !== formData.confirmPassword) {
-      alert("As senhas não coincidem!");
-      return;
+      return alert("As senhas não coincidem!");
     }
     if (!acceptTerms) {
-      alert("Você deve aceitar os termos de uso!");
-      return;
+      return alert("Você deve aceitar os termos de uso!");
     }
+
     try {
-const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/register`, {
+      // Integração sugerida com o Banco de Dados (Backend)
+      const response = await fetch('http://localhost:5000/api/users/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role
+        })
       });
-      console.log('Usuário base criado com sucesso:', response.data);
-      alert("Cadastro inicial realizado! Agora, vamos configurar seu perfil.");
-      navigate(`/about-you/${response.data.id}`);
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Cadastro inicial realizado! Agora, vamos configurar seu perfil.");
+        // Redireciona para a configuração de perfil usando o ID retornado pelo banco
+        navigate(`/about-you/${data.id}`);
+      } else {
+        alert(data.message || "Erro ao realizar cadastro.");
+      }
     } catch (error) {
-      console.error('Erro no cadastro:', error.response ? error.response.data.message : error.message);
-      alert(`Erro no cadastro: ${error.response ? error.response.data.message : 'Tente novamente.'}`);
+      console.error("Erro ao conectar com o servidor:", error);
+      alert("Erro ao conectar com o servidor. Verifique se o backend está rodando.");
     }
   };
 
@@ -87,19 +98,6 @@ const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/reg
                 Próximo
               </Button>
             </form>
-            <div className="flex items-center my-4">
-              <div className="flex-grow border-t border-gray-600"></div>
-              <span className="flex-shrink mx-4 text-gray-400">ou</span>
-              <div className="flex-grow border-t border-gray-600"></div>
-            </div>
-            <div className="flex flex-col gap-4">
-              <Button variant="secondary" className="w-full">
-                Entrar com Google
-              </Button>
-              <Button variant="secondary" className="w-full">
-                Entrar com Microsoft
-              </Button>
-            </div>
             <p className="text-center mt-4">
               Já tem uma conta? <Link to="/login" className="text-white-text font-bold hover:underline">Entrar</Link>
             </p>
