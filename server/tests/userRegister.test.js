@@ -13,7 +13,7 @@ jest.mock('../config/db', () => ({
 
 describe('Testes da Rota de Cadastro (/api/users/register)', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('deve cadastrar um novo aluno com sucesso e retornar o status 201', async () => {
