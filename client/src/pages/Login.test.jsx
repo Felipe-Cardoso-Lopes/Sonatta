@@ -5,7 +5,15 @@ import { vi } from 'vitest';
 import Login from './Login';
 
 // Mock do axios e do react-router-dom
-vi.mock('axios');
+vi.mock('axios', () => ({
+  default: {
+    post: vi.fn(),
+    get: vi.fn(),
+    put: vi.fn(),
+    delete: vi.fn()
+  }
+}));
+
 const mockedNavigate = vi.fn();
 
 vi.mock('react-router-dom', async () => {

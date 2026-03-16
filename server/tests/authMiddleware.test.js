@@ -23,7 +23,7 @@ describe('Middleware de Autenticação (protect)', () => {
   });
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('deve retornar 401 se nenhum token for fornecido', async () => {

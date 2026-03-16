@@ -13,7 +13,7 @@ jest.mock('../config/db', () => ({
 
 describe('Testes da Rota de Login (/api/users/login)', () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('deve autenticar um utilizador com credenciais válidas', async () => {

@@ -1,12 +1,14 @@
 // server/config/db.js
 
 const { Pool } = require('pg');
-require('dotenv').config(); // Carrega as variáveis do arquivo .env
+require('dotenv').config(); 
 
-// Cria uma nova "pool" de conexões com o banco de dados
-// A connection string é lida do seu arquivo .env
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
+  // SOLUÇÃO: Configuração de SSL ativada para permitir a conexão com serviços em nuvem
+  ssl: {
+    rejectUnauthorized: false, 
+  },
 });
 
 pool.on('error', (err, client) => {
@@ -14,7 +16,6 @@ pool.on('error', (err, client) => {
   process.exit(-1);
 });
 
-// Exporta um objeto com um método query para ser usado em outros arquivos
 module.exports = {
   query: (text, params) => pool.query(text, params),
 };
