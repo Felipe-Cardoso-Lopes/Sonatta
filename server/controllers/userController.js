@@ -9,8 +9,9 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ message: 'Por favor, preencha todos os campos.' });
   }
 
-  const validRoles = ['aluno', 'professor', 'ensinar', 'aprender', 'admin'];
-  const userRole = validRoles.includes(role) ? role : 'aluno';
+let userRole = 'aluno'; 
+  if (role === 'professor' || role === 'ensinar') userRole = 'professor';
+  else if (role === 'admin') userRole = 'admin';
 
   try {
     const userExists = await db.query('SELECT * FROM users WHERE email = $1', [email]);
