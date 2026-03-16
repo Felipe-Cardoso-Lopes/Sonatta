@@ -1,15 +1,21 @@
+// server/controllers/userController.js
+
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Função para registrar um novo usuário
 const registerUser = async (req, res) => {
-  // 1. O 'role' foi removido do req.body
-  const { name, email, password } = req.body;
+  // SOLUÇÃO BUG 2: Extraindo o 'role' que o frontend envia
+  const { name, email, password, role } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Por favor, preencha todos os campos.' });
+    return res.status(400).json({ message: 'Por favor, preencha todos os campos obrigatórios.' });
   }
+
+  // SOLUÇÃO BUG 2: Filtro de segurança para impedir a criação de admins via endpoint público
+  // Aceita apenas 'aluno', 'professor', 'ensinar' ou 'aprender' (conforme seu frontend). O padrão é 'aluno'.
+  const validRoles = ['aluno', 'professor', 'ensinar', 'aprender'];
+  const userRole = validRoles.includes(role) ? role : 'aluno';
 
   try {
     const userExists = await db.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -20,10 +26,10 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    // 2. A query agora força a criação do usuário com o papel 'aluno'
+    // SOLUÇÃO BUG 2: Inserindo a variável userRole de forma dinâmica na query SQL
     const newUser = await db.query(
       'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-      [name, email, password_hash, 'aluno'] 
+      [name, email, password_hash, userRole] 
     );
 
     const user = newUser.rows[0];
@@ -45,9 +51,14 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Função para autenticar (login) um usuário (Mantida sem alterações)
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+
+  // SOLUÇÃO BUG 3: Validação de dados antes de processar qualquer lógica
+  // Previne que a falta de dados cause um erro 500 no bcrypt
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Por favor, forneça o e-mail e a senha.' });
+  }
 
   try {
     const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -74,12 +85,8 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Função para atualizar o perfil do usuário
 const updateUserProfile = async (req, res) => {
-  // O ID agora vem exclusivamente do token JWT validado pelo middleware
   const id = req.user.id; 
-  
-  // O 'role' não é mais extraído por segurança (conforme correção anterior)
   const { name } = req.body; 
 
   try {

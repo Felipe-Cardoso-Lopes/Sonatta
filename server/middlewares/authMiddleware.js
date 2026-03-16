@@ -5,28 +5,26 @@ const jwt = require('jsonwebtoken');
 const protect = async (req, res, next) => {
   let token;
 
-  // Verifica se o header de autorização existe e começa com a palavra 'Bearer'
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     try {
-      // Extrai apenas o token da string "Bearer <token>"
       token = req.headers.authorization.split(' ')[1];
 
-      // Decodifica e verifica o token utilizando a chave secreta
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-      // Anexa o payload decodificado (ID e role) à requisição
       req.user = { id: decoded.id, role: decoded.role };
 
-      // Passa o controle para a próxima função (o controller)
-      next(); 
+      // SOLUÇÃO: 'return' adicionado para encerrar o fluxo após o sucesso
+      return next(); 
     } catch (error) {
       console.error(error);
-      res.status(401).json({ message: 'Não autorizado, token inválido ou expirado.' });
+      // SOLUÇÃO: 'return' adicionado para evitar ERR_HTTP_HEADERS_SENT
+      return res.status(401).json({ message: 'Não autorizado, token inválido ou expirado.' });
     }
   }
 
   if (!token) {
-    res.status(401).json({ message: 'Não autorizado, nenhum token fornecido.' });
+    // SOLUÇÃO: 'return' adicionado aqui também
+    return res.status(401).json({ message: 'Não autorizado, nenhum token fornecido.' });
   }
 };
 
