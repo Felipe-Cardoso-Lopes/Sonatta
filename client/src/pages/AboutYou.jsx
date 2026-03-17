@@ -17,8 +17,10 @@ function AboutYou() {
     e.preventDefault();
 
     try {
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
       // Chamada para a nova rota de conclusão
-      const response = await axios.put(`http://localhost:5000/api/users/complete/${userId}`, {
+      const response = await axios.put(`${API_URL}/api/users/complete/${userId}`, {
         nickname: nickname,
         birth_date: birthDate,
         gender: gender
