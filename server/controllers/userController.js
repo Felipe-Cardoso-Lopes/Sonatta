@@ -81,7 +81,7 @@ const loginUser = async (req, res) => {
 const updateUserProfile = async (req, res) => {
   const id = req.user.id; 
   const { name } = req.body; 
-
+  
   try {
     const result = await db.query(
       'UPDATE users SET name = COALESCE($1, name) WHERE id = $2 RETURNING id, name, email, role',
@@ -108,4 +108,25 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, updateUserProfile };
+// Função para salvar preferências do perfil musical (tags do modal)
+const saveMusicalPreferences = async (req, res) => {
+  const { userId, nivel, instrumentos, generos } = req.body;
+
+  try {
+    const result = await db.query(
+      `INSERT INTO user_preferences (user_id, nivel_musical, instrumentos, generos)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (user_id) 
+       DO UPDATE SET nivel_musical = $2, instrumentos = $3, generos = $4
+       RETURNING *`,
+      [userId, nivel, instrumentos, generos]
+    );
+
+    res.json({ message: 'Preferências salvas com sucesso!', data: result.rows[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro ao salvar preferências no banco.' });
+  }
+};
+
+module.exports = { registerUser, loginUser, updateUserProfile, saveMusicalPreferences };
