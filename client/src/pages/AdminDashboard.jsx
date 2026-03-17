@@ -1,8 +1,27 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import AdminSidebar from '../components/AdminSidebar';
 
 function AdminDashboard() {
+  const navigate = useNavigate();
+
+  // NOVO: Trava de segurança da rota
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+
+    if (!token) {
+      // Sem token = visitante. Manda para o login.
+      navigate('/login');
+    } else if (role === 'aluno') {
+      // Tem token, mas é aluno. Devolve para o dashboard dele.
+      navigate('/student-dashboard');
+    } else if (role === 'professor' || role === 'ensinar') {
+      // Tem token, mas é professor. Devolve para o dashboard dele.
+      navigate('/teacher-dashboard');
+    }
+  }, [navigate]);
+
   const userName = "Instituição";
 
   return (

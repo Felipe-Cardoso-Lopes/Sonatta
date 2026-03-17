@@ -10,7 +10,11 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173', // Permite apenas o seu front-end
+  credentials: true
+}));
+
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -20,6 +24,12 @@ app.get('/', (req, res) => {
 // Usa as rotas de usuário para qualquer URL que comece com /api/users
 app.use('/api/users', userRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+// Apenas inicia o servidor se o ambiente não for de teste
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Servidor rodando na porta ${PORT}`);
+  });
+}
+
+// Exporta o app para o Jest e o Supertest
+module.exports = app;

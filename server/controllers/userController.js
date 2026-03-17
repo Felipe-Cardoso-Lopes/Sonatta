@@ -2,13 +2,16 @@ const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Função para registrar um novo usuário
 const registerUser = async (req, res) => {
   const { name, email, password, role } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Por favor, preencha todos os campos.' });
   }
+
+let userRole = 'aluno'; 
+  if (role === 'professor' || role === 'ensinar') userRole = 'professor';
+  else if (role === 'admin') userRole = 'admin';
 
   try {
     const userExists = await db.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -21,7 +24,7 @@ const registerUser = async (req, res) => {
 
     const newUser = await db.query(
       'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-      [name, email, password_hash, role || 'aluno']
+      [name, email, password_hash, userRole] 
     );
 
     const user = newUser.rows[0];
@@ -43,9 +46,12 @@ const registerUser = async (req, res) => {
   }
 };
 
-// Função para autenticar (login) um usuário
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(401).json({ message: 'Credenciais inválidas' });
+  }
 
   try {
     const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -72,19 +78,14 @@ const loginUser = async (req, res) => {
   }
 };
 
-// Função para atualizar o perfil do usuário
 const updateUserProfile = async (req, res) => {
-  const { id } = req.params;
-  const { name, role } = req.body;
-
-  if (!role) {
-    return res.status(400).json({ message: 'O campo objetivo (role) é obrigatório.' });
-  }
-
+  const id = req.user.id; 
+  const { name } = req.body; 
+  
   try {
     const result = await db.query(
-      'UPDATE users SET name = COALESCE($1, name), role = $2 WHERE id = $3 RETURNING id, name, email, role',
-      [name, role, id]
+      'UPDATE users SET name = COALESCE($1, name) WHERE id = $2 RETURNING id, name, email, role',
+      [name, id]
     );
 
     const updatedUser = result.rows[0];

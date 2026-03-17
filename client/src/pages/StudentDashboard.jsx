@@ -39,7 +39,7 @@ function StudentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
       <StudentSidebar />
 
       {/* Conteúdo Principal */}
@@ -58,9 +58,10 @@ function StudentDashboard() {
               {/* Card Branco do Botão */}
               <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img 
-                  src="/assets/Minhas Aulas.png" 
-                  alt="Minhas Aulas" 
-                  className="w-56 h-56" // Nota: w-55 não é padrão no Tailwind. Mudei para w-56 (224px).
+                    src="/assets/Minhas Aulas.png" 
+                    alt="Minhas Aulas" 
+                    className="w-56 h-56" 
+ main
                 />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Minhas Aulas</span>

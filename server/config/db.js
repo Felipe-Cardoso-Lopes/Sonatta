@@ -1,18 +1,19 @@
 // server/config/db.js
 const { Pool } = require('pg');
-require('dotenv').config();
 
-// Se houver uma URL no .env, usamos ela. Caso contrário, usamos o modo local.
-const isProduction = process.env.DATABASE_URL ? true : false;
+require('dotenv').config(); 
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // O SSL é OBRIGATÓRIO para conectar ao Supabase remotamente
-  ssl: isProduction ? { rejectUnauthorized: false } : false
+  // SOLUÇÃO: Configuração de SSL ativada para permitir a conexão com serviços em nuvem
+  ssl: {
+    rejectUnauthorized: false, 
+  },
 });
 
-pool.on('connect', () => {
-  console.log('Conectado ao banco de dados Supabase com sucesso!');
+pool.on('error', (err, client) => {
+  console.error('Erro inesperado no banco de dados', err);
+  process.exit(-1);
 });
 
 module.exports = {

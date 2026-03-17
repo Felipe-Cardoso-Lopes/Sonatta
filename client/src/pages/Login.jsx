@@ -1,7 +1,5 @@
-// felipe-cardoso-lopes/sonatta/Sonatta-d63186ec006a2e56cd14b87d9cb8564ef4006ca1/client/src/pages/Login.jsx
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import Header from '../components/Header';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -14,35 +12,42 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
+
     try {
-const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, {
-          email,
-        password,
+      // Integração sugerida com o Banco de Dados (Backend)
+      const response = await fetch('http://localhost:5000/api/users/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
       });
-      
-      const { name, token, role } = response.data;
-      
-      localStorage.setItem('token', token);
-      localStorage.setItem('userRole', role);
-      localStorage.setItem('userName', name);
-      console.log('Login bem-sucedido:', response.data);
-      
-      // SOLUÇÃO: Condicionais ajustadas para a string correta
-      if (role === 'aluno') { 
-        navigate('/student-dashboard');
-      } else if (role === 'professor' || role === 'ensinar') { 
-        // Adicionada a checagem por 'professor' para já prevenir o mesmo erro no cadastro de docentes
-        navigate('/teacher-dashboard');
-      } else if (role === 'admin') {
-        navigate('/admin-dashboard');
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Armazena as informações de sessão
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('userRole', data.user.role);
+        localStorage.setItem('userName', data.user.name);
+
+        console.log('Login bem-sucedido:', data);
+
+        // Lógica de redirecionamento baseada no role vindo do banco (Supabase)
+        const role = data.user.role;
+        if (role === 'aluno') { 
+          navigate('/student-dashboard');
+        } else if (role === 'professor') { 
+          navigate('/teacher-dashboard');
+        } else if (role === 'admin') {
+          navigate('/admin-dashboard');
+        } else {
+          navigate('/');
+        }
       } else {
-        navigate('/');
+        alert(data.message || "Credenciais inválidas.");
       }
-      
     } catch (error) {
-      console.error('Erro no login:', error.response ? error.response.data.message : error.message);
-      alert(`Erro no login: ${error.response ? error.response.data.message : 'Verifique suas credenciais.'}`);
+      console.error("Erro ao conectar com o servidor:", error);
+      alert("Erro ao conectar com o servidor. Verifique se o backend está rodando.");
     }
   };
 
@@ -82,19 +87,6 @@ const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/log
                 Entrar
               </Button>
             </form>
-            <div className="flex items-center my-4">
-              <div className="flex-grow border-t border-gray-600"></div>
-              <span className="flex-shrink mx-4 text-gray-400">ou</span>
-              <div className="flex-grow border-t border-gray-600"></div>
-            </div>
-            <div className="flex flex-col gap-4">
-              <Button variant="secondary" className="w-full">
-                Entrar com Google
-              </Button>
-              <Button variant="secondary" className="w-full">
-                Entrar com Microsoft
-              </Button>
-            </div>
             <p className="text-center mt-4">
               Não tem uma conta? <Link to="/register" className="text-white-text font-bold hover:underline">Cadastre-se</Link>
             </p>
