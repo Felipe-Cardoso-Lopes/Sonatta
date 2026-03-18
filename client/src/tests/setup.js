@@ -19,3 +19,5 @@ global.fetch = vi.fn();
 afterEach(() => {
   vi.clearAllMocks();
 });
+
+console.log('SETUP CARREGADO');
