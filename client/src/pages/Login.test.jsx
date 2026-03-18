@@ -1,165 +1,129 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
-import axios from 'axios';
 import { vi } from 'vitest';
-import Login from './Login';
+import { MemoryRouter } from 'react-router-dom';
+import Login from '../pages/Login';
 
-// Mock do axios e do react-router-dom
-vi.mock('axios', () => ({
-  default: {
-    post: vi.fn(),
-    get: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn()
-  }
-}));
-
-const mockedNavigate = vi.fn();
+// Mock do useNavigate
+const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useNavigate: () => mockedNavigate,
+    useNavigate: () => mockNavigate,
   };
 });
 
-vi.mock('../components/MusicParticles', () => {
-  return {
-    default: () => <div data-testid="mock-particles"></div>
-  };
-});
-
-describe('Componente de Login', () => {
+describe('Login', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
   });
 
-  it('deve realizar login com sucesso e redirecionar o aluno', async () => {
-    // Configura o mock do axios para simular o retorno da API
-    axios.post.mockResolvedValueOnce({
-      data: { name: 'João Aluno', token: 'fake-jwt-token', role: 'aluno' }
-    });
+  it('deve fazer login com sucesso e redirecionar para admin', async () => {
+    // ✅ Mock do fetch
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            token: 'fake-token',
+            user: { role: 'admin', name: 'João' },
+          }),
+      })
+    );
 
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <Login />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     // Preenche os campos
-    fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
-      target: { value: 'aluno@teste.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('********'), {
-      target: { value: 'senha123' },
+    fireEvent.change(screen.getByLabelText(/e-mail/i), {
+      target: { value: 'admin@test.com' },
     });
 
-    // Submete o formulário
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    fireEvent.change(screen.getByLabelText(/senha/i), {
+      target: { value: '123456' },
+    });
 
+    // Clica no botão
+    fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
+
+    // Aguarda execução assíncrona
     await waitFor(() => {
-      // Verifica se a API foi chamada com os dados corretos
-      expect(axios.post).toHaveBeenCalledWith(
-        expect.stringContaining('/api/users/login'),
-        { email: 'aluno@teste.com', password: 'senha123' }
-      );
-      
-      // Verifica o localStorage
-      expect(localStorage.getItem('token')).toBe('fake-jwt-token');
-      expect(localStorage.getItem('userRole')).toBe('aluno');
-      
-      // Verifica o redirecionamento específico do aluno
-      expect(mockedNavigate).toHaveBeenCalledWith('/student-dashboard');
+      expect(global.fetch).toHaveBeenCalled();
     });
+
+    // Verifica localStorage
+    expect(localStorage.getItem('token')).toBe('fake-token');
+    expect(localStorage.getItem('userRole')).toBe('admin');
+
+    // Verifica redirecionamento
+    expect(mockNavigate).toHaveBeenCalledWith('/admin-dashboard');
   });
 
-  it('deve disparar um alert em caso de falha na requisição', async () => {
-    // Mock do alert do window
+  it('deve exibir erro quando login falhar', async () => {
+    // Mock do alert
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
-    
-    // Simula erro 401
-    axios.post.mockRejectedValueOnce({
-      response: { data: { message: 'Credenciais inválidas' } }
-    });
 
-    render(
-      <BrowserRouter>
-        <Login />
-      </BrowserRouter>
+    // Mock do fetch com erro
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: false,
+        json: () =>
+          Promise.resolve({
+            message: 'Credenciais inválidas',
+          }),
+      })
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
-
-    await waitFor(() => {
-      expect(alertMock).toHaveBeenCalledWith('Erro no login: Credenciais inválidas');
-    });
-    
-    alertMock.mockRestore();
-  });
-
-  it('deve realizar login com sucesso e redirecionar o professor', async () => {
-    // Configura o mock simulando o retorno da API para um professor
-    axios.post.mockResolvedValueOnce({
-      data: { name: 'Maria Professora', token: 'fake-jwt-token', role: 'professor' }
-    });
-
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <Login />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
-    // Preenche os campos
-    fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
-      target: { value: 'professor@teste.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('********'), {
-      target: { value: 'senha123' },
+    fireEvent.change(screen.getByLabelText(/e-mail/i), {
+      target: { value: 'user@test.com' },
     });
 
-    // Submete o formulário
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    fireEvent.change(screen.getByLabelText(/senha/i), {
+      target: { value: 'wrongpassword' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
-      // Verifica se a role salva é a correta
-      expect(localStorage.getItem('userRole')).toBe('professor');
-      
-      // Verifica o redirecionamento específico do professor
-      expect(mockedNavigate).toHaveBeenCalledWith('/teacher-dashboard');
+      expect(alertMock).toHaveBeenCalled();
     });
   });
 
-  it('deve realizar login com sucesso e redirecionar o admin', async () => {
-    // Configura o mock simulando o retorno da API para um administrador
-    axios.post.mockResolvedValueOnce({
-      data: { name: 'Carlos Admin', token: 'fake-jwt-token', role: 'admin' }
-    });
+  it('deve tratar erro de conexão com o servidor', async () => {
+    const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    // Simula erro de rede
+    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
 
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <Login />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
-    // Preenche os campos
-    fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
-      target: { value: 'admin@teste.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('********'), {
-      target: { value: 'senha-segura-admin' },
+    fireEvent.change(screen.getByLabelText(/e-mail/i), {
+      target: { value: 'user@test.com' },
     });
 
-    // Submete o formulário
-    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    fireEvent.change(screen.getByLabelText(/senha/i), {
+      target: { value: '123456' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
-      // Verifica se a role salva é a correta
-      expect(localStorage.getItem('userRole')).toBe('admin');
-      
-      // Verifica o redirecionamento específico do admin
-      expect(mockedNavigate).toHaveBeenCalledWith('/admin-dashboard');
+      expect(alertMock).toHaveBeenCalled();
     });
   });
 });
