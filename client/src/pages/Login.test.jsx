@@ -21,17 +21,13 @@ describe('Login', () => {
   });
 
   it('deve fazer login com sucesso e redirecionar para admin', async () => {
-    // ✅ Mock do fetch
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: true,
-        json: () =>
-          Promise.resolve({
-            token: 'fake-token',
-            user: { role: 'admin', name: 'João' },
-          }),
-      })
-    );
+    fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        token: 'fake-token',
+        user: { role: 'admin', name: 'João' },
+      }),
+    });
 
     render(
       <MemoryRouter>
@@ -39,7 +35,6 @@ describe('Login', () => {
       </MemoryRouter>
     );
 
-    // Preenche os campos
     fireEvent.change(screen.getByLabelText(/e-mail/i), {
       target: { value: 'admin@test.com' },
     });
@@ -48,36 +43,26 @@ describe('Login', () => {
       target: { value: '123456' },
     });
 
-    // Clica no botão
     fireEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
-    // Aguarda execução assíncrona
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalled();
+      expect(fetch).toHaveBeenCalled();
     });
 
-    // Verifica localStorage
     expect(localStorage.getItem('token')).toBe('fake-token');
     expect(localStorage.getItem('userRole')).toBe('admin');
-
-    // Verifica redirecionamento
     expect(mockNavigate).toHaveBeenCalledWith('/admin-dashboard');
   });
 
   it('deve exibir erro quando login falhar', async () => {
-    // Mock do alert
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
-    // Mock do fetch com erro
-    global.fetch = vi.fn(() =>
-      Promise.resolve({
-        ok: false,
-        json: () =>
-          Promise.resolve({
-            message: 'Credenciais inválidas',
-          }),
-      })
-    );
+    fetch.mockResolvedValue({
+      ok: false,
+      json: async () => ({
+        message: 'Credenciais inválidas',
+      }),
+    });
 
     render(
       <MemoryRouter>
@@ -103,8 +88,7 @@ describe('Login', () => {
   it('deve tratar erro de conexão com o servidor', async () => {
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
 
-    // Simula erro de rede
-    global.fetch = vi.fn(() => Promise.reject(new Error('Network error')));
+    fetch.mockRejectedValue(new Error('Network error'));
 
     render(
       <MemoryRouter>
