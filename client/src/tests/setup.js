@@ -1,4 +1,5 @@
 import { vi, afterEach } from 'vitest';
+import '@testing-library/jest-dom/vitest';
 
 // Mock do componente com canvas
 vi.mock('../components/MusicParticles.jsx', () => ({
