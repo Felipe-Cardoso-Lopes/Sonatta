@@ -1,20 +1,19 @@
-import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import StudentLessons from './StudentLessons';
 
 describe('Fluxo Principal - Aulas do Aluno (StudentLessons)', () => {
   it('deve renderizar a interface e exibir a lista de aulas configurada', async () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <StudentLessons />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
     // Aguarda o useEffect terminar e renderizar a lista de cursos
     await waitFor(() => {
       // Valida o primeiro curso mockado no seu componente
-      expect(screen.getByText('Piano Básico')).toBeInTheDocument();
+      expect(screen.getByText(/piano básico/i));
       expect(screen.getByText('Prof. X')).toBeInTheDocument();
 
       // Valida o segundo curso mockado

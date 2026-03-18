@@ -10,7 +10,7 @@ vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
-    useNavigate: () => mockedNavigate,
+    useNavigate: () => mockNavigate,
   };
 });
 
@@ -39,15 +39,18 @@ describe('Componente de Login', () => {
 
     render(
       <MemoryRouter>
+      <MemoryRouter>
         <Login />
+      </MemoryRouter>
       </MemoryRouter>
     );
 
     fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
       target: { value: 'aluno@teste.com' },
     });
-    fireEvent.change(screen.getByPlaceholderText('********'), {
-      target: { value: 'senha123' },
+
+    fireEvent.change(screen.getByLabelText(/senha/i), {
+      target: { value: '123456' },
     });
 
     // Submete o formulário de forma direta, evitando bloqueios do HTML5
@@ -73,6 +76,7 @@ describe('Componente de Login', () => {
     });
 
     render(
+      <MemoryRouter>
       <MemoryRouter>
         <Login />
       </MemoryRouter>
@@ -109,8 +113,9 @@ describe('Componente de Login', () => {
     fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
       target: { value: 'professor@teste.com' },
     });
-    fireEvent.change(screen.getByPlaceholderText('********'), {
-      target: { value: 'senha123' },
+
+    fireEvent.change(screen.getByLabelText(/senha/i), {
+      target: { value: 'wrongpassword' },
     });
 
     fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'));
@@ -128,15 +133,18 @@ describe('Componente de Login', () => {
 
     render(
       <MemoryRouter>
+      <MemoryRouter>
         <Login />
+      </MemoryRouter>
       </MemoryRouter>
     );
 
     fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
       target: { value: 'admin@teste.com' },
     });
-    fireEvent.change(screen.getByPlaceholderText('********'), {
-      target: { value: 'senha-segura-admin' },
+
+    fireEvent.change(screen.getByLabelText(/senha/i), {
+      target: { value: '123456' },
     });
 
     fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'));
