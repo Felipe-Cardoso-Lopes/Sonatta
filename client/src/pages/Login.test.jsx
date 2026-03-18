@@ -1,10 +1,13 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom'; // OBRIGATÓRIO: MemoryRouter impede que o localStorage seja apagado
-import axios from 'axios';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter } from 'react-router-dom';
 import { vi } from 'vitest';
 import Login from './Login';
 
-const mockedNavigate = vi.fn();
+// Mock do navigate
+const { mockNavigate } = vi.hoisted(() => ({
+  mockNavigate: vi.fn(),
+}));
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -14,65 +17,57 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+// Mock visual
 vi.mock('../components/MusicParticles', () => ({
-  default: () => <div data-testid="mock-particles"></div>
+  default: () => <div data-testid="mock-particles"></div>,
 }));
 
-describe('Componente de Login', () => {
-  let axiosPostSpy;
+// Substitui a API fetch global pelo espião do Vitest
+global.fetch = vi.fn();
 
+describe('Componente de Login', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
-    // Forma ABSOLUTA de intercetar o Axios. Garante que nunca fará uma chamada real.
-    axiosPostSpy = vi.spyOn(axios, 'post');
-  });
-
-  afterEach(() => {
-    axiosPostSpy.mockRestore();
+    global.fetch.mockClear(); // Limpa o histórico de chamadas do fetch
   });
 
   it('deve realizar login com sucesso e redirecionar o aluno', async () => {
-    axiosPostSpy.mockResolvedValueOnce({
-      data: { name: 'João Aluno', token: 'fake-jwt-token', role: 'aluno' }
+    // Simula a estrutura exata que o fetch e o seu Login.jsx esperam
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        token: 'fake-jwt-token',
+        user: { name: 'João Aluno', role: 'aluno' }
+      }),
     });
 
     render(
       <MemoryRouter>
-      <MemoryRouter>
         <Login />
-      </MemoryRouter>
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
-      target: { value: 'aluno@teste.com' },
-    });
+    await userEvent.type(screen.getByPlaceholderText('seuemail@exemplo.com'), 'aluno@teste.com');
+    await userEvent.type(screen.getByPlaceholderText('********'), 'senha123');
 
-    fireEvent.change(screen.getByLabelText(/senha/i), {
-      target: { value: '123456' },
-    });
-
-    // Submete o formulário de forma direta, evitando bloqueios do HTML5
-    fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'));
+    await userEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
-      expect(axiosPostSpy).toHaveBeenCalledWith(
-        expect.stringContaining('/api/users/login'),
-        { email: 'aluno@teste.com', password: 'senha123' }
-      );
+      expect(global.fetch).toHaveBeenCalled();
+      expect(localStorage.getItem('token')).toBe('fake-jwt-token');
+      expect(localStorage.getItem('userRole')).toBe('aluno');
+      expect(mockNavigate).toHaveBeenCalledWith('/student-dashboard');
     });
-    
-    expect(localStorage.getItem('token')).toBe('fake-jwt-token');
-    expect(localStorage.getItem('userRole')).toBe('aluno');
-    expect(mockedNavigate).toHaveBeenCalledWith('/student-dashboard');
   });
 
   it('deve disparar um alert em caso de falha na requisição', async () => {
     const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {});
-    
-    axiosPostSpy.mockRejectedValueOnce({
-      response: { data: { message: 'Credenciais inválidas' } }
+
+    // Simula uma resposta ok: false vinda do backend
+    global.fetch.mockResolvedValueOnce({
+      ok: false,
+      json: async () => ({ message: 'Credenciais inválidas' }),
     });
 
     render(
@@ -81,26 +76,25 @@ describe('Componente de Login', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
-      target: { value: 'erro@teste.com' },
-    });
-    fireEvent.change(screen.getByPlaceholderText('********'), {
-      target: { value: 'senha-errada' },
-    });
+    await userEvent.type(screen.getByPlaceholderText('seuemail@exemplo.com'), 'erro@teste.com');
+    await userEvent.type(screen.getByPlaceholderText('********'), 'senha-errada');
 
-    fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'));
+    await userEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
-      // Verifica apenas se foi chamado, independentemente da frase que você configurou no erro
-      expect(alertMock).toHaveBeenCalled();
+      expect(alertMock).toHaveBeenCalledWith('Credenciais inválidas');
     });
-    
+
     alertMock.mockRestore();
   });
 
   it('deve realizar login com sucesso e redirecionar o professor', async () => {
-    axiosPostSpy.mockResolvedValueOnce({
-      data: { name: 'Maria Professora', token: 'fake-jwt-token', role: 'professor' }
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        token: 'fake-jwt-token',
+        user: { name: 'Maria Professora', role: 'professor' }
+      }),
     });
 
     render(
@@ -109,48 +103,40 @@ describe('Componente de Login', () => {
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
-      target: { value: 'professor@teste.com' },
-    });
+    await userEvent.type(screen.getByPlaceholderText('seuemail@exemplo.com'), 'professor@teste.com');
+    await userEvent.type(screen.getByPlaceholderText('********'), 'senha123');
 
-    fireEvent.change(screen.getByLabelText(/senha/i), {
-      target: { value: 'wrongpassword' },
-    });
-
-    fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'));
+    await userEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
       expect(localStorage.getItem('userRole')).toBe('professor');
+      expect(mockNavigate).toHaveBeenCalledWith('/teacher-dashboard');
     });
-    expect(mockedNavigate).toHaveBeenCalledWith('/teacher-dashboard');
   });
 
   it('deve realizar login com sucesso e redirecionar o admin', async () => {
-    axiosPostSpy.mockResolvedValueOnce({
-      data: { name: 'Carlos Admin', token: 'fake-jwt-token', role: 'admin' }
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        token: 'fake-jwt-token',
+        user: { name: 'Carlos Admin', role: 'admin' }
+      }),
     });
 
     render(
       <MemoryRouter>
-      <MemoryRouter>
         <Login />
-      </MemoryRouter>
       </MemoryRouter>
     );
 
-    fireEvent.change(screen.getByPlaceholderText('seuemail@exemplo.com'), {
-      target: { value: 'admin@teste.com' },
-    });
+    await userEvent.type(screen.getByPlaceholderText('seuemail@exemplo.com'), 'admin@teste.com');
+    await userEvent.type(screen.getByPlaceholderText('********'), 'senha-segura-admin');
 
-    fireEvent.change(screen.getByLabelText(/senha/i), {
-      target: { value: '123456' },
-    });
-
-    fireEvent.submit(screen.getByRole('button', { name: 'Entrar' }).closest('form'));
+    await userEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
       expect(localStorage.getItem('userRole')).toBe('admin');
+      expect(mockNavigate).toHaveBeenCalledWith('/admin-dashboard');
     });
-    expect(mockedNavigate).toHaveBeenCalledWith('/admin-dashboard');
   });
 });
