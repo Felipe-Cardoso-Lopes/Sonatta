@@ -9,7 +9,7 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ message: 'Por favor, preencha todos os campos.' });
   }
 
-let userRole = 'aluno'; 
+  let userRole = 'aluno'; 
   if (role === 'professor' || role === 'ensinar') userRole = 'professor';
   else if (role === 'admin') userRole = 'admin';
 
@@ -108,6 +108,28 @@ const updateUserProfile = async (req, res) => {
   }
 };
 
+// Função para concluir o cadastro com os dados "Sobre Você"
+const completeRegistration = async (req, res) => {
+  const { id } = req.params;
+  const { nickname, birth_date, gender } = req.body;
+
+  try {
+    const result = await db.query(
+      'UPDATE users SET nickname = $1, birth_date = $2, gender = $3 WHERE id = $4 RETURNING *',
+      [nickname, birth_date, gender, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+
+    res.json({ message: 'Cadastro finalizado com sucesso!', user: result.rows[0] });
+  } catch (error) {
+    console.error('Erro ao completar cadastro:', error);
+    res.status(500).json({ message: 'Erro no servidor ao finalizar cadastro.' });
+  }
+};
+
 // Função para salvar preferências do perfil musical (tags do modal)
 const saveMusicalPreferences = async (req, res) => {
   const { userId, nivel, instrumentos, generos } = req.body;
@@ -129,4 +151,5 @@ const saveMusicalPreferences = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, updateUserProfile, saveMusicalPreferences };
+// O module.exports TEM que ser a última coisa no arquivo!
+module.exports = { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences };

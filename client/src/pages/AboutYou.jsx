@@ -28,7 +28,7 @@ function AboutYou() {
 
       console.log('Cadastro finalizado:', response.data);
       alert("Cadastro concluído com sucesso! Agora você pode entrar.");
-      navigate('/login'); // Redireciona para o login após concluir
+      navigate(`/musical-profile/${userId}`); // Nova tela de tags
     } catch (error) {
       console.error('Erro ao finalizar cadastro:', error);
       alert(error.response?.data?.message || "Erro ao salvar seu perfil.");
