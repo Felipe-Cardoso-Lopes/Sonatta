@@ -30,7 +30,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/about-you/:id" element={<AboutYou />} />
-          <Route path="/musical-profile" element={<MusicalProfile />} />
+          <Route path="/musical-profile/:id" element={<MusicalProfile />} />
           
           {/*Rotas do aluno*/}
           <Route path="/student-dashboard" element={<StudentDashboard />} />

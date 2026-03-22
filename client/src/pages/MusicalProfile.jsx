@@ -68,8 +68,8 @@ function MusicalProfile() {
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins pb-10">
       <MusicParticles />
+      <Header />
       <div className="relative z-10 flex flex-col items-center">
-        <Header />
         
         <main className="w-full max-w-2xl mt-10 px-4">
           <div className="bg-dark-gray p-8 rounded-lg shadow-lg border border-gray-700">
