@@ -1,14 +1,14 @@
 // server/config/db.js
 const { Pool } = require('pg');
-
 require('dotenv').config(); 
+
+// O Render define a variável NODE_ENV como 'production' automaticamente na nuvem
+const isProduction = process.env.NODE_ENV === 'production';
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // SOLUÇÃO: Configuração de SSL ativada para permitir a conexão com serviços em nuvem
-  ssl: {
-    rejectUnauthorized: false, 
-  },
+  // Usa SSL na nuvem, mas desativa no localhost para o Pooler do Supabase funcionar
+  ssl: isProduction ? { rejectUnauthorized: false } : false,
 });
 
 pool.on('error', (err, client) => {
