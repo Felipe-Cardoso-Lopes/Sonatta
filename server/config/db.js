@@ -5,6 +5,8 @@ require('dotenv').config();
 // O Render define a variável NODE_ENV como 'production' automaticamente na nuvem
 const isProduction = process.env.NODE_ENV === 'production';
 
+console.log("Minha URL do Banco:", process.env.DATABASE_URL);
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   // Usa SSL na nuvem, mas desativa no localhost para o Pooler do Supabase funcionar
