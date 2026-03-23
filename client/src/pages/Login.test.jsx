@@ -38,7 +38,8 @@ describe('Componente de Login', () => {
       ok: true,
       json: async () => ({
         token: 'fake-jwt-token',
-        user: { name: 'João Aluno', role: 'aluno' }
+        name: 'João Aluno', 
+        role: 'aluno' // Formato atual, direto na raiz
       }),
     });
 
@@ -93,7 +94,8 @@ describe('Componente de Login', () => {
       ok: true,
       json: async () => ({
         token: 'fake-jwt-token',
-        user: { name: 'Maria Professora', role: 'professor' }
+        name: 'Maria Professora', 
+        role: 'professor'
       }),
     });
 
@@ -119,7 +121,8 @@ describe('Componente de Login', () => {
       ok: true,
       json: async () => ({
         token: 'fake-jwt-token',
-        user: { name: 'Carlos Admin', role: 'admin' }
+        name: 'Carlos Admin', 
+        role: 'admin'
       }),
     });
 
