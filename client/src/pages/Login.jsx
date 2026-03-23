@@ -25,15 +25,16 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // Armazena as informações de sessão
+        // Armazena as informações de sessão lendo direto da raiz do 'data'
         localStorage.setItem('token', data.token);
         localStorage.setItem('userRole', data.role);
         localStorage.setItem('userName', data.name);
 
         console.log('Login bem-sucedido:', data);
 
-        // Lógica de redirecionamento baseada no role vindo do banco (Supabase)
-        const role = data.user.role;
+        // Lógica de redirecionamento
+        const role = data.role; // <-- Garantindo que não há ".user" aqui!
+        
         if (role === 'aluno') { 
           navigate('/student-dashboard');
         } else if (role === 'professor') { 
