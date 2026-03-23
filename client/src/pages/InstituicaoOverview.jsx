@@ -1,5 +1,5 @@
 import React from 'react';
-import AdminSidebar from '../components/AdminSidebar';
+import InstituicaoSidebar from '../components/InstituicaoSidebar';
 
 // Componente reutilizável para os cards de informação
 const InfoCard = ({ title, period, icon, }) => (
@@ -29,7 +29,7 @@ const InfoCard = ({ title, period, icon, }) => (
   </div>
 );
 
-function AdminOverview() {
+function InstituicaoOverview() {
   const cards = [
     { title: 'Receitas', period: 'Outubro', icon: 'R' },
     { title: 'Novas Inscrições', period: 'Outubro', icon: 'N' },
@@ -44,7 +44,7 @@ function AdminOverview() {
 
   return (
     <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
-      <AdminSidebar />
+      <InstituicaoSidebar />
 
       {/* Conteúdo Principal */}
       <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
@@ -81,4 +81,4 @@ function AdminOverview() {
   );
 }
 
-export default AdminOverview;
+export default InstituicaoOverview;

@@ -1,5 +1,5 @@
 import React from 'react';
-import AdminSidebar from '../components/AdminSidebar';
+import InstituicaoSidebar from '../components/InstituicaoSidebar';
 
 // Componente para um card na grade de exibição
 const ItemCard = ({ text, price }) => (
@@ -12,7 +12,7 @@ const ItemCard = ({ text, price }) => (
   </div>
 );
 
-function AdminSettings() {
+function InstituicaoSettings() {
   // Dados de exemplo para os cards
   const items = [
     { text: 'Text', price: '$0' },
@@ -22,7 +22,7 @@ function AdminSettings() {
 
   return (
     <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
-      <AdminSidebar />
+      <InstituicaoSidebar />
 
       {/* Conteúdo Principal */}
       <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
@@ -122,4 +122,4 @@ function AdminSettings() {
   );
 }
 
-export default AdminSettings;
+export default InstituicaoSettings;
