@@ -15,6 +15,12 @@ app.use(cors());
 
 app.use(express.json());
 
+// Middleware simples para registrar os acessos no log do Render
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  next();
+});
+
 app.use('/api/users', userRoutes);
 app.use('/api/lessons', lessonRoutes);
 

@@ -27,8 +27,8 @@ function Login() {
       if (response.ok) {
         // Armazena as informações de sessão
         localStorage.setItem('token', data.token);
-        localStorage.setItem('userRole', data.user.role);
-        localStorage.setItem('userName', data.user.name);
+        localStorage.setItem('userRole', data.role);
+        localStorage.setItem('userName', data.name);
 
         console.log('Login bem-sucedido:', data);
 

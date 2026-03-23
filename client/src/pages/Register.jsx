@@ -33,7 +33,7 @@ function Register() {
 
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
+
       const response = await fetch(`${API_URL}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,6 +85,21 @@ function Register() {
                 label="Confirme a Senha" id="confirmPassword" name="confirmPassword" type="password"
                 placeholder="Confirme sua senha" value={formData.confirmPassword} onChange={handleChange} required
               />
+              <div className="mb-4">
+                <label className="block text-sm font-bold text-white-text mb-1" htmlFor="role">
+                  Eu sou um:
+                </label>
+                <select
+                  id="role"
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full p-2 rounded bg-dark-bg border border-gray-600 text-white-text focus:outline-none focus:border-purple-500"
+                >
+                  <option value="aluno">Aluno (Quero aprender)</option>
+                  <option value="professor">Professor (Quero ensinar)</option>
+                </select>
+              </div>
               <div className="mb-6 flex items-center">
                 <input
                   type="checkbox" id="acceptTerms" checked={acceptTerms}
