@@ -82,7 +82,6 @@ function InstitutionDashboard() {
           </div>
           
           <section className="flex flex-col xl:flex-row flex-wrap justify-center gap-8 md:gap-12 w-full px-4 md:px-0">
-
             <Link to="/admin/overview" className="group flex flex-col items-center text-center w-full md:w-auto max-w-[260px] md:max-w-none">
               <div className="w-full md:w-[260px] h-[300px] md:h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img src="/assets/Overview.png" alt="Visão Geral" className="w-32 h-32" />
