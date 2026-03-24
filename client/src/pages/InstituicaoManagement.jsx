@@ -1,5 +1,5 @@
 import React from 'react';
-import AdminSidebar from '../components/AdminSidebar';
+import InstituicaoSidebar from '../components/InstituicaoSidebar';
 
 // Componente para o Card na grade de gerenciamento
 const ManagementCard = ({ text, price }) => (
@@ -13,7 +13,7 @@ const ManagementCard = ({ text, price }) => (
   </div>
 );
 
-function AdminManagement() {
+function InstituicaoManagement() {
   // Dados de exemplo para os cards
   const items = [
     { text: 'Text', price: '$0' },
@@ -26,7 +26,7 @@ function AdminManagement() {
 
   return (
     <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
-      <AdminSidebar />
+      <InstituicaoSidebar />
 
       {/* Conteúdo Principal */}
       <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
@@ -73,4 +73,4 @@ function AdminManagement() {
   );
 }
 
-export default AdminManagement;
+export default InstituicaoManagement;

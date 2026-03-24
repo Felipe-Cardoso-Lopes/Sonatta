@@ -5,6 +5,8 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const lessonRoutes = require('./routes/lessonRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const superAdminRoutes = require('./routes/superAdminRoutes');
 
 dotenv.config();
 
@@ -30,6 +32,10 @@ app.get('/', (req, res) => {
 
 // Usa as rotas de usuário para qualquer URL que comece com /api/users
 app.use('/api/users', userRoutes);
+
+app.use('/api/admin', adminRoutes);
+
+app.use('/api/super-admin', superAdminRoutes);
 
 // Apenas inicia o servidor se o ambiente não for de teste
 if (process.env.NODE_ENV !== 'test') {

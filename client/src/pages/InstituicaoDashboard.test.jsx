@@ -2,7 +2,7 @@ import { render, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 // CORREÇÃO 1: Importar todas as palavras-chave de teste do vitest
 import { vi, describe, it, expect, beforeEach } from 'vitest';
-import AdminDashboard from './AdminDashboard';
+import InstituicaoDashboard from './InstituicaoDashboard';
 
 // CORREÇÃO 2: Usar vi.hoisted para garantir que a função mockada
 // seja criada ANTES do vi.mock tentar utilizá-la.
@@ -18,7 +18,7 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-describe('Proteção e Isolamento - AdminDashboard', () => {
+describe('Proteção e Isolamento - InstituicaoDashboard', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
@@ -27,7 +27,7 @@ describe('Proteção e Isolamento - AdminDashboard', () => {
   it('deve expulsar um visitante sem token e mandar para o login', async () => {
     render(
       <MemoryRouter>
-        <AdminDashboard />
+        <InstituicaoDashboard />
       </MemoryRouter>
     );
 
@@ -37,13 +37,13 @@ describe('Proteção e Isolamento - AdminDashboard', () => {
   });
 
   it('deve bloquear o acesso de um aluno logado e devolvê-lo ao seu dashboard', async () => {
-    // Simula um aluno "espertinho" tentando acessar a rota de admin
+    // Simula um aluno "espertinho" tentando acessar a rota de instituicao
     localStorage.setItem('token', 'token-valido-do-aluno');
     localStorage.setItem('userRole', 'aluno');
 
     render(
       <MemoryRouter>
-        <AdminDashboard />
+        <InstituicaoDashboard />
       </MemoryRouter>
     );
 

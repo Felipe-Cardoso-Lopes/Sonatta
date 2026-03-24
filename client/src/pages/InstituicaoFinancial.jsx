@@ -1,5 +1,5 @@
 import React from 'react';
-import AdminSidebar from '../components/AdminSidebar';
+import AdminSidebar from '../components/InstituicaoSidebar';
 
 // Componente para os cards de informações financeiras
 const FinancialCard = ({ title, items, isHighlighted }) => {

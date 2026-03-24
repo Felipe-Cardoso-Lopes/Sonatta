@@ -16,41 +16,41 @@ const NavIndicator = ({ to, children }) => {
   );
 };
 
-function AdminSidebar() {
+function InstituicaoSidebar() {
   return (
     <aside className="w-24 min-h-screen bg-sidebar-bg p-4 flex flex-col justify-between items-center">
       <div className="flex flex-col items-center gap-6">
         
-        <Link to="/admin-dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125">
+        <Link to="/instituicao-dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125">
           <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" />
         </Link>
 
-        <NavIndicator to="/admin/overview">
-          <Link to="/admin/overview" className="transition-transform hover:scale-125">
+        <NavIndicator to="/instituicao/overview">
+          <Link to="/instituicao/overview" className="transition-transform hover:scale-125">
             <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
               <img src="/assets/Overview.png" alt="Ícone de Visão Geral" className="w-7 h-7 scale-150 "/>
             </div>
           </Link>
         </NavIndicator>
 
-        <NavIndicator to="/admin/management">
-          <Link to="/admin/management" className="transition-transform hover:scale-125">
+        <NavIndicator to="/instituicao/management">
+          <Link to="/instituicao/management" className="transition-transform hover:scale-125">
             <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
               <img src="/assets/Gerenciamento.png" alt="Ícone de Gerenciamento" className="w-8 h-8 scale-150" />
             </div>
           </Link>
         </NavIndicator>
 
-        <NavIndicator to="/admin/financial">
-          <Link to="/admin/financial" className="transition-transform hover:scale-125">
+        <NavIndicator to="/instituicao/financial">
+          <Link to="/instituicao/financial" className="transition-transform hover:scale-125">
             <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
               <img src="/assets/Financeiro.png" alt="Ícone de Financeiro" className="w-7 h-7 scale-150" />
             </div>
           </Link>
         </NavIndicator>
 
-        <NavIndicator to="/admin/settings">
-          <Link to="/admin/settings" className="transition-transform hover:scale-125">
+        <NavIndicator to="/instituicao/settings">
+          <Link to="/instituicao/settings" className="transition-transform hover:scale-125">
             <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
               <img src="/assets/Escola.png" alt="Ícone de Configurações" className="w-8 h-8 scale-150" />
             </div>
@@ -59,8 +59,8 @@ function AdminSidebar() {
 
       </div>
       
-      <NavIndicator to="/admin-profile">
-        <Link to="/admin-profile" className="transition-transform hover:scale-125">
+      <NavIndicator to="/instituicao-profile">
+        <Link to="/instituicao-profile" className="transition-transform hover:scale-125">
           <img src="/assets/Meu-Perfil.png" alt="Perfil" className="w-9 h-9 scale-150" />
         </Link>
       </NavIndicator>
@@ -68,4 +68,4 @@ function AdminSidebar() {
   );
 }
 
-export default AdminSidebar;
+export default InstituicaoSidebar;

@@ -36,13 +36,17 @@ function Login() {
 
         // Lógica de redirecionamento
         const role = data.role; // <-- Garantindo que não há ".user" aqui!
-
-        if (role === "aluno") {
-          navigate("/student-dashboard");
-        } else if (role === "professor") {
-          navigate("/teacher-dashboard");
-        } else if (role === "admin") {
-          navigate("/admin-dashboard");
+        
+        if (role === 'aluno') { 
+          navigate('/student-dashboard');
+        } else if (role === 'professor') { 
+          navigate('/teacher-dashboard');
+        } else if (role === 'instituicao') {
+          navigate('/instituicao-dashboard');
+          } else if (role === 'super_admin') {
+            
+          // NOVO: Redireciona a equipe criadora para a torre de controle
+          navigate('/super-admin-dashboard');
         } else {
           navigate("/");
         }
