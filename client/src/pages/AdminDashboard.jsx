@@ -5,12 +5,12 @@ import AdminSidebar from '../components/AdminSidebar';
 function AdminDashboard() {
   const navigate = useNavigate();
 
-  // NOVO: Trava de segurança da rota
-  useEffect(() => {
-    const token = localStorage.getItem('token');
+  // NOVO: Trava de segurança da rota --**ADICIONAR DEPOIS**--
+ useEffect(() => {
+   /* const token = localStorage.getItem('token');
     const role = localStorage.getItem('userRole');
 
-    if (!token) {
+   if (!token) {
       // Sem token = visitante. Manda para o login.
       navigate('/login');
     } else if (role === 'aluno') {
@@ -19,7 +19,7 @@ function AdminDashboard() {
     } else if (role === 'professor' || role === 'ensinar') {
       // Tem token, mas é professor. Devolve para o dashboard dele.
       navigate('/teacher-dashboard');
-    }
+    }*/
   }, [navigate]);
 
   const userName = "Instituição";

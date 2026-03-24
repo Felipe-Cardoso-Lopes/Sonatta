@@ -1,55 +1,59 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
-import Input from '../components/Input';
-import Button from '../components/Button';
-import MusicParticles from '../components/MusicParticles';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import Header from "../components/Header";
+import Input from "../components/Input";
+import Button from "../components/Button";
+import MusicParticles from "../components/MusicParticles";
 
 function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
+      const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
       const response = await fetch(`${API_URL}/api/users/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         // Armazena as informações de sessão lendo direto da raiz do 'data'
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('userRole', data.role);
-        localStorage.setItem('userName', data.name);
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userRole", data.role);
+        localStorage.setItem("userName", data.name);
 
-        console.log('Login bem-sucedido:', data);
+        localStorage.setItem("userNickname", data.nickname);
+
+        console.log("Login bem-sucedido:", data);
 
         // Lógica de redirecionamento
         const role = data.role; // <-- Garantindo que não há ".user" aqui!
-        
-        if (role === 'aluno') { 
-          navigate('/student-dashboard');
-        } else if (role === 'professor') { 
-          navigate('/teacher-dashboard');
-        } else if (role === 'admin') {
-          navigate('/admin-dashboard');
+
+        if (role === "aluno") {
+          navigate("/student-dashboard");
+        } else if (role === "professor") {
+          navigate("/teacher-dashboard");
+        } else if (role === "admin") {
+          navigate("/admin-dashboard");
         } else {
-          navigate('/');
+          navigate("/");
         }
       } else {
         alert(data.message || "Credenciais inválidas.");
       }
     } catch (error) {
       console.error("Erro ao conectar com o servidor:", error);
-      alert("Erro ao conectar com o servidor. Verifique se o backend está rodando.");
+      alert(
+        "Erro ao conectar com o servidor. Verifique se o backend está rodando.",
+      );
     }
   };
 
@@ -81,7 +85,10 @@ function Login() {
                 required
               />
               <div className="mb-6 text-right">
-                <Link to="/forgot-password" className="text-sm text-white-text hover:underline">
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-white-text hover:underline"
+                >
                   Esqueceu a senha?
                 </Link>
               </div>
@@ -90,7 +97,13 @@ function Login() {
               </Button>
             </form>
             <p className="text-center mt-4">
-              Não tem uma conta? <Link to="/register" className="text-white-text font-bold hover:underline">Cadastre-se</Link>
+              Não tem uma conta?{" "}
+              <Link
+                to="/register"
+                className="text-white-text font-bold hover:underline"
+              >
+                Cadastre-se
+              </Link>
             </p>
           </div>
         </main>

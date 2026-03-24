@@ -1,115 +1,115 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
-import Header from '../components/Header'; // Ajuste o caminho se necessário
+import StudentSidebar from '../components/StudentSidebar';
+
+// URL da API configurada para o seu ambiente local
+const API_URL = 'http://localhost:5000'; 
 
 function StudentDashboard() {
-  const [lessons, setLessons] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
-  const navigate = useNavigate();
+  const [displayName, setDisplayName] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    const fetchLessons = async () => {
-      try {
-        // Recupera o token salvo no momento do login
-        const token = localStorage.getItem('token');
-        
-        if (!token) {
-          navigate('/login');
-          return;
-        }
+    const storedNickname = localStorage.getItem('userNickname');
+    const storedName = localStorage.getItem('userName');
+    
+    // Se o apelido existir, não for nulo e não for vazio, usa ele
+    if (storedNickname && storedNickname !== 'null' && storedNickname.trim() !== '') {
+      setDisplayName(storedNickname);
+    } else if (storedName) {
+      // Se não tiver apelido, cai pro nome normal
+      setDisplayName(storedName);
+    }
+  }, []);
 
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        
-        // Faz a requisição enviando o token no cabeçalho (Header) de Autorização
-        const response = await axios.get(`${API_URL}/api/lessons`, {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        });
+  // Função para salvar preferências (perfil musical)
+  /* 
+    --**Criar a rota "/api/users/preferences"**-- */
+  const handleProfileSubmit = async (profileData) => {
+    try {
+      const userId = localStorage.getItem('userId');
+      const token = localStorage.getItem('token');
 
-        setLessons(response.data);
-      } catch (err) {
-        console.error('Erro ao buscar aulas:', err);
-        setError('Não foi possível carregar a sua agenda de aulas.');
-      } finally {
-        setLoading(false);
-      }
-    };
+      await axios.post(`${API_URL}/api/users/preferences`, {
+        userId,
+        ...profileData
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    fetchLessons();
-  }, [navigate]);
-
-  // Função para formatar a data que vem do banco (PostgreSQL) para o padrão brasileiro
-  const formatarData = (dataIso) => {
-    const data = new Date(dataIso);
-    return data.toLocaleDateString('pt-BR', {
-      weekday: 'long', 
-      day: '2-digit', 
-      month: 'long', 
-      hour: '2-digit', 
-      minute: '2-digit'
-    });
+      setShowModal(false);
+      alert('Perfil musical salvo com sucesso!');
+    } catch (err) {
+      console.error("Erro ao salvar perfil:", err);
+      alert('Erro ao salvar suas preferências.');
+    }
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins pb-10">
-      <Header />
-      
-      <main className="w-full max-w-5xl mx-auto mt-10 px-4">
-        <div className="flex justify-between items-center mb-8">
-          <h2 className="text-3xl font-bold">Minha Agenda Musical</h2>
-        </div>
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
+      {/* Sidebar Lateral Atualizada */}
+      <StudentSidebar />
 
-        {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <p className="text-gray-400 text-lg">Carregando suas aulas...</p>
+      {/* Conteúdo Principal */}
+      <div className="flex-grow flex flex-col">
+        <main className="flex-grow flex flex-col items-center justify-center p-8">
+          
+          {/* Cabeçalho de Boas-Vindas */}
+          <div className="text-center w-full mb-12">
+            <h1 className="text-4xl font-bold mb-2">Bem-Vindo(a), {displayName}!</h1>
+            <h2 className="text-2xl mb-4 text-gray-300">Seu Caminho Musical no Sonatta</h2>
+            <p className="text-lg leading-relaxed max-w-2xl mx-auto text-gray-400">
+              Continue sua jornada de aprendizado personalizada. Aqui você encontra suas aulas, suas atividades e seu progresso.
+            </p>
           </div>
-        ) : error ? (
-          <div className="bg-red-500 bg-opacity-20 border border-red-500 text-red-200 p-4 rounded-lg">
-            <p>{error}</p>
-          </div>
-        ) : lessons.length === 0 ? (
-          <div className="bg-dark-gray p-8 rounded-lg shadow-lg border border-gray-700 text-center">
-            <p className="text-xl text-gray-300 mb-2">Sua agenda está livre!</p>
-            <p className="text-gray-500">Você ainda não tem nenhuma aula marcada com nossos professores.</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {lessons.map((lesson) => (
-              <div 
-                key={lesson.id} 
-                className="bg-dark-gray p-6 rounded-lg shadow-lg border border-gray-700 hover:border-gray-500 transition-colors duration-300 flex flex-col"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <span className="bg-purple-600 bg-opacity-20 text-purple-400 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider border border-purple-500">
-                    {lesson.instrument}
-                  </span>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded ${
-                    lesson.status === 'agendada' ? 'bg-green-500 text-green-900' : 'bg-gray-600 text-gray-300'
-                  }`}>
-                    {lesson.status}
-                  </span>
-                </div>
-                
-                <h3 className="text-xl font-bold mb-2">{lesson.title}</h3>
-                <p className="text-gray-400 text-sm mb-4 flex-grow">{lesson.description}</p>
-                
-                <div className="border-t border-gray-700 pt-4 mt-auto">
-                  <p className="text-sm text-gray-300 mb-1">
-                    <strong className="text-white">Professor:</strong> {lesson.teacher_name}
-                  </p>
-                  <p className="text-sm text-purple-300 font-medium capitalize">
-                    {formatarData(lesson.lesson_date)}
-                  </p>
-                </div>
+          
+          {/* Seção de Navegação por Cards */}
+         <section className="flex gap-12">
+            
+            {/* Card Minhas Aulas */}
+            <Link to="/lessons" className="group flex flex-col items-center text-center">
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img 
+                  src="/assets/Minhas Aulas.png" 
+                  alt="Minhas Aulas" 
+                  className="w-56 h-56 object-contain" 
+                />
               </div>
-            ))}
-          </div>
-        )}
-      </main>
+              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
+                Minhas Aulas
+              </span>
+            </Link>
+            
+            {/* Card Praticar */}
+            <Link to="/practice" className="group flex flex-col items-center text-center">
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img 
+                  src="/assets/Praticar.png" 
+                  alt="Praticar" 
+                  className="w-56 h-56 object-contain" 
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
+                Praticar
+              </span>
+            </Link>
+
+          </section>
+
+          {/* Opcional: Botão para abrir modal de preferências no futuro */}
+          {showModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              {/* Aqui entraria seu componente de formulário de perfil musical */}
+              <div className="bg-dark-bg p-6 rounded-lg border border-white">
+                <p>Configurações de Perfil em breve...</p>
+                <button onClick={() => setShowModal(false)} className="mt-4 bg-red-500 p-2 rounded">Fechar</button>
+              </div>
+            </div>
+          )}
+
+        </main>
+      </div>
     </div>
   );
 }

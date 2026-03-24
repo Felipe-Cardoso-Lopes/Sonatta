@@ -65,6 +65,7 @@ const loginUser = async (req, res) => {
       res.json({
         id: user.id,
         name: user.name,
+        nickname: user.nickname,
         email: user.email,
         role: user.role,
         token,
@@ -78,36 +79,68 @@ const loginUser = async (req, res) => {
   }
 };
 
-const updateUserProfile = async (req, res) => {
-  const id = req.user.id; 
-  const { name } = req.body; 
-  
+const getUserProfile = async (req, res) => {
   try {
+    // Adicionamos o birth_date na busca
     const result = await db.query(
-      'UPDATE users SET name = COALESCE($1, name) WHERE id = $2 RETURNING id, name, email, role',
-      [name, id]
+      'SELECT id, name, nickname, email, gender, birth_date, created_at FROM users WHERE id = $1', 
+      [req.user.id]
     );
 
-    const updatedUser = result.rows[0];
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
 
-    if (!updatedUser) {
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Erro ao buscar perfil:', error);
+    res.status(500).json({ message: 'Erro no servidor ao buscar perfil.' });
+  }
+};
+
+const updateUserProfile = async (req, res) => {
+  const id = req.user.id; 
+  const { name, nickname, email, password } = req.body; 
+  
+  try {
+    // Começamos a montar a query dinamicamente
+    let query = 'UPDATE users SET name = COALESCE($1, name), nickname = COALESCE($2, nickname), email = COALESCE($3, email)';
+    let values = [name, nickname, email];
+    let valueIndex = 4;
+
+    // Se o usuário enviou uma senha nova, nós a criptografamos e adicionamos na query
+    if (password && password.trim() !== '') {
+      const salt = await bcrypt.genSalt(10);
+      const password_hash = await bcrypt.hash(password, salt);
+      query += `, password_hash = $${valueIndex}`;
+      values.push(password_hash);
+      valueIndex++;
+    }
+
+    // Finaliza a query
+    query += ` WHERE id = $${valueIndex} RETURNING id, name, nickname, email, role`;
+    values.push(id);
+
+    const result = await db.query(query, values);
+
+    if (result.rows.length === 0) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
 
     res.json({
-      id: updatedUser.id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      role: updatedUser.role,
-      message: 'Perfil atualizado com sucesso!'
+      message: 'Perfil atualizado com sucesso!',
+      user: result.rows[0]
     });
 
   } catch (error) {
     console.error(error);
+    // Se o e-mail já existir em outra conta, o banco vai dar erro de restrição (UNIQUE)
+    if (error.code === '23505') {
+      return res.status(400).json({ message: 'Este e-mail já está em uso por outra conta.' });
+    }
     res.status(500).json({ message: 'Erro no servidor ao atualizar perfil.' });
   }
 };
-
 // Função para concluir o cadastro com os dados "Sobre Você"
 const completeRegistration = async (req, res) => {
   const { id } = req.params;
@@ -152,4 +185,4 @@ const saveMusicalPreferences = async (req, res) => {
 };
 
 // O module.exports TEM que ser a última coisa no arquivo!
-module.exports = { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences };
+module.exports = { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences, getUserProfile };
