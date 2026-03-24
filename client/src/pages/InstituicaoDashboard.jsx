@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import InstituicaoSidebar from '../components/InstitutionSidebar';
+import InstituicaoSidebar from '../components/InstituicaoSidebar';
 
-function InstitutionDashboard() {
+function InstituicaoDashboard() {
   const navigate = useNavigate();
   
   // NOVO 1: Estado para armazenar as métricas vindas do banco
@@ -116,4 +116,4 @@ function InstitutionDashboard() {
   );
 }
 
-export default InstitutionDashboard;
+export default InstituicaoDashboard;

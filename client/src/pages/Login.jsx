@@ -39,8 +39,11 @@ function Login() {
           navigate('/student-dashboard');
         } else if (role === 'professor') { 
           navigate('/teacher-dashboard');
-        } else if (role === 'admin') {
-          navigate('/admin-dashboard');
+        } else if (role === 'instituicao') {
+          navigate('/instituicao-dashboard');
+          } else if (role === 'super_admin') {
+          // NOVO: Redireciona a equipe criadora para a torre de controle
+          navigate('/super-admin-dashboard');
         } else {
           navigate('/');
         }

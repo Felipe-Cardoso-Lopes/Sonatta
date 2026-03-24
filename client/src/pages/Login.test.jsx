@@ -116,13 +116,13 @@ describe('Componente de Login', () => {
     });
   });
 
-  it('deve realizar login com sucesso e redirecionar o admin', async () => {
+  it('deve realizar login com sucesso e redirecionar a instituicao', async () => {
     global.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         token: 'fake-jwt-token',
-        name: 'Carlos Admin', 
-        role: 'admin'
+        name: 'Carlos Instituição', 
+        role: 'instituicao' // Novo formato
       }),
     });
 
@@ -132,14 +132,42 @@ describe('Componente de Login', () => {
       </MemoryRouter>
     );
 
-    await userEvent.type(screen.getByPlaceholderText('seuemail@exemplo.com'), 'admin@teste.com');
-    await userEvent.type(screen.getByPlaceholderText('********'), 'senha-segura-admin');
+    await userEvent.type(screen.getByPlaceholderText('seuemail@exemplo.com'), 'instituicao@teste.com');
+    await userEvent.type(screen.getByPlaceholderText('********'), 'senha-segura');
 
     await userEvent.click(screen.getByRole('button', { name: /entrar/i }));
 
     await waitFor(() => {
-      expect(localStorage.getItem('userRole')).toBe('admin');
-      expect(mockNavigate).toHaveBeenCalledWith('/admin-dashboard');
+      expect(localStorage.getItem('userRole')).toBe('instituicao');
+      // ATENÇÃO: Se no seu App.jsx a rota for /instituicao-dashboard, altere a linha abaixo
+      expect(mockNavigate).toHaveBeenCalledWith('/instituicao-dashboard');
+    });
+  });
+
+  it('deve realizar login com sucesso e redirecionar o super admin', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        token: 'fake-jwt-token',
+        name: 'Equipe Sonatta', 
+        role: 'super_admin' // O seu usuário mestre
+      }),
+    });
+
+    render(
+      <MemoryRouter>
+        <Login />
+      </MemoryRouter>
+    );
+
+    await userEvent.type(screen.getByPlaceholderText('seuemail@exemplo.com'), 'admin@sonatta.com');
+    await userEvent.type(screen.getByPlaceholderText('********'), 'senha-mestra');
+
+    await userEvent.click(screen.getByRole('button', { name: /entrar/i }));
+
+    await waitFor(() => {
+      expect(localStorage.getItem('userRole')).toBe('super_admin');
+      expect(mockNavigate).toHaveBeenCalledWith('/super-admin-dashboard');
     });
   });
 });

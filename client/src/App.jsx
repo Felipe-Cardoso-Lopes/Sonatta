@@ -7,7 +7,7 @@ import Register from './pages/Register';
 import HowItWorks from './pages/HowItWorks';
 import StudentDashboard from './pages/StudentDashboard';
 import TeacherDashboard from './pages/TeacherDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+import InstituicaoDashboard from './pages/InstituicaoDashboard';
 import AboutYou from './pages/AboutYou';
 import MusicalProfile from './pages/MusicalProfile';
 import StudentProfile from './pages/StudentProfile';
@@ -15,10 +15,10 @@ import StudentLessons from './pages/StudentLessons';
 import StudentPractice from './pages/StudentPractice';
 import TeacherOverview from './pages/TeacherOverview';
 import TeacherManagement from './pages/TeacherManagement';
-import AdminOverview from './pages/AdminOverview';
-import AdminManagement from './pages/AdminManagement';
-import AdminFinancial from './pages/AdminFinancial';
-import AdminSettings from './pages/AdminSettings';
+import InstituicaoOverview from './pages/InstituicaoOverview';
+import InstituicaoManagement from './pages/InstituicaoManagement';
+import InstituicaoFinancial from './pages/InstituicaoFinancial';
+import InstituicaoSettings from './pages/InstituicaoSettings';
 
 function App() {
   return (
@@ -43,12 +43,12 @@ function App() {
           <Route path="/teacher/overview" element={<TeacherOverview />} />
           <Route path="/teacher/management" element={<TeacherManagement />} />
 
-          {/*Rotas do admin*/}
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/overview" element={<AdminOverview />} />
-          <Route path="/admin/management" element={<AdminManagement />} />
-          <Route path="/admin/financial" element={<AdminFinancial />} />
-          <Route path="/admin/settings" element={<AdminSettings />} />
+          {/*Rotas do instituicao*/}
+          <Route path="/instituicao-dashboard" element={<InstituicaoDashboard />} />
+          <Route path="/instituicao/overview" element={<InstituicaoOverview />} />
+          <Route path="/instituicao/management" element={<InstituicaoManagement />} />
+          <Route path="/instituicao/financial" element={<InstituicaoFinancial />} />
+          <Route path="/instituicao/settings" element={<InstituicaoSettings />} />
 
         </Routes>
       </Router>
