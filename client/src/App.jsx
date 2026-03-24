@@ -19,6 +19,7 @@ import InstituicaoOverview from './pages/InstituicaoOverview';
 import InstituicaoManagement from './pages/InstituicaoManagement';
 import InstituicaoFinancial from './pages/InstituicaoFinancial';
 import InstituicaoSettings from './pages/InstituicaoSettings';
+import SuperAdminDashboard from './pages/SuperAdminDashboard';
 
 function App() {
   return (
