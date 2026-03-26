@@ -51,6 +51,9 @@ function App() {
           <Route path="/instituicao/financial" element={<InstituicaoFinancial />} />
           <Route path="/instituicao/settings" element={<InstituicaoSettings />} />
 
+          {/* Rota do Super Admin (Torre de Controle) */}
+          <Route path="/super-admin-dashboard" element={<SuperAdminDashboard />} />
+
         </Routes>
       </Router>
     </div>
