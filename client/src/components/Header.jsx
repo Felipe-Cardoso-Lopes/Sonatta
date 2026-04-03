@@ -1,22 +1,15 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 // Adicionamos a prop 'variant' com um valor padrão 'public'
-function Header({ variant = 'public' }) { 
-  const navigate = useNavigate();
-
-  // Função para lidar com o logout
-  const handleLogout = () => {
-    // Limpa os dados de autenticação armazenados
-    localStorage.removeItem('token');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userName');
-    
-    console.log("Usuário deslogado e sessão limpa!");
-    
-    // Redireciona o utilizador para a página inicial
-    navigate('/'); 
-  };
+function Header() { 
+ const location = useLocation();
+  // Esconde os botões se estiver nas rotas de autenticação/cadastro
+  const hideAuthLinks = 
+    location.pathname === '/login' || 
+    location.pathname === '/register' || 
+    location.pathname.startsWith('/about-you') || 
+    location.pathname.startsWith('/musical-profile');
 
   return (
     <header className="relative z-10 flex justify-between items-center p-5">
@@ -34,20 +27,7 @@ function Header({ variant = 'public' }) {
       </div>
 
 
-      {/* Navegação que muda com base na 'variant' */}
-      <nav>
-        {variant === 'dashboard' ? (
-          // Se a variant for 'dashboard', mostra a navegação para usuários LOGADOS
-          <div className="flex items-center gap-4">
-            <Link to="/profile" className="hover:underline">Meu Perfil</Link>
-            <button 
-              onClick={handleLogout} 
-              className="bg-red-500 hover:bg-red-600 transition-colors text-white font-bold py-2 px-4 rounded-md"
-            >
-              Sair
-            </button>
-          </div>
-        ) : (
+      {!hideAuthLinks && (
           // Senão, mostra a navegação para visitantes (padrão)
           <div className="flex gap-6">
         <Link to="/register" className="text-xl hover:font-bold">
@@ -60,7 +40,6 @@ function Header({ variant = 'public' }) {
       </div>
 
         )}
-      </nav>
     </header>
   );
 }

@@ -81,9 +81,9 @@ const loginUser = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
-    // Adicionamos o birth_date na busca
+    // Busca removida do campo 'gender'
     const result = await db.query(
-      'SELECT id, name, nickname, email, gender, birth_date, created_at FROM users WHERE id = $1', 
+      'SELECT id, name, nickname, email, birth_date, created_at FROM users WHERE id = $1', 
       [req.user.id]
     );
 
@@ -103,12 +103,10 @@ const updateUserProfile = async (req, res) => {
   const { name, nickname, email, password } = req.body; 
   
   try {
-    // Começamos a montar a query dinamicamente
     let query = 'UPDATE users SET name = COALESCE($1, name), nickname = COALESCE($2, nickname), email = COALESCE($3, email)';
     let values = [name, nickname, email];
     let valueIndex = 4;
 
-    // Se o usuário enviou uma senha nova, nós a criptografamos e adicionamos na query
     if (password && password.trim() !== '') {
       const salt = await bcrypt.genSalt(10);
       const password_hash = await bcrypt.hash(password, salt);
@@ -117,7 +115,6 @@ const updateUserProfile = async (req, res) => {
       valueIndex++;
     }
 
-    // Finaliza a query
     query += ` WHERE id = $${valueIndex} RETURNING id, name, nickname, email, role`;
     values.push(id);
 
@@ -134,22 +131,22 @@ const updateUserProfile = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    // Se o e-mail já existir em outra conta, o banco vai dar erro de restrição (UNIQUE)
     if (error.code === '23505') {
       return res.status(400).json({ message: 'Este e-mail já está em uso por outra conta.' });
     }
     res.status(500).json({ message: 'Erro no servidor ao atualizar perfil.' });
   }
 };
-// Função para concluir o cadastro com os dados "Sobre Você"
+
 const completeRegistration = async (req, res) => {
   const { id } = req.params;
-  const { nickname, birth_date, gender } = req.body;
+  const { nickname, birth_date } = req.body; // Removido gender
 
   try {
+    // Removido gender da Query de UPDATE
     const result = await db.query(
-      'UPDATE users SET nickname = $1, birth_date = $2, gender = $3 WHERE id = $4 RETURNING *',
-      [nickname, birth_date, gender, id]
+      'UPDATE users SET nickname = $1, birth_date = $2 WHERE id = $3 RETURNING *',
+      [nickname, birth_date, id]
     );
 
     if (result.rows.length === 0) {
@@ -163,7 +160,6 @@ const completeRegistration = async (req, res) => {
   }
 };
 
-// Função para salvar preferências do perfil musical (tags do modal)
 const saveMusicalPreferences = async (req, res) => {
   const { userId, nivel, instrumentos, generos } = req.body;
 
@@ -184,5 +180,4 @@ const saveMusicalPreferences = async (req, res) => {
   }
 };
 
-// O module.exports TEM que ser a última coisa no arquivo!
 module.exports = { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences, getUserProfile };

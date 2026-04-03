@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom'; // Importado useLocation
 import axios from 'axios';
 import Header from '../components/Header';
 import Button from '../components/Button';
@@ -16,6 +16,11 @@ function MusicalProfile() {
   
   const navigate = useNavigate();
   const { id: userId } = useParams();
+  const location = useLocation();
+
+  // Pega os dados enviados da tela AboutYou
+  const authData = location.state?.authData;
+  const nicknameFromAboutYou = location.state?.nickname;
 
   const toggleSelecao = (item, listaAtual, setLista) => {
     if (listaAtual.includes(item)) {
@@ -25,7 +30,7 @@ function MusicalProfile() {
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleFinishProfile = async (e) => { // Renomeado para handleFinishProfile
     e.preventDefault();
 
     if (!nivelSelecionado || instrumentosSelecionados.length === 0 || generosSelecionados.length === 0) {
@@ -35,6 +40,7 @@ function MusicalProfile() {
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       
+      // Chamada para salvar as preferências musicais no backend
       await axios.post(`${API_URL}/api/users/preferences`, {
         userId: userId,
         nivel: nivelSelecionado,
@@ -42,8 +48,29 @@ function MusicalProfile() {
         generos: generosSelecionados
       });
 
-      alert("Perfil musical criado com sucesso! Faça seu login.");
-      navigate('/login');
+      // AUTO-LOGIN LOGIC
+      if (authData) {
+        localStorage.setItem('token', authData.token);
+        localStorage.setItem('userRole', authData.role);
+        localStorage.setItem('userName', authData.name);
+        localStorage.setItem('userNickname', nicknameFromAboutYou || authData.nickname || '');
+
+        alert("Cadastro concluído com sucesso! Bem-vindo(a)!");
+
+        // Redireciona de acordo com o cargo
+        if (authData.role === 'aluno') { 
+          navigate('/student-dashboard');
+        } else if (authData.role === 'professor') { 
+          navigate('/teacher-dashboard');
+        } else {
+          navigate('/');
+        }
+      } else {
+        // Fallback: Se por algum motivo authData não estiver presente
+        alert("Cadastro concluído! Por favor, faça login.");
+        navigate('/login');
+      }
+
     } catch (error) {
       console.error('Erro ao salvar preferências:', error);
       alert("Erro ao salvar suas preferências. Tente novamente.");
@@ -57,8 +84,8 @@ function MusicalProfile() {
       onClick={onClick}
       className={`px-4 py-2 m-1 rounded-full text-sm font-semibold transition-all duration-300 border ${
         isSelected 
-          ? 'bg-white-text text-dark-bg border-white-text scale-105 shadow-[0_0_10px_rgba(255,255,255,0.5)]' 
-          : 'bg-transparent text-gray-400 border-gray-600 hover:border-gray-400'
+          ? 'bg-white-text text-dark-bg border-white-text  hover:border-purple-500 scale-105 shadow-[0_0_10px_rgba(255,255,255,0.5)]' 
+          : 'bg-dark-bg border border-gray-600 text-white-text focus:outline-none hover:border-purple-500'
       }`}
     >
       {label}
@@ -76,7 +103,7 @@ function MusicalProfile() {
             <h2 className="text-3xl font-bold mb-2 text-center">Seu Perfil Musical</h2>
             <p className="text-gray-400 text-center mb-8">Conte-nos o que você curte para personalizarmos sua experiência.</p>
             
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleFinishProfile} className="space-y-8"> {/* Alterado para handleFinishProfile */}
               
               {/* Seção: Nível */}
               <section>

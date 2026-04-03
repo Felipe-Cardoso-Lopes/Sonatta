@@ -49,8 +49,8 @@ function Register() {
 
       if (response.ok) {
         alert("Cadastro inicial realizado! Agora, vamos configurar seu perfil.");
-        // Redireciona para a configuração de perfil usando o ID retornado pelo banco
-        navigate(`/about-you/${data.id}`);
+        // Redireciona com o ID e passa os dados do 'data' (que contém o token) embutidos no estado
+        navigate(`/about-you/${data.id}`, { state: { authData: data } });
       } else {
         alert(data.message || "Erro ao realizar cadastro.");
       }

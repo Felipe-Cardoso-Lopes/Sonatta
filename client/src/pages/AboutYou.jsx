@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Header from '../components/Header';
 import Input from '../components/Input';
@@ -9,9 +9,13 @@ import MusicParticles from '../components/MusicParticles';
 function AboutYou() {
   const [nickname, setNickname] = useState('');
   const [birthDate, setBirthDate] = useState('');
-  const [gender, setGender] = useState('');
+  
   const navigate = useNavigate();
   const { id: userId } = useParams();
+  const location = useLocation();
+
+  // Pega os dados de autenticação que vieram da tela de registro
+  const authData = location.state?.authData;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,17 +24,18 @@ function AboutYou() {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       
       // Chamada para a nova rota de conclusão
-      const response = await axios.put(`${API_URL}/api/users/complete/${userId}`, {
+       await axios.put(`${API_URL}/api/users/complete/${userId}`, {
         nickname: nickname,
         birth_date: birthDate,
-        gender: gender
+      
       });
 
-      console.log('Cadastro finalizado:', response.data);
-      alert("Cadastro concluído com sucesso! Agora você pode entrar.");
-      navigate(`/musical-profile/${userId}`); // Nova tela de tags
+      alert("Etapa concluída! Vamos configurar seu Perfil Musical agora.");
+      
+   // Passa os dados de autenticação para a última tela
+      navigate(`/musical-profile/${userId}`, { state: { authData, nickname } }); 
     } catch (error) {
-      console.error('Erro ao finalizar cadastro:', error);
+      console.error('Erro ao salvar etapa 2:', error);
       alert(error.response?.data?.message || "Erro ao salvar seu perfil.");
     }
   };
@@ -58,28 +63,13 @@ function AboutYou() {
               <label className="text-sm font-bold mb-2">Data de Nascimento</label>
               <input 
                 type="date"
-                className="w-full p-2 rounded bg-gray-800 border border-gray-600 focus:border-white outline-none transition-colors"
+                className="w-full p-2 rounded bg-dark-bg border border-gray-600 text-white-text focus:outline-none focus:border-purple-500 outline-none transition-colors"
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
                 required
               />
             </div>
 
-            <div className="flex flex-col">
-              <label className="text-sm font-bold mb-2">Sexo</label>
-              <select 
-                className="w-full p-2 rounded bg-gray-800 border border-gray-600 focus:border-white outline-none transition-colors"
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                required
-              >
-                <option value="" disabled hidden>Selecione</option>
-                <option value="Masculino">Masculino</option>
-                <option value="Feminino">Feminino</option>
-                <option value="Prefiro não dizer">Prefiro não dizer</option>
-                
-              </select>
-            </div>
 
             <Button type="submit" variant="primary" className="w-full mt-6">
               Concluir Cadastro

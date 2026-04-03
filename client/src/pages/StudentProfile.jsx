@@ -8,18 +8,15 @@ function StudentProfile() {
     nickname: '',
     email: '',
     birthDate: '',
-    gender: ''
   });
   
-  // Estado para controlar se estamos no modo de edição
   const [isEditing, setIsEditing] = useState(false);
   
-  // Estado para armazenar os dados do formulário temporariamente
   const [formData, setFormData] = useState({
     name: '',
     nickname: '',
     email: '',
-    password: '' // Senha fica em branco, só preenche se for alterar
+    password: '' 
   });
 
   const [loading, setLoading] = useState(true);
@@ -42,27 +39,21 @@ function StudentProfile() {
       // Formata a data de nascimento (evitando problemas de fuso horário)
       let dataNascimentoFormatada = 'Não informada';
       if (userData.birth_date) {
-        // Usa UTC para evitar que o dia volte 1 dia para trás devido ao fuso do Brasil
         dataNascimentoFormatada = new Date(userData.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
       }
-
-      // Como o backend já devolve "Masculino" ou "Feminino", apenas pegamos o valor direto:
-      let generoFormatado = userData.gender || 'Não informado';
 
       setUser({
         name: userData.name,
         nickname: userData.nickname || '',
         email: userData.email,
         birthDate: dataNascimentoFormatada,
-        gender: generoFormatado
       });
 
-      // Popula o formulário de edição com os dados atuais
       setFormData({
         name: userData.name,
         nickname: userData.nickname || '',
         email: userData.email,
-        password: '' // Senha vazia por padrão
+        password: '' 
       });
 
     } catch (error) {
@@ -88,17 +79,23 @@ function StudentProfile() {
 
       alert(response.data.message);
       
-      // Atualiza o localStorage caso o nome/apelido tenha mudado
       localStorage.setItem('userName', response.data.user.name);
       localStorage.setItem('userNickname', response.data.user.nickname);
 
-      // Desliga o modo de edição e busca os dados atualizados
       setIsEditing(false);
       fetchUserProfile();
 
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
       alert(error.response?.data?.message || 'Erro ao atualizar perfil.');
+    }
+  };
+
+  // Função de Logout
+  const handleLogout = () => {
+    if (window.confirm("Tem certeza que deseja sair?")) {
+      localStorage.clear();
+      window.location.href = '/'; 
     }
   };
 
@@ -118,7 +115,6 @@ function StudentProfile() {
         <div className="w-full h-full flex flex-col gap-8">
           
           <section className="flex flex-col lg:flex-row gap-8">
-            {/* Card de Perfil */}
             <div className="flex-1 flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                 
@@ -161,22 +157,31 @@ function StudentProfile() {
                       
                       <div className="flex flex-col sm:flex-row sm:justify-between text-gray-400 text-sm border-t border-gray-600 pt-3 gap-2">
                         <span><strong>Data de Nascimento:</strong> {user.birthDate}</span>
-                        <span><strong>Gênero:</strong> {user.gender}</span>
+                        {/* Gênero removido daqui */}
                       </div>
                     </>
                   )}
                 </div>
               </div>
 
-              {/* Botão de Editar (some quando já estiver editando) */}
-              {!isEditing && (
+              {/* Botões de Ação */}
+              <div className="flex gap-4 mt-2">
+                {!isEditing && (
+                  <button 
+                    onClick={() => setIsEditing(true)} 
+                    className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors shadow-md font-semibold"
+                  >
+                    Editar Perfil
+                  </button>
+                )}
+                
                 <button 
-                  onClick={() => setIsEditing(true)} 
-                  className="bg-purple-600 text-white w-32 py-2 rounded-lg hover:bg-purple-700 transition-colors shadow-md"
+                  onClick={handleLogout} 
+                  className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-md font-semibold"
                 >
-                  Editar Perfil
+                  Sair da Conta
                 </button>
-              )}
+              </div>
             </div>
 
             {/* Card de Medalhas */}
