@@ -16,12 +16,12 @@ function SuperAdminSidebar() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <aside className="w-full md:w-64 bg-dark-gray border-r border-gray-800 flex flex-col min-h-screen">
+    <aside className="w-full md:w-64 border border-key-divider border-r border-gray-800 flex flex-col min-h-screen">
       {/* Cabeçalho da Sidebar / Logo */}
       <div className="p-6 flex items-center justify-center border-b border-gray-800">
         <Link to="/super-admin-dashboard" className="flex items-center gap-3 transition-transform hover:scale-105">
           <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" className="w-10 h-10" />
-          <span className="text-2xl font-bold text-white-text">Sonatta</span>
+          <span className="text-2xl font-bold text-pure-white">Sonatta</span>
         </Link>
       </div>
       

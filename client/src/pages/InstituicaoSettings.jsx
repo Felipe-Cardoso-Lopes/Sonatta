@@ -21,7 +21,7 @@ function InstituicaoSettings() {
   ];
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-new-bg text-pure-white font-poppins flex flex-col md:flex-row">
       <InstituicaoSidebar />
 
       {/* Conteúdo Principal */}
@@ -29,7 +29,7 @@ function InstituicaoSettings() {
         
         {/* Coluna de Menu Secundária */}
         <aside className="w-full lg:w-1/4 lg:max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
-          <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold">
+          <button className="bg-piano-black border-r border-key-divider w-full py-3 rounded-lg font-bold">
             Configurações da Escola
           </button>
           <button className="bg-white text-dark-bg w-full py-3 rounded-lg font-semibold shadow-md">

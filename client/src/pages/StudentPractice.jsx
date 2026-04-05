@@ -110,7 +110,7 @@ function StudentPractice() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-dark-bg text-pure-white font-poppins flex flex-col md:flex-row">
       
       <div className="shrink-0 z-20">
         <StudentSidebar />
@@ -120,7 +120,7 @@ function StudentPractice() {
         
         {/* Coluna da Esquerda: Lista de Cursos para Praticar */}
         <aside className="w-full lg:w-1/3 lg:max-w-sm bg-gray-800 rounded-lg p-4 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-4rem)] shadow-lg">
-          <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold hover:bg-opacity-80 transition-colors">
+          <button className="bg-piano-black border-r border-key-divider w-full py-3 rounded-lg font-bold hover:bg-opacity-80 transition-colors">
             Praticar
           </button>
           

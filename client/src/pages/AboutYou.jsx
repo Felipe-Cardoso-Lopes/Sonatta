@@ -41,11 +41,11 @@ function AboutYou() {
   };
 
   return (
-    <div className="h-screen bg-dark-bg text-white-text">
+    <div className="h-screen bg-dark-bg text-pure-white">
       <MusicParticles />
       <Header />
       <main className="relative z-10 flex-grow flex items-center justify-center w-full pt-20">
-        <div className="bg-dark-gray p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-700">
+        <div className="border border-key-divider p-8 rounded-lg shadow-lg w-full max-w-md border border-gray-700">
           <h2 className="text-3xl font-bold mb-6 text-center">Sobre Você</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             
@@ -63,7 +63,7 @@ function AboutYou() {
               <label className="text-sm font-bold mb-2">Data de Nascimento</label>
               <input 
                 type="date"
-                className="w-full p-2 rounded bg-dark-bg border border-gray-600 text-white-text focus:outline-none focus:border-purple-500 outline-none transition-colors"
+                className="w-full p-2 rounded bg-dark-bg border border-gray-600 text-pure-white focus:outline-none focus:border-purple-500 outline-none transition-colors"
                 value={birthDate}
                 onChange={(e) => setBirthDate(e.target.value)}
                 required

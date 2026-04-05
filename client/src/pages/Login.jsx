@@ -62,12 +62,12 @@ function Login() {
   };
 
   return (
-    <div className="relative min-h-screen bg-dark-bg text-white-text font-poppins overflow-hidden">
+    <div className="relative min-h-screen bg-dark-bg text-pure-white font-poppins overflow-hidden">
       <MusicParticles />
       <div className="relative z-10 flex flex-col h-screen">
         <Header />
         <main className="flex-grow flex items-center justify-center w-full">
-          <div className="bg-dark-gray p-8 rounded-lg shadow-lg w-full max-w-md">
+          <div className="border border-key-divider p-8 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-3xl font-bold mb-6 text-center">Entrar</h2>
             <form onSubmit={handleSubmit}>
               <Input
@@ -91,7 +91,7 @@ function Login() {
               <div className="mb-6 text-right">
                 <Link
                   to="/forgot-password"
-                  className="text-sm text-white-text hover:underline"
+                  className="text-sm text-pure-white hover:underline"
                 >
                   Esqueceu a senha?
                 </Link>
@@ -104,7 +104,7 @@ function Login() {
               Não tem uma conta?{" "}
               <Link
                 to="/register"
-                className="text-white-text font-bold hover:underline"
+                className="text-pure-white font-bold hover:underline"
               >
                 Cadastre-se
               </Link>

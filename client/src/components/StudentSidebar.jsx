@@ -19,7 +19,7 @@ const NavIndicator = ({ to, children }) => {
 
 function StudentSidebar() {
   return (
-    <aside className="w-24 min-h-screen bg-sidebar-bg p-4 flex flex-col justify-between items-center ">
+    <aside className="w-24 min-h-screen bg-piano-black border-r border-key-divider p-4 flex flex-col justify-between items-center ">
       <div className="flex flex-col items-center gap-6">
         
         {/* Logo Sonatta */}

@@ -23,7 +23,7 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 
 function App() {
   return (
-    <div className="w-screen min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
+    <div className="w-screen min-h-screen bg-dark-bg text-pure-white font-poppins flex flex-col">
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />

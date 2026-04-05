@@ -115,13 +115,13 @@ function StudentLessons() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-dark-bg text-pure-white font-poppins flex flex-col md:flex-row">
       <StudentSidebar />
 
       <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8 overflow-hidden">
         {/* Coluna da Esquerda: Lista de Cursos */}
         <aside className="w-full lg:w-1/3 bg-gray-800 rounded-lg p-4 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-4rem)] shadow-lg">
-          <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold hover:bg-opacity-80 transition-colors">
+          <button className="bg-piano-black border-r border-key-divider w-full py-3 rounded-lg font-bold hover:bg-opacity-80 transition-colors">
             Aprender
           </button>
 
@@ -164,7 +164,7 @@ function StudentLessons() {
                   <span className="text-2xl text-purple-400">›</span>
                 </div>
 
-                <button className="w-full bg-sidebar-bg py-3 rounded-lg font-bold hover:bg-opacity-80 mb-6 transition-colors shadow-md">
+                <button className="w-full bg-piano-black border-r border-key-divider py-3 rounded-lg font-bold hover:bg-opacity-80 mb-6 transition-colors shadow-md">
                   Continuar Aprendendo
                 </button>
 
