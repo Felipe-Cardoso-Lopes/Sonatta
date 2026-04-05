@@ -1,29 +1,46 @@
-// felipe-cardoso-lopes/sonatta/Sonatta-d63186ec006a2e56cd14b87d9cb8564ef4006ca1/client/src/App.jsx
+// felipe-cardoso-lopes/sonatta/client/src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
+// Páginas Públicas e de Autenticação
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import HowItWorks from './pages/HowItWorks';
-import StudentDashboard from './pages/StudentDashboard';
-import TeacherDashboard from './pages/TeacherDashboard';
-import InstituicaoDashboard from './pages/InstituicaoDashboard';
 import AboutYou from './pages/AboutYou';
 import MusicalProfile from './pages/MusicalProfile';
+import PendingApproval from './pages/PendingApproval'; // NOVO: Sala de espera do usuário comum
+
+// Páginas do Aluno
+import StudentDashboard from './pages/StudentDashboard';
 import StudentProfile from './pages/StudentProfile';
 import StudentLessons from './pages/StudentLessons';
 import StudentPractice from './pages/StudentPractice';
+import StudentChat from './pages/StudentChat'; // NOVO
+
+// Páginas do Professor
+import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherOverview from './pages/TeacherOverview';
 import TeacherManagement from './pages/TeacherManagement';
+import TeacherProfile from './pages/TeacherProfile'; // NOVO
+import TeacherChat from './pages/TeacherChat'; // NOVO
+
+// Páginas da Instituição
+import InstituicaoDashboard from './pages/InstituicaoDashboard';
 import InstituicaoOverview from './pages/InstituicaoOverview';
 import InstituicaoManagement from './pages/InstituicaoManagement';
 import InstituicaoFinancial from './pages/InstituicaoFinancial';
 import InstituicaoSettings from './pages/InstituicaoSettings';
+
+// Páginas do Super Admin
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
+import SuperAdminSchools from './pages/SuperAdminSchools'; // NOVO
+import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions'; // NOVO
+import SuperAdminSystem from './pages/SuperAdminSystem'; // NOVO
 
 function App() {
   return (
-    <div className="w-screen min-h-screen bg-dark-bg text-pure-white font-poppins flex flex-col">
+    <div className="w-screen min-h-screen bg-piano-black text-pure-white font-poppins flex flex-col">
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -33,26 +50,35 @@ function App() {
           <Route path="/about-you/:id" element={<AboutYou />} />
           <Route path="/musical-profile/:id" element={<MusicalProfile />} />
           
-          {/*Rotas do aluno*/}
+          {/* Rota do Usuário Comum (Sem vínculo) */}
+          <Route path="/pending-approval" element={<PendingApproval />} />
+          
+          {/* Rotas do Aluno */}
           <Route path="/student-dashboard" element={<StudentDashboard />} />
           <Route path="/student-profile" element={<StudentProfile />} />
           <Route path="/lessons" element={<StudentLessons />} />
           <Route path="/practice" element={<StudentPractice />} />
+          <Route path="/student/chat" element={<StudentChat />} />
 
-          {/*Rotas do professor*/}
+          {/* Rotas do Professor */}
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/overview" element={<TeacherOverview />} />
           <Route path="/teacher/management" element={<TeacherManagement />} />
+          <Route path="/teacher/profile" element={<TeacherProfile />} />
+          <Route path="/teacher/chat" element={<TeacherChat />} />
 
-          {/*Rotas do instituicao*/}
+          {/* Rotas da Instituição */}
           <Route path="/instituicao-dashboard" element={<InstituicaoDashboard />} />
           <Route path="/instituicao/overview" element={<InstituicaoOverview />} />
           <Route path="/instituicao/management" element={<InstituicaoManagement />} />
           <Route path="/instituicao/financial" element={<InstituicaoFinancial />} />
           <Route path="/instituicao/settings" element={<InstituicaoSettings />} />
 
-          {/* Rota do Super Admin (Torre de Controle) */}
+          {/* Rotas do Super Admin (Torre de Controle) */}
           <Route path="/super-admin-dashboard" element={<SuperAdminDashboard />} />
+          <Route path="/super-admin/schools" element={<SuperAdminSchools />} />
+          <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptions />} />
+          <Route path="/super-admin/system" element={<SuperAdminSystem />} />
 
         </Routes>
       </Router>

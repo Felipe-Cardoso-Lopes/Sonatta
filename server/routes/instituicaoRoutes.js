@@ -1,9 +1,9 @@
-// server/routes/adminRoutes.js
 const express = require('express');
 const router = express.Router();
-const { getDashboardStats } = require('../controllers/adminController');
+const { approveUser } = require('../controllers/instituicaoController');
+const { protect } = require('../middlewares/authMiddleware'); // Seu middleware de JWT
 
-// Rota GET: /api/admin/stats
-router.get('/stats', getDashboardStats);
+// Rota protegida: Apenas usuários logados (instituições) podem acessar
+router.put('/approve-user', protect, approveUser);
 
 module.exports = router;

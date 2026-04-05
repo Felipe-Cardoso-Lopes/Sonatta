@@ -3,15 +3,15 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  // 1. Não extraímos mais o 'role' do req.body
+  const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
     return res.status(400).json({ message: 'Por favor, preencha todos os campos.' });
   }
 
-  let userRole = 'aluno'; 
-  if (role === 'professor' || role === 'ensinar') userRole = 'professor';
-  else if (role === 'admin') userRole = 'admin';
+  // 2. Regra de Negócio: Todo novo usuário público nasce como pendente
+  const userRole = 'pending'; 
 
   try {
     const userExists = await db.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -22,6 +22,7 @@ const registerUser = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
+    // 3. Insere no banco com o userRole fixado em 'pending'
     const newUser = await db.query(
       'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
       [name, email, password_hash, userRole] 
@@ -37,7 +38,7 @@ const registerUser = async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role,
+      role: user.role, // Aqui o frontend vai receber 'pending'
       token,
     });
   } catch (error) {

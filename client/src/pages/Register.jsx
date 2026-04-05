@@ -12,7 +12,6 @@ function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'aluno',
   });
   const [acceptTerms, setAcceptTerms] = useState(false);
 
@@ -23,7 +22,6 @@ function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validações básicas
     if (formData.password !== formData.confirmPassword) {
       return alert("As senhas não coincidem!");
     }
@@ -40,8 +38,7 @@ function Register() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          password: formData.password,
-          role: formData.role
+          password: formData.password
         })
       });
 
@@ -49,7 +46,6 @@ function Register() {
 
       if (response.ok) {
         alert("Cadastro inicial realizado! Agora, vamos configurar seu perfil.");
-        // Redireciona com o ID e passa os dados do 'data' (que contém o token) embutidos no estado
         navigate(`/about-you/${data.id}`, { state: { authData: data } });
       } else {
         alert(data.message || "Erro ao realizar cadastro.");
@@ -85,22 +81,8 @@ function Register() {
                 label="Confirme a Senha" id="confirmPassword" name="confirmPassword" type="password"
                 placeholder="Confirme sua senha" value={formData.confirmPassword} onChange={handleChange} required
               />
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-pure-white mb-1" htmlFor="role">
-                  Eu sou um:
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full p-2 rounded bg-dark-bg border border-gray-600 text-pure-white focus:outline-none focus:border-purple-500"
-                >
-                  <option value="aluno">Aluno (Quero aprender)</option>
-                  <option value="professor">Professor (Quero ensinar)</option>
-                </select>
-              </div>
-              <div className="mb-6 flex items-center">
+              
+              <div className="mb-6 flex items-center mt-4">
                 <input
                   type="checkbox" id="acceptTerms" checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
