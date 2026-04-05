@@ -34,10 +34,19 @@ function SuperAdminDashboard() {
 
         if (response.ok) {
           const data = await response.json();
-          setStats(data);
+          // Correção: Garante que o status do servidor mude para 'Online' se a API responder,
+          // mesclando com os dados de totalSchools e totalUsers vindos do banco.
+          setStats({
+            totalSchools: data.totalSchools || 0,
+            totalUsers: data.totalUsers || 0,
+            serverStatus: 'Online'
+          });
+        } else {
+          setStats(prev => ({ ...prev, serverStatus: 'Instável' }));
         }
       } catch (error) {
         console.error("Erro ao carregar métricas globais:", error);
+        setStats(prev => ({ ...prev, serverStatus: 'Offline' }));
       }
     };
 
@@ -69,7 +78,10 @@ function SuperAdminDashboard() {
               </div>
               <div className="bg-dark-gray px-8 py-4 rounded-lg border border-green-700 shadow-md min-w-[150px]">
                 <h3 className="text-sm font-bold text-green-400 uppercase tracking-wider mb-1">Status do Servidor</h3>
-                <p className={`text-3xl font-bold ${stats.serverStatus === 'Online' ? 'text-green-500' : 'text-yellow-500'}`}>
+                <p className={`text-3xl font-bold ${
+                  stats.serverStatus === 'Online' ? 'text-green-500' : 
+                  stats.serverStatus === 'Carregando...' ? 'text-yellow-500' : 'text-red-500'
+                }`}>
                   {stats.serverStatus}
                 </p>
               </div>
@@ -77,7 +89,6 @@ function SuperAdminDashboard() {
           </div>
           
           <section className="flex flex-col xl:flex-row flex-wrap justify-center gap-8 md:gap-12 w-full px-4 md:px-0">
-            {/* ... Seus Links de Gestão de Escolas, Assinaturas e Sistema permanecem os mesmos ... */}
             <Link to="/super-admin/schools" className="group flex flex-col items-center text-center w-full md:w-auto max-w-[260px] md:max-w-none">
               <div className="w-full md:w-[260px] h-[300px] md:h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105 border-4 border-transparent group-hover:border-purple-500">
                 <img src="/assets/Escola.png" alt="Gestão de Escolas" className="w-32 h-32" />

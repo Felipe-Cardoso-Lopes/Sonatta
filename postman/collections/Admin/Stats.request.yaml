@@ -1,0 +1,9 @@
+$kind: http-request
+name: Stats
+url: http://localhost:5000/api/super-admin/stats
+method: GET
+auth:
+  type: bearer
+  credentials:
+    token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTYsInJvbGUiOiJzdXBlcl9hZG1pbiIsImlhdCI6MTc3NDg3ODg1MywiZXhwIjoxNzc3NDcwODUzfQ.Msgxzt_cjCqv7WXf7Az02nuMixY9Yxa14iu9qnr2E7o
+order: 2354845136209345
