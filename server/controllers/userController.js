@@ -1,17 +1,14 @@
-const db = require('../config/db');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-
 const registerUser = async (req, res) => {
-  // 1. Não extraímos mais o 'role' do req.body
-  const { name, email, password } = req.body;
+  // Agora recebemos também o inviteCode do frontend
+  const { name, email, password, inviteCode } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Por favor, preencha todos os campos.' });
+    return res.status(400).json({ message: 'Por favor, preencha todos os campos obrigatórios.' });
   }
 
-  // 2. Regra de Negócio: Todo novo usuário público nasce como pendente
-  const userRole = 'pending'; 
+  // O padrão continua sendo 'pending' e sem vínculo (null)
+  let userRole = 'pending';
+  let instituicao_id = null;
 
   try {
     const userExists = await db.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -19,13 +16,36 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Usuário já cadastrado com este e-mail.' });
     }
 
+    // Lógica do Código de Convite
+    if (inviteCode && inviteCode.trim() !== '') {
+      // Procura a instituição que possui este código exato
+      const schoolResult = await db.query(
+        'SELECT id, codigo_aluno, codigo_professor FROM instituicoes WHERE codigo_aluno = $1 OR codigo_professor = $1',
+        [inviteCode.trim()]
+      );
+
+      if (schoolResult.rows.length === 0) {
+        return res.status(400).json({ message: 'Código de convite inválido. Verifique com a sua instituição.' });
+      }
+
+      const escola = schoolResult.rows[0];
+      instituicao_id = escola.id; // Guarda o ID da escola para salvar no usuário
+
+      // Define se o código usado foi o de aluno ou de professor
+      if (inviteCode.trim() === escola.codigo_aluno) {
+        userRole = 'aluno';
+      } else if (inviteCode.trim() === escola.codigo_professor) {
+        userRole = 'professor';
+      }
+    }
+
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
-    // 3. Insere no banco com o userRole fixado em 'pending'
+    // O INSERT agora envia o instituicao_id para o Supabase
     const newUser = await db.query(
-      'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-      [name, email, password_hash, userRole] 
+      'INSERT INTO users (name, email, password_hash, role, instituicao_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role, instituicao_id',
+      [name, email, password_hash, userRole, instituicao_id]
     );
 
     const user = newUser.rows[0];
@@ -38,7 +58,8 @@ const registerUser = async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role, // Aqui o frontend vai receber 'pending'
+      role: user.role,
+      instituicao_id: user.instituicao_id,
       token,
     });
   } catch (error) {
@@ -46,139 +67,3 @@ const registerUser = async (req, res) => {
     res.status(500).json({ message: 'Erro no servidor' });
   }
 };
-
-const loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(401).json({ message: 'Credenciais inválidas' });
-  }
-
-  try {
-    const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-    const user = result.rows[0];
-
-    if (user && (await bcrypt.compare(password, user.password_hash))) {
-      const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
-        expiresIn: '30d',
-      });
-
-      res.json({
-        id: user.id,
-        name: user.name,
-        nickname: user.nickname,
-        email: user.email,
-        role: user.role,
-        token,
-      });
-    } else {
-      res.status(401).json({ message: 'Credenciais inválidas' });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erro no servidor' });
-  }
-};
-
-const getUserProfile = async (req, res) => {
-  try {
-    // Busca removida do campo 'gender'
-    const result = await db.query(
-      'SELECT id, name, nickname, email, birth_date, created_at FROM users WHERE id = $1', 
-      [req.user.id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
-
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.error('Erro ao buscar perfil:', error);
-    res.status(500).json({ message: 'Erro no servidor ao buscar perfil.' });
-  }
-};
-
-const updateUserProfile = async (req, res) => {
-  const id = req.user.id; 
-  const { name, nickname, email, password } = req.body; 
-  
-  try {
-    let query = 'UPDATE users SET name = COALESCE($1, name), nickname = COALESCE($2, nickname), email = COALESCE($3, email)';
-    let values = [name, nickname, email];
-    let valueIndex = 4;
-
-    if (password && password.trim() !== '') {
-      const salt = await bcrypt.genSalt(10);
-      const password_hash = await bcrypt.hash(password, salt);
-      query += `, password_hash = $${valueIndex}`;
-      values.push(password_hash);
-      valueIndex++;
-    }
-
-    query += ` WHERE id = $${valueIndex} RETURNING id, name, nickname, email, role`;
-    values.push(id);
-
-    const result = await db.query(query, values);
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
-
-    res.json({
-      message: 'Perfil atualizado com sucesso!',
-      user: result.rows[0]
-    });
-
-  } catch (error) {
-    console.error(error);
-    if (error.code === '23505') {
-      return res.status(400).json({ message: 'Este e-mail já está em uso por outra conta.' });
-    }
-    res.status(500).json({ message: 'Erro no servidor ao atualizar perfil.' });
-  }
-};
-
-const completeRegistration = async (req, res) => {
-  const { id } = req.params;
-  const { nickname, birth_date } = req.body; // Removido gender
-
-  try {
-    // Removido gender da Query de UPDATE
-    const result = await db.query(
-      'UPDATE users SET nickname = $1, birth_date = $2 WHERE id = $3 RETURNING *',
-      [nickname, birth_date, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
-
-    res.json({ message: 'Cadastro finalizado com sucesso!', user: result.rows[0] });
-  } catch (error) {
-    console.error('Erro ao completar cadastro:', error);
-    res.status(500).json({ message: 'Erro no servidor ao finalizar cadastro.' });
-  }
-};
-
-const saveMusicalPreferences = async (req, res) => {
-  const { userId, nivel, instrumentos, generos } = req.body;
-
-  try {
-    const result = await db.query(
-      `INSERT INTO user_preferences (user_id, nivel_musical, instrumentos, generos)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT (user_id) 
-       DO UPDATE SET nivel_musical = $2, instrumentos = $3, generos = $4
-       RETURNING *`,
-      [userId, nivel, instrumentos, generos]
-    );
-
-    res.json({ message: 'Preferências salvas com sucesso!', data: result.rows[0] });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erro ao salvar preferências no banco.' });
-  }
-};
-
-module.exports = { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences, getUserProfile };

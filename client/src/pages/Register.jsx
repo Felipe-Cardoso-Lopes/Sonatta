@@ -12,6 +12,7 @@ function Register() {
     email: '',
     password: '',
     confirmPassword: '',
+    inviteCode: '',
   });
   const [acceptTerms, setAcceptTerms] = useState(false);
 
@@ -38,7 +39,8 @@ function Register() {
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
-          password: formData.password
+          password: formData.password,
+          inviteCode: formData.inviteCode,
         })
       });
 
@@ -81,8 +83,17 @@ function Register() {
                 label="Confirme a Senha" id="confirmPassword" name="confirmPassword" type="password"
                 placeholder="Confirme sua senha" value={formData.confirmPassword} onChange={handleChange} required
               />
-              
+
               <div className="mb-6 flex items-center mt-4">
+                <Input
+                  label="Código da Instituição (Opcional)"
+                  id="inviteCode"
+                  name="inviteCode"
+                  type="text"
+                  placeholder="Ex: SONATTA-ALUN-123"
+                  value={formData.inviteCode}
+                  onChange={handleChange}
+                />
                 <input
                   type="checkbox" id="acceptTerms" checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
