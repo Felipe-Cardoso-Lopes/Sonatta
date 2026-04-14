@@ -36,28 +36,28 @@ function TeacherDashboard() {
 
             {/* Card Gerenciamento */}
             <Link to="/teacher/management" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform duration-300 group-hover:scale-105 shadow-xl">
+             <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img 
                   src="/assets/Gerenciamento.png" 
                   alt="Gerenciamento" 
                   className="w-56 h-56 object-contain" // Aumentado para manter o padrão visual do aluno
                 />
               </div>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-semibold text-xl mt-4">
+             <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
                 Gerenciamento
               </span>
             </Link>
             
             {/* Card Visão Geral */}
             <Link to="/teacher/overview" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform duration-300 group-hover:scale-105 shadow-xl">
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img 
                   src="/assets/Overview.png" 
                   alt="Visão Geral" 
                   className="w-56 h-56 object-contain" // Aumentado para manter o padrão visual do aluno
                 />
               </div>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-semibold text-xl mt-4">
+              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
                 Visão Geral
               </span>
             </Link>

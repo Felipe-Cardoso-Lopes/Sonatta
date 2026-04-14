@@ -22,7 +22,7 @@ import StudentPractice from './pages/StudentPractice';
 import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherOverview from './pages/TeacherOverview';
 import TeacherManagement from './pages/TeacherManagement';
-//import TeacherProfile from './pages/TeacherProfile'; // NOVO
+import TeacherProfile from './pages/TeacherProfile'; // NOVO
 //import TeacherChat from './pages/TeacherChat'; // NOVO
 
 // Páginas da Instituição
@@ -64,7 +64,7 @@ function App() {
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/overview" element={<TeacherOverview />} />
           <Route path="/teacher/management" element={<TeacherManagement />} />
-           {/*<Route path="/teacher/profile" element={<TeacherProfile />} />
+          <Route path="/teacher/profile" element={<TeacherProfile />} />
            {/*<Route path="/teacher/chat" element={<TeacherChat />} />
 
           {/* Rotas da Instituição */}

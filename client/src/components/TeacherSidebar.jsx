@@ -45,7 +45,7 @@ function TeacherSidebar() {
       </div>
       
       <NavIndicator to="/teacher-profile">
-        <Link to="/teacher-profile" className="transition-transform hover:scale-125">
+        <Link to="/teacher/profile" className="transition-transform hover:scale-125">
           <img src="/assets/Meu-Perfil.png" alt="Perfil" className="w-9 h-9 scale-150" />
         </Link>
       </NavIndicator>
