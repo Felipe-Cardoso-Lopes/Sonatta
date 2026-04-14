@@ -42,7 +42,7 @@ describe('Testes da Rota de Cadastro (/api/users/register)', () => {
       .send({ email: 'aluno@teste.com' });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe('Por favor, preencha todos os campos.');
+    expect(response.body.message).toBe('Por favor, preencha todos os campos obrigatórios.');
   });
 
   it('deve retornar erro 400 se o e-mail já estiver cadastrado', async () => {
