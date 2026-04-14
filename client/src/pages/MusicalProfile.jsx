@@ -99,8 +99,8 @@ function MusicalProfile() {
       <div className="relative z-10 flex flex-col items-center">
         
         <main className="w-full max-w-2xl mt-10 px-4">
-          <div className="border border-key-divider p-8 rounded-lg shadow-lg border border-gray-700">
-            <h2 className="text-3xl font-bold mb-2 text-center">Seu Perfil Musical</h2>
+          <div className="border border-key-divider p-8 rounded-lg shadow-lg">
+            <h2 className="text-3xl font-bold mb-2 text-center">Seu Perfil Musical</h2>cls
             <p className="text-gray-400 text-center mb-8">Conte-nos o que você curte para personalizarmos sua experiência.</p>
             
             <form onSubmit={handleFinishProfile} className="space-y-8"> {/* Alterado para handleFinishProfile */}
