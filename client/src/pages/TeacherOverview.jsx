@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import TeacherSidebar from '../components/TeacherSidebar';
 
 function TeacherOverview() {
@@ -16,16 +16,29 @@ function TeacherOverview() {
   // ================= ESTADOS DO CHAT =================
   const [activeChatStudent, setActiveChatStudent] = useState(null);
   const [newMessage, setNewMessage] = useState('');
+  const chatScrollRef = useRef(null);
   
-  // Histórico falso para demonstração
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'student', text: 'Professor, estou com dúvidas no compasso 4.', time: '09:15' },
-    { id: 2, sender: 'teacher', text: 'Olá! Não se preocupe, vamos revisar isso no início da aula.', time: '09:30' },
-  ]);
+  // Histórico de chat separado por aluno (Usando o nome como chave para demonstração)
+  const [chatHistories, setChatHistories] = useState({
+    'Lucas Mendes': [
+      { id: 1, sender: 'student', text: 'Professor, estou com dúvidas no compasso 4.', time: '09:15' },
+      { id: 2, sender: 'teacher', text: 'Olá! Não se preocupe, vamos revisar isso no início da aula.', time: '09:30' },
+    ],
+    'Amanda Silva': [
+      { id: 1, sender: 'student', text: 'Posso usar o pedal de sustain no exercício 2?', time: '10:00' },
+    ]
+  });
+
+  // Efeito para rolar o chat para baixo automaticamente
+  useEffect(() => {
+    if (chatScrollRef.current) {
+      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    }
+  }, [activeChatStudent, chatHistories]);
 
   const handleSendMessage = (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() || !activeChatStudent) return;
 
     const msg = {
       id: Date.now(),
@@ -34,13 +47,21 @@ function TeacherOverview() {
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages([...messages, msg]);
+    // Atualiza o histórico apenas do aluno selecionado
+    setChatHistories(prev => ({
+      ...prev,
+      [activeChatStudent]: [...(prev[activeChatStudent] || []), msg]
+    }));
+    
     setNewMessage('');
   };
 
   const openChat = (studentName) => {
     setActiveChatStudent(studentName);
   };
+
+  // Pega as mensagens do aluno atual (ou uma lista vazia se não tiverem conversado)
+  const currentMessages = activeChatStudent ? (chatHistories[activeChatStudent] || []) : [];
 
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative">
@@ -86,10 +107,10 @@ function TeacherOverview() {
                     </div>
                     
                     <div className="flex items-center gap-3">
-                      {/* Botão de Chat Adicionado */}
+                      {/* Botão de Chat */}
                       <button 
                         onClick={() => openChat(lesson.student)}
-                        className="opacity-0 group-hover:opacity-100 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white p-2 rounded-full transition-all duration-300"
+                        className="opacity-0 md:opacity-100 lg:opacity-0 group-hover:opacity-100 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white p-2 rounded-full transition-all duration-300"
                         title="Enviar Mensagem"
                       >
                         💬
@@ -125,34 +146,38 @@ function TeacherOverview() {
           {/* Cabeçalho do Chat */}
           <div className="bg-purple-600 p-3 flex justify-between items-center text-white">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm">
+              <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center font-bold text-sm shadow-inner">
                 {activeChatStudent.charAt(0)}
               </div>
-              <h3 className="font-bold text-sm">{activeChatStudent}</h3>
+              <h3 className="font-bold text-sm truncate max-w-[150px]">{activeChatStudent}</h3>
             </div>
-            <button onClick={() => setActiveChatStudent(null)} className="hover:text-gray-300 font-bold">&times;</button>
+            <button onClick={() => setActiveChatStudent(null)} className="hover:text-gray-300 font-bold text-lg leading-none">&times;</button>
           </div>
 
-          {/* Área de Mensagens */}
-          <div className="flex-grow p-4 bg-gray-900 overflow-y-auto flex flex-col gap-3">
-            {messages.map(msg => (
-              <div key={msg.id} className={`max-w-[80%] p-2 rounded-lg text-sm ${msg.sender === 'teacher' ? 'bg-purple-600 text-white self-end rounded-br-none' : 'bg-gray-700 text-gray-200 self-start rounded-bl-none'}`}>
-                <p>{msg.text}</p>
-                <span className="text-[10px] text-white/50 block mt-1 text-right">{msg.time}</span>
-              </div>
-            ))}
+          {/* Área de Mensagens (com ref para o auto-scroll) */}
+          <div ref={chatScrollRef} className="flex-grow p-4 bg-gray-900 overflow-y-auto flex flex-col gap-3">
+            {currentMessages.length === 0 ? (
+              <p className="text-center text-gray-500 text-sm mt-10">Envie o primeiro "Olá" para {activeChatStudent}!</p>
+            ) : (
+              currentMessages.map(msg => (
+                <div key={msg.id} className={`max-w-[85%] p-2 rounded-lg text-sm break-words ${msg.sender === 'teacher' ? 'bg-purple-600 text-white self-end rounded-br-none' : 'bg-gray-700 text-gray-200 self-start rounded-bl-none'}`}>
+                  <p>{msg.text}</p>
+                  <span className="text-[10px] text-white/50 block mt-1 text-right">{msg.time}</span>
+                </div>
+              ))
+            )}
           </div>
 
-          {/* Input do Chat */}
+          {/* Campo de Digitação */}
           <form onSubmit={handleSendMessage} className="p-3 bg-gray-800 border-t border-gray-700 flex gap-2">
             <input 
               type="text" 
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Digite sua mensagem..." 
-              className="flex-grow bg-gray-900 border border-gray-700 rounded-full px-4 py-2 text-sm text-white outline-none focus:border-purple-500"
+              placeholder="Sua mensagem..." 
+              className="flex-grow bg-gray-900 border border-gray-700 rounded-full px-4 py-2 text-sm text-white outline-none focus:border-purple-500 transition-colors"
             />
-            <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white w-10 h-10 rounded-full flex items-center justify-center transition">
+            <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white w-10 h-10 rounded-full flex items-center justify-center transition shrink-0 shadow-lg">
               ➤
             </button>
           </form>
