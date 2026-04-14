@@ -53,7 +53,7 @@ function InstituicaoDashboard() {
   const userName = "Instituição";
 
   return (
-    <div className="min-h-screen bg-new-bg text-pure-white font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
       <InstituicaoSidebar />
 
       {/* Conteúdo Principal */}
@@ -68,15 +68,15 @@ function InstituicaoDashboard() {
 
             {/* NOVO 3: Faixa de Estatísticas Rápidas */}
             <div className="flex flex-wrap justify-center gap-6 mb-8">
-              <div className="border border-key-divider px-8 py-4 rounded-lg border border-gray-700 shadow-md min-w-[150px]">
+              <div className="bg-dark-gray px-8 py-4 rounded-lg border border-gray-700 shadow-md min-w-[150px]">
                 <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-1">Alunos</h3>
                 <p className="text-3xl font-bold">{stats.totalStudents}</p>
               </div>
-              <div className="border border-key-divider px-8 py-4 rounded-lg border border-gray-700 shadow-md min-w-[150px]">
+              <div className="bg-dark-gray px-8 py-4 rounded-lg border border-gray-700 shadow-md min-w-[150px]">
                 <h3 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-1">Professores</h3>
                 <p className="text-3xl font-bold">{stats.totalTeachers}</p>
               </div>
-              <div className="border border-key-divider px-8 py-4 rounded-lg border border-gray-700 shadow-md min-w-[150px]">
+              <div className="bg-dark-gray px-8 py-4 rounded-lg border border-gray-700 shadow-md min-w-[150px]">
                 <h3 className="text-sm font-bold text-green-400 uppercase tracking-wider mb-1">Aulas</h3>
                 <p className="text-3xl font-bold">{stats.totalLessons}</p>
               </div>
@@ -88,28 +88,28 @@ function InstituicaoDashboard() {
               <div className="w-full md:w-[260px] h-[300px] md:h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img src="/assets/Overview.png" alt="Visão Geral" className="w-32 h-32" />
               </div>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-pure-white">Visão Geral</span>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Visão Geral</span>
             </Link>
             
             <Link to="/instituicao/management" className="group flex flex-col items-center text-center w-full md:w-auto max-w-[260px] md:max-w-none">
               <div className="w-full md:w-[260px] h-[300px] md:h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img src="/assets/Gerenciamento.png" alt="Gerenciamento" className="w-32 h-32" />
               </div>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-pure-white">Gerenciamento</span>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Gerenciamento</span>
             </Link>
 
             <Link to="/instituicao/financial" className="group flex flex-col items-center text-center w-full md:w-auto max-w-[260px] md:max-w-none">
               <div className="w-full md:w-[260px] h-[300px] md:h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img src="/assets/Financeiro.png" alt="Financeiro" className="w-32 h-32" />
               </div>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-pure-white">Financeiro</span>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Financeiro</span>
             </Link>
 
             <Link to="/instituicao/settings" className="group flex flex-col items-center text-center w-full md:w-auto max-w-[260px] md:max-w-none">
               <div className="w-full md:w-[260px] h-[300px] md:h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-transform group-hover:scale-105">
                 <img src="/assets/Escola.png" alt="Configurações da Escola" className="w-32 h-32" />
               </div>
-              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-pure-white">Configurações da Escola</span>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity font-semibold text-lg mt-4 text-white-text">Configurações da Escola</span>
             </Link>
           </section>
         </main>

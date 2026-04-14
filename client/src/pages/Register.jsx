@@ -64,7 +64,7 @@ function Register() {
       <div className="relative z-10 flex flex-col h-screen">
         <Header />
         <main className="flex-grow flex items-center justify-center w-full">
-          <div className="border border-key-divider p-8 rounded-lg shadow-lg w-full max-w-md">
+          <div className="bg-dark-gray p-8 rounded-lg shadow-lg w-full max-w-md">
             <h2 className="text-3xl font-bold mb-6 text-center">Crie sua Conta</h2>
             <form onSubmit={handleSubmit}>
               <Input
@@ -99,7 +99,7 @@ function Register() {
                   onChange={(e) => setAcceptTerms(e.target.checked)}
                   className="mr-2 accent-white-text cursor-pointer" required
                 />
-                <label htmlFor="acceptTerms" className="text-sm text-pure-white cursor-pointer">
+                <label htmlFor="acceptTerms" className="text-sm text-white-text cursor-pointer">
                   Eu concordo com os Termos de Uso.
                 </label>
               </div>
@@ -108,7 +108,7 @@ function Register() {
               </Button>
             </form>
             <p className="text-center mt-4">
-              Já tem uma conta? <Link to="/login" className="text-pure-white font-bold hover:underline">Entrar</Link>
+              Já tem uma conta? <Link to="/login" className="text-white-text font-bold hover:underline">Entrar</Link>
             </p>
           </div>
         </main>

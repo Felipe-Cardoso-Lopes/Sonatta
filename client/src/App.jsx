@@ -16,14 +16,14 @@ import StudentDashboard from './pages/StudentDashboard';
 import StudentProfile from './pages/StudentProfile';
 import StudentLessons from './pages/StudentLessons';
 import StudentPractice from './pages/StudentPractice';
-import StudentChat from './pages/StudentChat'; // NOVO
+//import StudentChat from './pages/StudentChat'; // NOVO
 
 // Páginas do Professor
 import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherOverview from './pages/TeacherOverview';
 import TeacherManagement from './pages/TeacherManagement';
-import TeacherProfile from './pages/TeacherProfile'; // NOVO
-import TeacherChat from './pages/TeacherChat'; // NOVO
+//import TeacherProfile from './pages/TeacherProfile'; // NOVO
+//import TeacherChat from './pages/TeacherChat'; // NOVO
 
 // Páginas da Instituição
 import InstituicaoDashboard from './pages/InstituicaoDashboard';
@@ -34,13 +34,13 @@ import InstituicaoSettings from './pages/InstituicaoSettings';
 
 // Páginas do Super Admin
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
-import SuperAdminSchools from './pages/SuperAdminSchools'; // NOVO
-import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions'; // NOVO
-import SuperAdminSystem from './pages/SuperAdminSystem'; // NOVO
+//import SuperAdminSchools from './pages/SuperAdminSchools'; // NOVO
+//import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions'; // NOVO
+//import SuperAdminSystem from './pages/SuperAdminSystem'; // NOVO
 
 function App() {
   return (
-    <div className="w-screen min-h-screen bg-piano-black text-pure-white font-poppins flex flex-col">
+     <div className="w-screen min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -58,14 +58,14 @@ function App() {
           <Route path="/student-profile" element={<StudentProfile />} />
           <Route path="/lessons" element={<StudentLessons />} />
           <Route path="/practice" element={<StudentPractice />} />
-          <Route path="/student/chat" element={<StudentChat />} />
+          {/*<Route path="/student/chat" element={<StudentChat />} />
 
           {/* Rotas do Professor */}
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/overview" element={<TeacherOverview />} />
           <Route path="/teacher/management" element={<TeacherManagement />} />
-          <Route path="/teacher/profile" element={<TeacherProfile />} />
-          <Route path="/teacher/chat" element={<TeacherChat />} />
+           {/*<Route path="/teacher/profile" element={<TeacherProfile />} />
+           {/*<Route path="/teacher/chat" element={<TeacherChat />} />
 
           {/* Rotas da Instituição */}
           <Route path="/instituicao-dashboard" element={<InstituicaoDashboard />} />
@@ -76,9 +76,9 @@ function App() {
 
           {/* Rotas do Super Admin (Torre de Controle) */}
           <Route path="/super-admin-dashboard" element={<SuperAdminDashboard />} />
-          <Route path="/super-admin/schools" element={<SuperAdminSchools />} />
+           {/*<Route path="/super-admin/schools" element={<SuperAdminSchools />} />
           <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptions />} />
-          <Route path="/super-admin/system" element={<SuperAdminSystem />} />
+          <Route path="/super-admin/system" element={<SuperAdminSystem />} />*/}
 
         </Routes>
       </Router>

@@ -23,7 +23,7 @@ describe('Componente Button', () => {
     
     // Verifica a classe específica da variante primária
     expect(button).toHaveClass('bg-dark-bg');
-    expect(button).toHaveClass('text-pure-white');
+    expect(button).toHaveClass('text-white-text');
   });
 
   it('deve aplicar as classes da variante secondary quando especificado', () => {

@@ -9,12 +9,12 @@ function Input({ label, id, type, ...props }) {
 
   return (
     <div className="mb-4">
-      {label && <label className="block text-sm font-bold text-pure-white mb-1" htmlFor={id}>{label}</label>}
+      {label && <label className="block text-sm font-bold text-white-text mb-1" htmlFor={id}>{label}</label>}
       <div className="relative">
         <input
           id={id}
           type={currentType}
-          className="w-full p-2 pr-12 rounded bg-dark-bg border border-gray-600 text-pure-white focus:outline-none focus:border-purple-500"
+          className="w-full p-2 pr-12 rounded bg-dark-bg border border-gray-600 text-white-text focus:outline-none focus:border-purple-500"
           {...props}
         />
         {isPassword && (

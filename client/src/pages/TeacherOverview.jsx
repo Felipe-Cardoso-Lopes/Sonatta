@@ -27,7 +27,7 @@ function TeacherOverview() {
   ];
 
   return (
-    <div className="min-h-screen bg-new-bg text-pure-white font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
       <TeacherSidebar />
 
       {/* Conteúdo Principal */}
@@ -35,7 +35,7 @@ function TeacherOverview() {
         
         {/* Coluna de Menu Secundária */}
         <aside className="w-full lg:w-1/4 lg:max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
-          <button className="bg-piano-black border-r border-key-divider w-full py-3 rounded-lg font-bold hover:bg-opacity-80">
+          <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold hover:bg-opacity-80">
             Visão Geral
           </button>
           <button className="bg-gray-700 w-full py-3 rounded-lg hover:bg-gray-600">
@@ -83,7 +83,7 @@ function TeacherOverview() {
               placeholder="Mensagem" 
               className="flex-grow bg-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sidebar-bg"
             />
-            <button className="bg-piano-black border-r border-key-divider px-8 py-3 rounded-lg font-bold hover:bg-opacity-80">
+            <button className="bg-sidebar-bg px-8 py-3 rounded-lg font-bold hover:bg-opacity-80">
               Enviar
             </button>
           </div>

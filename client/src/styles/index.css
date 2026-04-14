@@ -4,7 +4,6 @@
 
 @layer base {
   body {
-    /* Define o fundo preto absoluto e a cor do texto padrão em branco */
-    @apply bg-piano-black text-pure-white;
+    @apply bg-dark-bg;
   }
 }

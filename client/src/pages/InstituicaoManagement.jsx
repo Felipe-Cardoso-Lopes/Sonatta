@@ -79,14 +79,14 @@ function InstituicaoManagement() {
 
   if (loading) {
     return (
-      <div className="flex h-screen bg-piano-black text-pure-white items-center justify-center">
+      <div className="flex h-screen bg-piano-black text-white-text items-center justify-center">
         <p className="text-xl">Carregando dados da instituição...</p>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
+    <div className="flex h-screen bg-piano-black text-white-text font-poppins">
       <InstituicaoSidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <Header />

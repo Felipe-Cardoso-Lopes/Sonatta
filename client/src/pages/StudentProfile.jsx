@@ -108,7 +108,7 @@ function StudentProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-dark-bg text-pure-white font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row">
       <StudentSidebar />
 
       <main className="flex-grow p-6 md:p-12">

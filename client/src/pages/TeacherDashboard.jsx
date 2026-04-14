@@ -14,7 +14,7 @@ function TeacherDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-dark-bg text-pure-white font-poppins flex">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
       {/* Menu Lateral do Professor */}
       <TeacherSidebar />
 

@@ -85,7 +85,7 @@ function MusicalProfile() {
       className={`px-4 py-2 m-1 rounded-full text-sm font-semibold transition-all duration-300 border ${
         isSelected 
           ? 'bg-white-text text-dark-bg border-white-text  hover:border-purple-500 scale-105 shadow-[0_0_10px_rgba(255,255,255,0.5)]' 
-          : 'bg-dark-bg border border-gray-600 text-pure-white focus:outline-none hover:border-purple-500'
+          : 'bg-dark-bg border border-gray-600 text-white-text focus:outline-none hover:border-purple-500'
       }`}
     >
       {label}
@@ -93,13 +93,13 @@ function MusicalProfile() {
   );
 
   return (
-    <div className="min-h-screen bg-dark-bg text-pure-white font-poppins pb-10">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins pb-10">
       <MusicParticles />
       <Header />
       <div className="relative z-10 flex flex-col items-center">
         
         <main className="w-full max-w-2xl mt-10 px-4">
-          <div className="border border-key-divider p-8 rounded-lg shadow-lg">
+          <div className="bg-dark-gray p-8 rounded-lg shadow-lg">
             <h2 className="text-3xl font-bold mb-2 text-center">Seu Perfil Musical</h2>cls
             <p className="text-gray-400 text-center mb-8">Conte-nos o que você curte para personalizarmos sua experiência.</p>
             
