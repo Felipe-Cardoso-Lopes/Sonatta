@@ -35,17 +35,17 @@ function Login() {
         console.log("Login bem-sucedido:", data);
 
         // Lógica de redirecionamento
-        const role = data.role; // <-- Garantindo que não há ".user" aqui!
-        
-        if (role === 'aluno') { 
+        const role = data.role;
+
+        if (role === 'pending') {
+          navigate('/pending-approval');
+        } else if (role === 'aluno') { 
           navigate('/student-dashboard');
         } else if (role === 'professor') { 
           navigate('/teacher-dashboard');
         } else if (role === 'instituicao') {
           navigate('/instituicao-dashboard');
-          } else if (role === 'super_admin') {
-            
-          // NOVO: Redireciona a equipe criadora para a torre de controle
+        } else if (role === 'super_admin') {
           navigate('/super-admin-dashboard');
         } else {
           navigate("/");
@@ -62,7 +62,8 @@ function Login() {
   };
 
   return (
-    <div className="relative min-h-screen bg-dark-bg text-pure-white font-poppins overflow-hidden">
+    // Altere a classe da primeira div do return:
+<div className="relative min-h-screen bg-piano-black text-pure-white font-poppins overflow-hidden">
       <MusicParticles />
       <div className="relative z-10 flex flex-col h-screen">
         <Header />
