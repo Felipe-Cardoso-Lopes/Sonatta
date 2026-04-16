@@ -1,6 +1,7 @@
 // felipe-cardoso-lopes/sonatta/client/src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import VerifyEmail from './pages/VerifyEmail';
 
 // Páginas Públicas e de Autenticação
 import Home from './pages/Home';
@@ -49,6 +50,7 @@ function App() {
           <Route path="/how-it-works" element={<HowItWorks />} />
           <Route path="/about-you/:id" element={<AboutYou />} />
           <Route path="/musical-profile/:id" element={<MusicalProfile />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
           
           {/* Rota do Usuário Comum (Sem vínculo) */}
           <Route path="/pending-approval" element={<PendingApproval />} />
