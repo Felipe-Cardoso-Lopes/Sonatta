@@ -47,8 +47,15 @@ function Register() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Cadastro inicial realizado! Agora, vamos configurar seu perfil.");
-        navigate(`/about-you/${data.id}`, { state: { authData: data } });
+        // NOVO: Pede para o backend disparar o código de verificação
+        await fetch(`${API_URL}/api/auth/send-code`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: formData.email }),
+        });
+
+        // NOVO: Redireciona para a tela de verificação enviando o email no state
+        navigate("/verify-email", { state: { email: formData.email } });
       } else {
         alert(data.message || "Erro ao realizar cadastro.");
       }

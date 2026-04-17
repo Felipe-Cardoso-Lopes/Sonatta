@@ -1,36 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import TeacherSidebar from '../components/TeacherSidebar';
 
 function TeacherManagement() {
   const [activeTab, setActiveTab] = useState('courses'); 
-
-  // Transformado em useState para permitir a adição de novos cursos na tela
-  const [myCourses, setMyCourses] = useState([
-    { id: 1, title: 'Piano Essencial', instrument: 'Piano', modules: 12, students: 45, status: 'Ativo' },
-    { id: 2, title: 'Teoria Musical na Prática', instrument: 'Teoria', modules: 8, students: 112, status: 'Ativo' },
-    { id: 3, title: 'Masterclass de Harmonia', instrument: 'Teclado', modules: 4, students: 0, status: 'Rascunho' },
-  ]);
-
-  // Estados para o Modal de Novo Curso
+  const [myCourses, setMyCourses] = useState([]);
+  const [myStudents, setMyStudents] = useState([]);
+  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newCourseData, setNewCourseData] = useState({ title: '', instrument: '', description: '' });
 
-  // Função para simular a criação do curso
-  const handleCreateCourse = (e) => {
-    e.preventDefault();
-    
-    const newCourse = {
-      id: Date.now(), // ID falso provisório
-      title: newCourseData.title,
-      instrument: newCourseData.instrument,
-      modules: 0,
-      students: 0,
-      status: 'Rascunho' // Todo novo curso começa como rascunho
-    };
+  useEffect(() => {
+    fetchTeacherData();
+  }, []);
 
-    setMyCourses([newCourse, ...myCourses]); // Adiciona no início da lista
-    setNewCourseData({ title: '', instrument: '', description: '' }); // Limpa o form
-    setIsModalOpen(false); // Fecha o modal
+  const fetchTeacherData = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const headers = { Authorization: `Bearer ${token}` };
+
+      const [coursesRes, studentsRes] = await Promise.all([
+        axios.get(`${API_URL}/api/courses/teacher`, { headers }),
+        axios.get(`${API_URL}/api/courses/teacher/students`, { headers })
+      ]);
+
+      setMyCourses(coursesRes.data);
+      setMyStudents(studentsRes.data);
+    } catch (error) {
+      console.error("Erro ao buscar dados do professor", error);
+    }
+  };
+
+  const handleCreateCourse = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      
+      const response = await axios.post(`${API_URL}/api/courses/teacher`, newCourseData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      alert(response.data.message);
+      setIsModalOpen(false);
+      setNewCourseData({ title: '', instrument: '', description: '' });
+      fetchTeacherData(); // Atualiza a lista com o curso novo
+    } catch (error) {
+      alert("Erro ao criar curso. Verifique sua conexão.");
+    }
   };
 
   return (
@@ -47,7 +65,6 @@ function TeacherManagement() {
               <h1 className="text-3xl font-bold mb-2">Gerenciamento</h1>
               <p className="text-gray-400">Administre seus cursos, módulos e turmas.</p>
             </div>
-            {/* Botão que abre o Modal */}
             <button 
               onClick={() => setIsModalOpen(true)}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg transition"
@@ -77,20 +94,22 @@ function TeacherManagement() {
                 <div key={course.id} className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg group hover:border-purple-500 transition">
                   <div className="flex justify-between items-start mb-4">
                     <span className="bg-gray-900 text-gray-400 text-xs px-2 py-1 rounded">{course.instrument}</span>
-                    <span className={`text-xs px-2 py-1 rounded font-bold ${course.status === 'Ativo' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
-                      {course.status}
+                    <span className="text-xs px-2 py-1 rounded font-bold bg-green-500/20 text-green-400">
+                      Ativo
                     </span>
                   </div>
                   <h3 className="text-xl font-bold mb-2 text-white">{course.title}</h3>
                   <div className="text-sm text-gray-400 flex justify-between mb-4">
-                    <span>{course.modules} Módulos</span>
-                    <span>{course.students} Alunos</span>
+                    <span>{course.students_count || 0} Alunos</span>
                   </div>
                   <button className="w-full bg-gray-700 group-hover:bg-purple-600 py-2 rounded text-sm font-semibold transition">
                     Editar Conteúdo
                   </button>
                 </div>
               ))}
+              {myCourses.length === 0 && (
+                <p className="text-gray-500 col-span-full">Nenhum curso criado. Clique em "Criar Novo Curso".</p>
+              )}
             </div>
           )}
 
@@ -106,15 +125,26 @@ function TeacherManagement() {
                   </tr>
                 </thead>
                 <tbody className="text-sm">
-                  <tr className="border-t border-gray-700 hover:bg-gray-750">
-                    <td className="p-4 font-bold text-white flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">L</div>
-                      Lucas Mendes
-                    </td>
-                    <td className="p-4 text-gray-300">Piano Essencial</td>
-                    <td className="p-4"><div className="w-full bg-gray-700 h-2 rounded"><div className="bg-purple-500 h-2 rounded w-1/2"></div></div></td>
-                    <td className="p-4"><button className="text-purple-400 hover:underline">Ver ficha</button></td>
-                  </tr>
+                  {myStudents.map(student => (
+                    <tr key={student.id} className="border-t border-gray-700 hover:bg-gray-750">
+                      <td className="p-4 font-bold text-white flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                          {student.name.charAt(0)}
+                        </div>
+                        {student.name} {student.nickname && `(${student.nickname})`}
+                      </td>
+                      <td className="p-4 text-gray-300">{student.course_title}</td>
+                      <td className="p-4">
+                        <div className="w-full bg-gray-700 h-2 rounded">
+                          <div className="bg-purple-500 h-2 rounded" style={{width: `${student.progress || 0}%`}}></div>
+                        </div>
+                      </td>
+                      <td className="p-4"><button className="text-purple-400 hover:underline">Ver ficha</button></td>
+                    </tr>
+                  ))}
+                  {myStudents.length === 0 && (
+                    <tr><td colSpan="4" className="p-4 text-center text-gray-500">Nenhum aluno matriculado ainda.</td></tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -155,7 +185,7 @@ function TeacherManagement() {
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Descrição Curta</label>
                 <textarea 
-                  rows="3"
+                  rows="3" required
                   placeholder="Sobre o que é este curso?"
                   value={newCourseData.description}
                   onChange={(e) => setNewCourseData({...newCourseData, description: e.target.value})}
@@ -167,8 +197,8 @@ function TeacherManagement() {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold transition">
                   Cancelar
                 </button>
-                <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold transition">
-                  Criar Rascunho
+                <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold transition text-white">
+                  Criar Curso
                 </button>
               </div>
             </form>
