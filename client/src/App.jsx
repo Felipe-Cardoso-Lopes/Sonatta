@@ -36,7 +36,7 @@ import InstituicaoSettings from './pages/InstituicaoSettings';
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 // import SuperAdminSchools from './pages/SuperAdminSchools'; // Descomente quando o arquivo existir
 import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions';
-// import SuperAdminSystem from './pages/SuperAdminSystem'; // Descomente quando o arquivo existir
+import SuperAdminSystem from './pages/SuperAdminSystem';
 
 function App() {
   return (
@@ -79,7 +79,7 @@ function App() {
           <Route path="/super-admin-dashboard" element={<SuperAdminDashboard />} />
           {/* <Route path="/super-admin/schools" element={<SuperAdminSchools />} /> */}
           { <Route path="/super-admin-subscriptions" element={<SuperAdminSubscriptions />} />}
-          {/* <Route path="/super-admin/system" element={<SuperAdminSystem />} /> */}
+          { <Route path="/super-admin/system" element={<SuperAdminSystem />} /> }
 
         </Routes>
       </Router>
