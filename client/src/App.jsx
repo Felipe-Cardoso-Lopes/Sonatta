@@ -1,4 +1,3 @@
-// felipe-cardoso-lopes/sonatta/client/src/App.jsx
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import VerifyEmail from './pages/VerifyEmail';
@@ -10,21 +9,21 @@ import Register from './pages/Register';
 import HowItWorks from './pages/HowItWorks';
 import AboutYou from './pages/AboutYou';
 import MusicalProfile from './pages/MusicalProfile';
-import PendingApproval from './pages/PendingApproval'; // NOVO: Sala de espera do usuário comum
+import PendingApproval from './pages/PendingApproval';
 
 // Páginas do Aluno
 import StudentDashboard from './pages/StudentDashboard';
 import StudentProfile from './pages/StudentProfile';
 import StudentLessons from './pages/StudentLessons';
 import StudentPractice from './pages/StudentPractice';
-//import StudentChat from './pages/StudentChat'; // NOVO
+// import StudentChat from './pages/StudentChat'; // Descomente quando o arquivo existir
 
 // Páginas do Professor
 import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherOverview from './pages/TeacherOverview';
 import TeacherManagement from './pages/TeacherManagement';
-import TeacherProfile from './pages/TeacherProfile'; // NOVO
-//import TeacherChat from './pages/TeacherChat'; // NOVO
+import TeacherProfile from './pages/TeacherProfile';
+// import TeacherChat from './pages/TeacherChat'; // Descomente quando o arquivo existir
 
 // Páginas da Instituição
 import InstituicaoDashboard from './pages/InstituicaoDashboard';
@@ -35,9 +34,9 @@ import InstituicaoSettings from './pages/InstituicaoSettings';
 
 // Páginas do Super Admin
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
-//import SuperAdminSchools from './pages/SuperAdminSchools'; // NOVO
-//import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions'; // NOVO
-//import SuperAdminSystem from './pages/SuperAdminSystem'; // NOVO
+// import SuperAdminSchools from './pages/SuperAdminSchools'; // Descomente quando o arquivo existir
+import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions';
+// import SuperAdminSystem from './pages/SuperAdminSystem'; // Descomente quando o arquivo existir
 
 function App() {
   return (
@@ -60,14 +59,14 @@ function App() {
           <Route path="/student-profile" element={<StudentProfile />} />
           <Route path="/lessons" element={<StudentLessons />} />
           <Route path="/practice" element={<StudentPractice />} />
-          {/*<Route path="/student/chat" element={<StudentChat />} />
+          {/* <Route path="/student/chat" element={<StudentChat />} /> */}
 
           {/* Rotas do Professor */}
           <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/overview" element={<TeacherOverview />} />
           <Route path="/teacher/management" element={<TeacherManagement />} />
           <Route path="/teacher/profile" element={<TeacherProfile />} />
-           {/*<Route path="/teacher/chat" element={<TeacherChat />} />
+          {/* <Route path="/teacher/chat" element={<TeacherChat />} /> */}
 
           {/* Rotas da Instituição */}
           <Route path="/instituicao-dashboard" element={<InstituicaoDashboard />} />
@@ -78,9 +77,9 @@ function App() {
 
           {/* Rotas do Super Admin (Torre de Controle) */}
           <Route path="/super-admin-dashboard" element={<SuperAdminDashboard />} />
-           {/*<Route path="/super-admin/schools" element={<SuperAdminSchools />} />
-          <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptions />} />
-          <Route path="/super-admin/system" element={<SuperAdminSystem />} />*/}
+          {/* <Route path="/super-admin/schools" element={<SuperAdminSchools />} /> */}
+          { <Route path="/super-admin-subscriptions" element={<SuperAdminSubscriptions />} />}
+          {/* <Route path="/super-admin/system" element={<SuperAdminSystem />} /> */}
 
         </Routes>
       </Router>
