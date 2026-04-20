@@ -33,7 +33,7 @@ function SuperAdminSidebar() {
       {/* Menu de Navegação */}
       <nav className="flex-1 px-4 py-6 space-y-2">
         <Link 
-          to="/super/admin/dashboard" 
+          to="/super-admin/dashboard" 
           className={`block px-4 py-3 rounded-lg transition-colors ${isActive('/super-admin-dashboard') ? 'bg-purple-600 text-white font-bold shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
         >
           Torre de Controle

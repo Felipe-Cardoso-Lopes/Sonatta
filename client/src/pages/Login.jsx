@@ -40,13 +40,13 @@ function Login() {
         if (role === 'pending') {
           navigate('/pending-approval');
         } else if (role === 'aluno') { 
-          navigate('/student-dashboard');
+          navigate('/student/dashboard');
         } else if (role === 'professor') { 
-          navigate('/teacher-dashboard');
+          navigate('/teacher/dashboard');
         } else if (role === 'instituicao') {
-          navigate('/instituicao-dashboard');
+          navigate('/instituicao/dashboard');
         } else if (role === 'super_admin') {
-          navigate('/super-admin-dashboard');
+          navigate('/super-admin/dashboard');
         } else {
           navigate("/");
         }
