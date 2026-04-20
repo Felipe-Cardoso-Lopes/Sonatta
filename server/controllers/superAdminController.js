@@ -54,7 +54,13 @@ const updateSubscription = async (req, res) => {
            end_date = COALESCE($3, end_date),
            updated_at = CURRENT_TIMESTAMP
        WHERE id = $4 RETURNING *`,
-      [plan_name, status, end_date, id]
+      [
+        // BLINDAGEM: Se o campo não vier na requisição, passamos null para o PG não quebrar.
+        plan_name !== undefined ? plan_name : null, 
+        status !== undefined ? status : null, 
+        end_date !== undefined ? end_date : null, 
+        id
+      ]
     );
 
     if (result.rows.length === 0) {
@@ -86,9 +92,21 @@ const deleteSubscription = async (req, res) => {
   }
 };
 
+// 5. READ: Listar instituições (Para o painel do Super Admin)
+const getAllInstitutions = async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM instituicoes ORDER BY nome ASC');
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Erro ao buscar instituições:', error);
+    res.status(500).json({ message: 'Erro interno no servidor' });
+  }
+};
+
 module.exports = {
   getAllSubscriptions,
   createSubscription,
   updateSubscription,
-  deleteSubscription
+  deleteSubscription,
+  getAllInstitutions
 };
