@@ -1,28 +1,34 @@
 const express = require('express');
 const router = express.Router();
 
-// Importamos as funções do motor CRUD que você acabou de criar
+// 1. Importações consolidadas do controlador
 const { 
   getAllSubscriptions, 
   createSubscription, 
   updateSubscription, 
-  deleteSubscription 
+  deleteSubscription,
+  getAllInstitutions,
+  getSaaSPlans,
+  updateSaaSPlan
 } = require('../controllers/superAdminController');
 
 // ==========================================
-// ENDPOINTS DE ASSINATURAS (SUPER ADMIN)
+// 1. RECURSO: ASSINATURAS (SUBSCRIPTIONS)
 // ==========================================
-
-// GET /api/super-admin/subscriptions -> Lista todas
 router.get('/subscriptions', getAllSubscriptions);
-
-// POST /api/super-admin/subscriptions -> Cria uma nova
 router.post('/subscriptions', createSubscription);
-
-// PUT /api/super-admin/subscriptions/:id -> Atualiza uma existente
 router.put('/subscriptions/:id', updateSubscription);
-
-// DELETE /api/super-admin/subscriptions/:id -> Cancela/Remove
 router.delete('/subscriptions/:id', deleteSubscription);
+
+// ==========================================
+// 2. RECURSO: PLANOS SAAS
+// ==========================================
+router.get('/saas-plans', getSaaSPlans);
+router.put('/saas-plans/:id', updateSaaSPlan);
+
+// ==========================================
+// 3. RECURSO: INSTITUIÇÕES
+// ==========================================
+router.get('/institutions', getAllInstitutions);
 
 module.exports = router;

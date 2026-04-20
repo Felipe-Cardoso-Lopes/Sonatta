@@ -103,10 +103,48 @@ const getAllInstitutions = async (req, res) => {
   }
 };
 
+// Listar todos os tipos de planos SaaS
+const getSaaSPlans = async (req, res) => {
+  try {
+    const result = await db.query('SELECT * FROM saas_plans ORDER BY price ASC');
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Erro ao buscar planos SaaS:', error);
+    res.status(500).json({ message: 'Erro interno no servidor' });
+  }
+};
+
+// Atualizar valores ou limites de um plano
+const updateSaaSPlan = async (req, res) => {
+  const { id } = req.params;
+  const { price, max_students, max_teachers } = req.body;
+  try {
+    const result = await db.query(
+      `UPDATE saas_plans 
+       SET price = COALESCE($1, price), 
+           max_students = $2, 
+           max_teachers = $3, 
+           updated_at = CURRENT_TIMESTAMP 
+       WHERE id = $4 RETURNING *`,
+      [price, max_students, max_teachers, id]
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao atualizar plano' });
+  }
+};
+
 module.exports = {
   getAllSubscriptions,
   createSubscription,
   updateSubscription,
   deleteSubscription,
-  getAllInstitutions
+  getAllInstitutions,
+  getSaaSPlans,
+  updateSaaSPlan,
+  getAllInstitutions,
+  getAllSubscriptions,
+  createSubscription,
+  updateSubscription,
+  deleteSubscription
 };
