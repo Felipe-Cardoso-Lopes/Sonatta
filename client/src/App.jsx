@@ -37,6 +37,7 @@ import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminSchools from './pages/SuperAdminSchools';
 import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions';
 import SuperAdminSystem from './pages/SuperAdminSystem';
+import SuperAdminSaaS from './pages/SuperAdminSaaS';
 
 function App() {
   return (
@@ -55,31 +56,32 @@ function App() {
           <Route path="/pending-approval" element={<PendingApproval />} />
           
           {/* Rotas do Aluno */}
-          <Route path="/student-dashboard" element={<StudentDashboard />} />
-          <Route path="/student-profile" element={<StudentProfile />} />
+          <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/lessons" element={<StudentLessons />} />
           <Route path="/practice" element={<StudentPractice />} />
           <Route path="/student/chat" element={<StudentChat />} /> 
 
           {/* Rotas do Professor */}
-          <Route path="/teacher-dashboard" element={<TeacherDashboard />} />
+          <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/overview" element={<TeacherOverview />} />
           <Route path="/teacher/management" element={<TeacherManagement />} />
           <Route path="/teacher/profile" element={<TeacherProfile />} />
           <Route path="/teacher/chat" element={<TeacherChat />} />
 
           {/* Rotas da Instituição */}
-          <Route path="/instituicao-dashboard" element={<InstituicaoDashboard />} />
+          <Route path="/instituicao/dashboard" element={<InstituicaoDashboard />} />
           <Route path="/instituicao/overview" element={<InstituicaoOverview />} />
           <Route path="/instituicao/management" element={<InstituicaoManagement />} />
           <Route path="/instituicao/financial" element={<InstituicaoFinancial />} />
           <Route path="/instituicao/settings" element={<InstituicaoSettings />} />
 
           {/* Rotas do Super Admin (Torre de Controle) */}
-          <Route path="/super-admin-dashboard" element={<SuperAdminDashboard />} />
+          <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
           <Route path="/super-admin/schools" element={<SuperAdminSchools />} />
-          <Route path="/super-admin-subscriptions" element={<SuperAdminSubscriptions />} />
+          <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptions />} />
           <Route path="/super-admin/system" element={<SuperAdminSystem />} />
+          <Route path="/super-admin/saas" element={<SuperAdminSaaS />} />
 
         </Routes>
       </Router>
