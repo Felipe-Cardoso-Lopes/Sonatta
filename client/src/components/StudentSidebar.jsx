@@ -23,7 +23,7 @@ function StudentSidebar() {
       <div className="flex flex-col items-center gap-6">
         
         {/* Logo Sonatta */}
-        <Link to="/student-dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125">
+        <Link to="/student/dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125">
           {/* Caminho da imagem corrigido */}
           <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" />
         </Link>
@@ -52,7 +52,7 @@ function StudentSidebar() {
       </div>
 
       {/* Botão Meu Perfil */}
-      <NavIndicator to="/student-profile">
+      <NavIndicator to="/student/profile">
         <Link to="/student-profile" className="transition-transform hover:scale-125 ">
           {/* Caminho da imagem corrigido */}
           <img src="/assets/Meu-Perfil.png" alt="Perfil" className="w-9 h-9 scale-150" />

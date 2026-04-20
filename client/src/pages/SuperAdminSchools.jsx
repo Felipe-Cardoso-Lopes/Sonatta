@@ -17,7 +17,7 @@ function SuperAdminSchools() {
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       // Nota: Esta rota deve retornar todas as instituições cadastradas
-      const response = await fetch(`${API_URL}/api/super-admin/institutions`);
+      const response = await fetch("${API_URL}/api/super-admin/institutions");
       const data = await response.json();
       
       if (response.ok) {
