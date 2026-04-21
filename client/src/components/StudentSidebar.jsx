@@ -53,7 +53,7 @@ function StudentSidebar() {
 
       {/* Botão Meu Perfil */}
       <NavIndicator to="/student/profile">
-        <Link to="/student-profile" className="transition-transform hover:scale-125 ">
+        <Link to="/student/profile" className="transition-transform hover:scale-125 ">
           {/* Caminho da imagem corrigido */}
           <img src="/assets/Meu-Perfil.png" alt="Perfil" className="w-9 h-9 scale-150" />
         </Link>

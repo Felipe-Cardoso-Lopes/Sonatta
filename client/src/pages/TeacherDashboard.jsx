@@ -40,7 +40,7 @@ function TeacherDashboard() {
                 <img 
                   src="/assets/Gerenciamento.png" 
                   alt="Gerenciamento" 
-                  className="w-56 h-56 object-contain" // Aumentado para manter o padrão visual do aluno
+                  className="w-32 h-32 object-contain" // Aumentado para manter o padrão visual do aluno
                 />
               </div>
              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
@@ -54,7 +54,7 @@ function TeacherDashboard() {
                 <img 
                   src="/assets/Overview.png" 
                   alt="Visão Geral" 
-                  className="w-56 h-56 object-contain" // Aumentado para manter o padrão visual do aluno
+                  className="w-32 h-32 object-contain" // Aumentado para manter o padrão visual do aluno
                 />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom'; // Importado useLocation
+import { useNavigate, useLocation } from 'react-router-dom'; 
 import axios from 'axios';
 import Header from '../components/Header';
 import Button from '../components/Button';
@@ -15,12 +15,10 @@ function MusicalProfile() {
   const [generosSelecionados, setGenerosSelecionados] = useState([]);
   
   const navigate = useNavigate();
-  const { id: userId } = useParams();
   const location = useLocation();
 
-  // Pega os dados enviados da tela AboutYou
-  const authData = location.state?.authData;
-  const nicknameFromAboutYou = location.state?.nickname;
+  // Pega TODOS os dados acumulados nas telas anteriores (Register + About You)
+  const accumulatedData = location.state || {};
 
   const toggleSelecao = (item, listaAtual, setLista) => {
     if (listaAtual.includes(item)) {
@@ -30,7 +28,7 @@ function MusicalProfile() {
     }
   };
 
-  const handleFinishProfile = async (e) => { // Renomeado para handleFinishProfile
+ const handleFinishProfile = async (e) => {
     e.preventDefault();
 
     if (!nivelSelecionado || instrumentosSelecionados.length === 0 || generosSelecionados.length === 0) {
@@ -40,40 +38,39 @@ function MusicalProfile() {
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       
-      // Chamada para salvar as preferências musicais no backend
+      // 1. Cria o usuário no banco de dados (Equivalente ao Register)
+      const registerResponse = await axios.post(`${API_URL}/api/users/register`, {
+        name: accumulatedData.name,
+        email: accumulatedData.email,
+        password: accumulatedData.password,
+      });
+
+      // O backend retorna os dados do usuário criado, incluindo o novo ID
+      const newUserId = registerResponse.data.id;
+
+      // 2. Atualiza o cadastro com os dados do About You
+      await axios.put(`${API_URL}/api/users/complete/${newUserId}`, {
+        nickname: accumulatedData.nickname,
+        birth_date: accumulatedData.birthDate,
+      });
+
+      // 3. Salva as Preferências Musicais
       await axios.post(`${API_URL}/api/users/preferences`, {
-        userId: userId,
+        userId: newUserId,
         nivel: nivelSelecionado,
         instrumentos: instrumentosSelecionados,
         generos: generosSelecionados
       });
 
-      // AUTO-LOGIN LOGIC
-      if (authData) {
-        localStorage.setItem('token', authData.token);
-        localStorage.setItem('userRole', authData.role);
-        localStorage.setItem('userName', authData.name);
-        localStorage.setItem('userNickname', nicknameFromAboutYou || authData.nickname || '');
-
-        alert("Cadastro concluído com sucesso! Bem-vindo(a)!");
-
-        // Redireciona de acordo com o cargo
-        if (authData.role === 'aluno') { 
-          navigate('/student-dashboard');
-        } else if (authData.role === 'professor') { 
-          navigate('/teacher-dashboard');
-        } else {
-          navigate('/');
-        }
-      } else {
-        // Fallback: Se por algum motivo authData não estiver presente
-        alert("Cadastro concluído! Por favor, faça login.");
-        navigate('/login');
-      }
+      // Sucesso total! Redireciona para o login.
+      alert("Cadastro finalizado com sucesso! Agora você pode fazer o login.");
+      navigate('/login');
 
     } catch (error) {
-      console.error('Erro ao salvar preferências:', error);
-      alert("Erro ao salvar suas preferências. Tente novamente.");
+      console.error('Erro ao finalizar cadastro:', error);
+      // Pega a mensagem de erro específica do backend, se houver
+      const errorMsg = error.response?.data?.message || "Erro ao salvar seus dados no banco. Tente novamente.";
+      alert(errorMsg);
     }
   };
 
@@ -100,7 +97,7 @@ function MusicalProfile() {
         
         <main className="w-full max-w-2xl mt-10 px-4">
           <div className="bg-dark-gray p-8 rounded-lg shadow-lg">
-            <h2 className="text-3xl font-bold mb-2 text-center">Seu Perfil Musical</h2>cls
+            <h2 className="text-3xl font-bold mb-2 text-center">Seu Perfil Musical</h2>
             <p className="text-gray-400 text-center mb-8">Conte-nos o que você curte para personalizarmos sua experiência.</p>
             
             <form onSubmit={handleFinishProfile} className="space-y-8"> {/* Alterado para handleFinishProfile */}

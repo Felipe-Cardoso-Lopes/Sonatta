@@ -9,7 +9,7 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ message: 'Por favor, preencha todos os campos obrigatórios.' });
   }
 
-  let userRole = 'pending';
+  let userRole = 'aluno';
   let instituicao_id = null;
 
   try {

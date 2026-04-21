@@ -48,8 +48,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/about-you/:id" element={<AboutYou />} />
-          <Route path="/musical-profile/:id" element={<MusicalProfile />} />
+          <Route path="/about-you" element={<AboutYou />} />
+          <Route path="/musical-profile" element={<MusicalProfile />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           
           {/* Rota do Usuário Comum (Sem vínculo) */}

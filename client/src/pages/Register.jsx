@@ -12,7 +12,6 @@ function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    inviteCode: '',
   });
   const [acceptTerms, setAcceptTerms] = useState(false);
 
@@ -20,7 +19,7 @@ function Register() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -30,39 +29,15 @@ function Register() {
       return alert("Você deve aceitar os termos de uso!");
     }
 
-    try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-      const response = await fetch(`${API_URL}/api/users/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          inviteCode: formData.inviteCode,
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // NOVO: Pede para o backend disparar o código de verificação
-        await fetch(`${API_URL}/api/auth/send-code`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: formData.email }),
-        });
-
-        // NOVO: Redireciona para a tela de verificação enviando o email no state
-        navigate("/verify-email", { state: { email: formData.email } });
-      } else {
-        alert(data.message || "Erro ao realizar cadastro.");
-      }
-    } catch (error) {
-      console.error("Erro ao conectar com o servidor:", error);
-      alert("Erro ao conectar com o servidor. Verifique se o backend está rodando.");
-    }
+    // NOVO COMPORTAMENTO: Avança para a tela About You, 
+    // passando os dados do formulário sem salvar no banco de dados ainda.
+    navigate("/about-you", { 
+      state: { 
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      } 
+    });
   };
 
   return (
@@ -92,15 +67,6 @@ function Register() {
               />
 
               <div className="mb-6 flex items-center mt-4">
-                <Input
-                  label="Código da Instituição (Opcional)"
-                  id="inviteCode"
-                  name="inviteCode"
-                  type="text"
-                  placeholder="Ex: SONATTA-ALUN-123"
-                  value={formData.inviteCode}
-                  onChange={handleChange}
-                />
                 <input
                   type="checkbox" id="acceptTerms" checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
@@ -110,6 +76,7 @@ function Register() {
                   Eu concordo com os Termos de Uso.
                 </label>
               </div>
+              
               <Button type="submit" variant="primary" className="w-full">
                 Próximo
               </Button>

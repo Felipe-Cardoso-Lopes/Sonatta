@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
 import Input from '../components/Input';
 import Button from '../components/Button';
@@ -11,33 +10,24 @@ function AboutYou() {
   const [birthDate, setBirthDate] = useState('');
   
   const navigate = useNavigate();
-  const { id: userId } = useParams();
   const location = useLocation();
 
-  // Pega os dados de autenticação que vieram da tela de registro
-  const authData = location.state?.authData;
+  // Pega os dados que vieram da tela Register (nome, email, senha)
+  const registerData = location.state || {};
 
-  const handleSubmit = async (e) => {
+
+ const handleSubmit = (e) => {
     e.preventDefault();
 
-    try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
-      // Chamada para a nova rota de conclusão
-       await axios.put(`${API_URL}/api/users/complete/${userId}`, {
-        nickname: nickname,
-        birth_date: birthDate,
-      
-      });
-
-      alert("Etapa concluída! Vamos configurar seu Perfil Musical agora.");
-      
-   // Passa os dados de autenticação para a última tela
-      navigate(`/musical-profile/${userId}`, { state: { authData, nickname } }); 
-    } catch (error) {
-      console.error('Erro ao salvar etapa 2:', error);
-      alert(error.response?.data?.message || "Erro ao salvar seu perfil.");
-    }
+    // Repassa os dados anteriores + os novos (apelido e data) para a última tela
+    navigate('/musical-profile', { 
+      state: { 
+        ...registerData, 
+        nickname, 
+        birthDate      
+      } 
+    }); 
+    alert("Etapa concluída! Vamos configurar seu Perfil Musical agora.");
   };
 
   return (
