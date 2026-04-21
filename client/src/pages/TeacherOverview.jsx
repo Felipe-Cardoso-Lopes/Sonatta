@@ -9,7 +9,6 @@ function TeacherOverview() {
     { label: 'Avisos', value: '0', icon: '🔔', color: 'text-green-400' },
   ]);
 
-  // Estados do Banco de Dados
   const [students, setStudents] = useState([]);
   const [activeChatStudent, setActiveChatStudent] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -19,35 +18,35 @@ function TeacherOverview() {
   const token = localStorage.getItem('token');
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-  // 1. Busca os alunos do professor ao abrir a tela
   useEffect(() => {
-    fetchStudents();
+    fetchDashboardData();
   }, []);
 
-  const fetchStudents = async () => {
+  // NOVO: Busca os alunos e os cursos simultaneamente
+  const fetchDashboardData = async () => {
     try {
-      // Usamos a rota que já criamos no courseController para pegar os alunos
-      const res = await axios.get(`${API_URL}/api/courses/teacher/students`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setStudents(res.data);
+      const headers = { Authorization: `Bearer ${token}` };
+      const [studentsRes, coursesRes] = await Promise.all([
+        axios.get(`${API_URL}/api/courses/teacher/students`, { headers }),
+        axios.get(`${API_URL}/api/courses/teacher`, { headers })
+      ]);
       
-      // Atualiza métricas
+      setStudents(studentsRes.data);
+      
+      // Atualiza métricas (Alunos e Cursos)
       setMetrics(prev => {
         const newMetrics = [...prev];
-        newMetrics[0].value = res.data.length.toString(); // Alunos ativos
+        newMetrics[0].value = studentsRes.data.length.toString();
+        newMetrics[1].value = coursesRes.data.length.toString();
         return newMetrics;
       });
     } catch (err) {
-      console.error("Erro ao carregar alunos", err);
+      console.error("Erro ao carregar dados do dashboard", err);
     }
   };
 
-  // 2. Busca o histórico de chat sempre que clicar num aluno
   useEffect(() => {
-    if (activeChatStudent) {
-      fetchChatHistory(activeChatStudent.id);
-    }
+    if (activeChatStudent) fetchChatHistory(activeChatStudent.id);
   }, [activeChatStudent]);
 
   const fetchChatHistory = async (studentId) => {
@@ -61,14 +60,10 @@ function TeacherOverview() {
     }
   };
 
-  // 3. Rola o chat para baixo sempre que atualizar as mensagens
   useEffect(() => {
-    if (chatScrollRef.current) {
-      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
-    }
+    if (chatScrollRef.current) chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
   }, [messages]);
 
-  // 4. Envia a mensagem para o banco
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !activeChatStudent) return;
@@ -78,8 +73,6 @@ function TeacherOverview() {
         { receiver_id: activeChatStudent.id, message: newMessage },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
-      // Adiciona a mensagem real que voltou do banco
       setMessages([...messages, res.data]);
       setNewMessage('');
     } catch (err) {
@@ -101,7 +94,6 @@ function TeacherOverview() {
             <p className="text-gray-400">Suas métricas e comunicação com alunos.</p>
           </div>
 
-          {/* Topo: Métricas */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
             {metrics.map((metric, index) => (
               <div key={index} className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg flex items-center justify-between">
@@ -114,10 +106,8 @@ function TeacherOverview() {
             ))}
           </div>
 
-          {/* Área Principal: Lista de Alunos e Chat Lado a Lado */}
           <div className="flex-grow flex flex-col lg:flex-row gap-6 min-h-0">
             
-            {/* Coluna Esquerda: Lista de Alunos */}
             <aside className="w-full lg:w-1/3 bg-gray-800 rounded-xl border border-gray-700 flex flex-col overflow-hidden shadow-lg">
               <div className="p-4 bg-gray-900 border-b border-gray-700">
                 <h2 className="text-lg font-bold text-purple-300">Meus Alunos</h2>
@@ -146,11 +136,9 @@ function TeacherOverview() {
               </div>
             </aside>
 
-            {/* Coluna Direita: Janela de Chat */}
             <section className="w-full lg:w-2/3 bg-gray-900 rounded-xl border border-gray-700 flex flex-col shadow-lg overflow-hidden">
               {activeChatStudent ? (
                 <>
-                  {/* Cabeçalho do Chat */}
                   <div className="bg-gray-800 p-4 border-b border-gray-700 flex items-center gap-3 shadow-md z-10">
                     <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center font-bold text-white text-xl">
                       {activeChatStudent.name.charAt(0)}
@@ -161,7 +149,6 @@ function TeacherOverview() {
                     </div>
                   </div>
 
-                  {/* Mensagens */}
                   <div ref={chatScrollRef} className="flex-grow overflow-y-auto p-6 flex flex-col gap-4">
                     {messages.length === 0 ? (
                       <div className="flex-grow flex items-center justify-center text-gray-500 text-sm">
@@ -179,7 +166,6 @@ function TeacherOverview() {
                     )}
                   </div>
 
-                  {/* Input */}
                   <form onSubmit={handleSendMessage} className="p-4 bg-gray-800 border-t border-gray-700 flex gap-3">
                     <input 
                       type="text" 

@@ -42,13 +42,28 @@ function StudentLessons() {
     fetchCourses();
   }, []);
 
-  const fetchCourses = async () => {
+ const fetchCourses = async () => {
     try {
       const response = await axios.get(`${API_URL}/api/courses/student`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setCourses(response.data);
-      if(response.data.length > 0) setSelectedCourse(response.data[0]);
+      
+      // Mapeia os dados do backend para as variáveis que o frontend espera
+      const formattedCourses = response.data.map(course => ({
+        ...course,
+        professor: course.teacher_name // O backend envia teacher_name, o layout usa professor
+      }));
+
+      setCourses(formattedCourses);
+      
+      // Se tivermos um curso selecionado, atualiza ele. Se não, seleciona o primeiro.
+      if (selectedCourse) {
+        const updatedSelected = formattedCourses.find(c => c.id === selectedCourse.id);
+        if (updatedSelected) setSelectedCourse(updatedSelected);
+      } else if (formattedCourses.length > 0) {
+        setSelectedCourse(formattedCourses[0]);
+      }
+      
       setIsLoading(false);
     } catch (error) {
       console.error("Erro ao buscar cursos", error);
@@ -63,7 +78,10 @@ function StudentLessons() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("Matrícula realizada com sucesso!");
-      fetchCourses();
+      
+      // Atualiza o curso selecionado na mesma hora para aparecer o chat
+      setSelectedCourse({ ...selectedCourse, is_enrolled: true }); 
+      fetchCourses(); // Atualiza a lista lateral
     } catch (error) {
       alert(error.response?.data?.message || "Erro ao se matricular.");
     }

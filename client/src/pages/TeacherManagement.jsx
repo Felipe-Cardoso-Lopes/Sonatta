@@ -7,24 +7,34 @@ function TeacherManagement() {
   const [myCourses, setMyCourses] = useState([]);
   const [myStudents, setMyStudents] = useState([]);
   
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newCourseData, setNewCourseData] = useState({ title: '', instrument: '', description: '' });
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editCourseData, setEditCourseData] = useState({ id: null, title: '', instrument: '', description: '' });
+  const [courseExercises, setCourseExercises] = useState([]);
+
+  const token = localStorage.getItem('token');
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+  const headers = { Authorization: `Bearer ${token}` };
 
   useEffect(() => {
     fetchTeacherData();
   }, []);
 
+  // Quando o modal de edição abrir, tenta buscar os exercícios do curso
+  useEffect(() => {
+    if (isEditModalOpen && editCourseData.id) {
+      fetchExercises(editCourseData.id);
+    }
+  }, [isEditModalOpen, editCourseData.id]);
+
   const fetchTeacherData = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      const headers = { Authorization: `Bearer ${token}` };
-
       const [coursesRes, studentsRes] = await Promise.all([
         axios.get(`${API_URL}/api/courses/teacher`, { headers }),
         axios.get(`${API_URL}/api/courses/teacher/students`, { headers })
       ]);
-
       setMyCourses(coursesRes.data);
       setMyStudents(studentsRes.data);
     } catch (error) {
@@ -32,22 +42,45 @@ function TeacherManagement() {
     }
   };
 
+  const fetchExercises = async (courseId) => {
+    try {
+      // Prepara o terreno para a API de exercícios que vamos criar no backend
+      const res = await axios.get(`${API_URL}/api/exercises/course/${courseId}`, { headers });
+      setCourseExercises(res.data);
+    } catch (err) {
+      console.warn("Rota de exercícios ainda não existe no backend. Exibindo vazio.");
+      setCourseExercises([]);
+    }
+  };
+
   const handleCreateCourse = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem('token');
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-      
-      const response = await axios.post(`${API_URL}/api/courses/teacher`, newCourseData, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      alert(response.data.message);
-      setIsModalOpen(false);
+      const response = await axios.post(`${API_URL}/api/courses/teacher`, newCourseData, { headers });
+      alert(response.data.message || "Curso criado!");
+      setIsCreateModalOpen(false);
       setNewCourseData({ title: '', instrument: '', description: '' });
-      fetchTeacherData(); // Atualiza a lista com o curso novo
+      fetchTeacherData();
     } catch (error) {
       alert("Erro ao criar curso. Verifique sua conexão.");
+    }
+  };
+
+  const openEditModal = (course) => {
+    setEditCourseData(course);
+    setIsEditModalOpen(true);
+  };
+
+  const handleEditCourse = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${API_URL}/api/courses/${editCourseData.id}`, editCourseData, { headers });
+      alert("Curso atualizado com sucesso!");
+      setIsEditModalOpen(false);
+      fetchTeacherData();
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao atualizar o curso.");
     }
   };
 
@@ -63,10 +96,10 @@ function TeacherManagement() {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <h1 className="text-3xl font-bold mb-2">Gerenciamento</h1>
-              <p className="text-gray-400">Administre seus cursos, módulos e turmas.</p>
+              <p className="text-gray-400">Administre seus cursos e acompanhe as turmas.</p>
             </div>
             <button 
-              onClick={() => setIsModalOpen(true)}
+              onClick={() => setIsCreateModalOpen(true)}
               className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg transition"
             >
               + Criar Novo Curso
@@ -94,16 +127,17 @@ function TeacherManagement() {
                 <div key={course.id} className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg group hover:border-purple-500 transition">
                   <div className="flex justify-between items-start mb-4">
                     <span className="bg-gray-900 text-gray-400 text-xs px-2 py-1 rounded">{course.instrument}</span>
-                    <span className="text-xs px-2 py-1 rounded font-bold bg-green-500/20 text-green-400">
-                      Ativo
-                    </span>
+                    <span className="text-xs px-2 py-1 rounded font-bold bg-green-500/20 text-green-400">Ativo</span>
                   </div>
                   <h3 className="text-xl font-bold mb-2 text-white">{course.title}</h3>
                   <div className="text-sm text-gray-400 flex justify-between mb-4">
                     <span>{course.students_count || 0} Alunos</span>
                   </div>
-                  <button className="w-full bg-gray-700 group-hover:bg-purple-600 py-2 rounded text-sm font-semibold transition">
-                    Editar Conteúdo
+                  <button 
+                    onClick={() => openEditModal(course)}
+                    className="w-full bg-gray-700 group-hover:bg-purple-600 py-2 rounded text-sm font-semibold transition"
+                  >
+                    Editar Curso e Trilhas
                   </button>
                 </div>
               ))}
@@ -121,7 +155,6 @@ function TeacherManagement() {
                     <th className="p-4 font-medium">Nome do Aluno</th>
                     <th className="p-4 font-medium">Curso Matriculado</th>
                     <th className="p-4 font-medium">Progresso</th>
-                    <th className="p-4 font-medium">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="text-sm">
@@ -131,7 +164,7 @@ function TeacherManagement() {
                         <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
                           {student.name.charAt(0)}
                         </div>
-                        {student.name} {student.nickname && `(${student.nickname})`}
+                        {student.name}
                       </td>
                       <td className="p-4 text-gray-300">{student.course_title}</td>
                       <td className="p-4">
@@ -139,12 +172,8 @@ function TeacherManagement() {
                           <div className="bg-purple-500 h-2 rounded" style={{width: `${student.progress || 0}%`}}></div>
                         </div>
                       </td>
-                      <td className="p-4"><button className="text-purple-400 hover:underline">Ver ficha</button></td>
                     </tr>
                   ))}
-                  {myStudents.length === 0 && (
-                    <tr><td colSpan="4" className="p-4 text-center text-gray-500">Nenhum aluno matriculado ainda.</td></tr>
-                  )}
                 </tbody>
               </table>
             </div>
@@ -152,13 +181,13 @@ function TeacherManagement() {
         </div>
       </main>
 
-      {/* Modal de Criar Curso */}
-      {isModalOpen && (
+      {/* Modal Criar Curso (Permanece igual) */}
+      {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-800 w-full max-w-md p-6 rounded-xl border border-gray-600 shadow-2xl">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">Criar Novo Curso</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+              <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
             
             <form onSubmit={handleCreateCourse} className="space-y-4">
@@ -166,40 +195,106 @@ function TeacherManagement() {
                 <label className="block text-sm text-gray-400 mb-1">Título do Curso</label>
                 <input 
                   type="text" required
-                  placeholder="Ex: Introdução ao Violão"
                   value={newCourseData.title}
                   onChange={(e) => setNewCourseData({...newCourseData, title: e.target.value})}
-                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
                 />
               </div>
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Instrumento Principal</label>
                 <input 
                   type="text" required
-                  placeholder="Ex: Violão"
                   value={newCourseData.instrument}
                   onChange={(e) => setNewCourseData({...newCourseData, instrument: e.target.value})}
-                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-1">Descrição Curta</label>
+                <label className="block text-sm text-gray-400 mb-1">Descrição</label>
                 <textarea 
                   rows="3" required
-                  placeholder="Sobre o que é este curso?"
                   value={newCourseData.description}
                   onChange={(e) => setNewCourseData({...newCourseData, description: e.target.value})}
-                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white focus:outline-none focus:border-purple-500"
+                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
                 ></textarea>
               </div>
               
               <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold transition">
-                  Cancelar
-                </button>
-                <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold transition text-white">
-                  Criar Curso
-                </button>
+                <button type="button" onClick={() => setIsCreateModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold">Cancelar</button>
+                <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold text-white">Criar Curso</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Editar Curso e Aulas */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
+          <div className="bg-gray-800 w-full max-w-2xl p-6 rounded-xl border border-gray-600 shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white">Editar Curso e Trilhas</h2>
+              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
+            </div>
+            
+            <form onSubmit={handleEditCourse} className="space-y-4 overflow-y-auto pr-2">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Título do Curso</label>
+                  <input 
+                    type="text" required
+                    value={editCourseData.title}
+                    onChange={(e) => setEditCourseData({...editCourseData, title: e.target.value})}
+                    className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Instrumento</label>
+                  <input 
+                    type="text" required
+                    value={editCourseData.instrument}
+                    onChange={(e) => setEditCourseData({...editCourseData, instrument: e.target.value})}
+                    className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Descrição</label>
+                <textarea 
+                  rows="2" required
+                  value={editCourseData.description}
+                  onChange={(e) => setEditCourseData({...editCourseData, description: e.target.value})}
+                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
+                ></textarea>
+              </div>
+
+              {/* Lista Dinâmica de Exercícios da Trilha */}
+              <div className="mt-6 pt-6 border-t border-gray-700">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="font-bold text-purple-400">Aulas / Exercícios na Trilha</h3>
+                  <button type="button" className="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded"> + Adicionar Exercício</button>
+                </div>
+                <div className="bg-gray-900 p-4 rounded border border-gray-700 flex flex-col gap-2">
+                  {courseExercises.length > 0 ? (
+                    courseExercises.map((exercise, idx) => (
+                      <div key={exercise.id} className="flex items-center justify-between bg-gray-800 p-2 rounded">
+                        <span className="text-sm">{idx + 1}. {exercise.title} <span className="text-xs text-gray-500 ml-2">({exercise.type})</span></span>
+                        <div className="flex gap-2">
+                           <button type="button" className="text-purple-400 text-xs hover:underline">Editar</button>
+                           <button type="button" className="text-red-400 text-xs hover:underline">Excluir</button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-gray-500 text-center">Nenhum exercício cadastrado. Eles aparecerão na trilha do aluno.</p>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex gap-3 pt-4 border-t border-gray-700 mt-4">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold">Cancelar</button>
+                <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold text-white">Salvar Alterações</button>
               </div>
             </form>
           </div>
