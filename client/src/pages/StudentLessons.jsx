@@ -177,7 +177,7 @@ function StudentLessons() {
                 <div>
                   <h4 className="font-bold mb-2 text-purple-300 border-b border-gray-700 pb-2">Sobre este curso</h4>
                   <p className="text-sm text-gray-300 leading-relaxed mt-3">{selectedCourse.description}</p>
-                  <p className="text-sm text-gray-400 mt-2"><strong>Professor:</strong> {selectedCourse.professor}</p>
+                  <p className="text-sm text-gray-400 mt-2"><strong>Professor:</strong> {selectedCourse.professor|| "Não informado"}</p>
                 </div>
               </div>
             </>
