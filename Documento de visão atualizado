@@ -1,63 +1,68 @@
-1. Introdução
-O Sonatta é uma plataforma educacional de ponta (SaaS) projetada para revolucionar o ensino musical através da tecnologia. Diferente de métodos tradicionais, o Sonatta integra uma arquitetura robusta para gestão de escolas de música com ferramentas de aprendizado potencializadas por Inteligência Artificial, proporcionando uma experiência escalável para instituições e personalizada para alunos.
+# 🎼 Projeto Sonatta — Visão Estrutural e Planeamento
 
-2. Descrição do Problema
-O mercado de ensino musical enfrenta três desafios principais que o Sonatta visa resolver:
+> **Status do Projeto:** Mês 3 (Fase de Integração Sistémica)  
+> **Modelo:** SaaS Multi-tenancy | IA Musical  
+> **Instituição:** Centro Universitário de Brasília (CEUB)
 
-Gestão Fragmentada: Escolas de música muitas vezes utilizam ferramentas genéricas (planilhas/mensageiros) que não integram o pedagógico com o financeiro.
+---
 
-Falta de Escalabilidade: Dificuldade em gerir múltiplas unidades ou grandes volumes de alunos com personalização.
+## 1. Introdução
+O **Sonatta** é uma plataforma educacional de ponta, operando no modelo **SaaS (Software as a Service)**, projetada para revolucionar o ensino musical através da tecnologia. Diferente de métodos tradicionais, o sistema integra uma arquitetura robusta para gestão de escolas de música com ferramentas de aprendizagem potencializadas por Inteligência Artificial, proporcionando uma experiência escalável para instituições e personalizada para alunos.
 
-Feedback Assíncrono: Alunos praticam sozinhos e só recebem correção na aula seguinte, o que atrasa a evolução técnica.
+## 2. Descrição do Problema
+O mercado de ensino musical enfrenta três desafios críticos que o Sonatta visa resolver:
+* **Gestão Fragmentada:** Escolas utilizam ferramentas genéricas (folhas de cálculo/mensageiros) que não integram o pedagógico com o financeiro.
+* **Falta de Escalabilidade:** Dificuldade em gerir múltiplas unidades ou grandes volumes de alunos com personalização.
+* **Feedback Assíncrono:** Alunos praticam sozinhos e só recebem correção na aula seguinte, o que atrasa a evolução técnica.
 
-3. Perfis dos Interessados (Stakeholders)
-Super Administradores (Autores): Gestão da infraestrutura, licenciamento de novas escolas e suporte global.
+## 3. Perfis dos Interessados (Stakeholders)
+* **Super Administradores (Autores):** Gestão da infraestrutura global, licenciamento e suporte técnico.
+* **Gestores Institucionais:** Proprietários de escolas com controlo total sobre faturação, turmas e matrículas.
+* **Professores:** Criadores de conteúdo que gerem o progresso pedagógico e a comunicação direta.
+* **Alunos:** Utilizadores finais que consomem trilhas de aprendizagem e ferramentas de prática.
 
-Gestores Institucionais: Proprietários de escolas que controlam faturamento, turmas e matrículas.
+## 4. Recursos do Produto (Funcionalidades)
 
-Professores: Criadores de conteúdo que gerenciam o progresso pedagógico e a comunicação com alunos.
+### 4.1. Arquitetura Multi-Tenancy
+* **Isolamento de Dados:** Cada escola possui um ecossistema administrativo independente e seguro.
+* **Onboarding Moderno:** Seleção de tags de interesse (instrumentos e géneros) para definir o perfil musical no primeiro acesso.
 
-Alunos: O usuário final que consome as trilhas de aprendizado e utiliza as ferramentas de prática.
+### 4.2. Painéis Administrativos e Pedagógicos
+* **Dashboard Institucional:** Relatórios de saúde financeira e gestão de corpo docente.
+* **Gestão de Cursos:** Ferramentas para estruturação de módulos, aulas e materiais de apoio.
+* **Chat em Tempo Real:** Canal integrado para suporte e feedback instantâneo.
 
-4. Recursos do Produto (Funcionalidades)
-4.1. Arquitetura Multi-Tenancy
-Isolamento de Dados: Cada escola possui seu ecossistema administrativo independente.
+### 4.3. Experiência do Aluno
+* **Trilhas Personalizadas:** Interface que adapta o conteúdo sugerido conforme as preferências do músico.
+* **Responsividade Total:** Acesso 100% funcional via web, tablets ou smartphones.
 
-Onboarding Moderno: Seleção de tags de interesse (instrumentos e gêneros) para criar um perfil musical dinâmico logo no primeiro acesso.
+## 5. Matriz de Qualidade (Casos de Teste)
 
-4.2. Painéis Administrativos e Pedagógicos
-Dashboard Institucional: Relatórios de saúde financeira, controle de inadimplência e gestão de corpo docente.
+| ID | Módulo | Objetivo do Teste | Status |
+| :--- | :--- | :--- | :--- |
+| **CT01** | Segurança | Validação de Autenticação JWT e RBAC | ✅ Concluído |
+| **CT04** | UX/UI | Onboarding via Tags e Responsividade | ✅ Concluído |
+| **CT08** | API/Backend | Estabilidade de Endpoints e Consumo de Dados | ✅ Concluído |
+| **CT09** | Integração | Sincronização de Dashboards com dados reais | ⏳ Mês 3 (Em Execução) |
+| **CT11** | Financeiro | Geração de relatórios de faturação SaaS | 📋 Planeado |
 
-Gestão de Cursos: Ferramentas para professores estruturarem módulos, aulas e materiais de apoio.
+## 6. Especificações Técnicas
+* **Frontend:** React 19, Vite, Tailwind CSS.
+* **Backend:** Node.js, Express (Arquitetura REST).
+* **Base de Dados:** PostgreSQL (Modelo Relacional Multi-tenant).
+* **Segurança:** JWT (JSON Web Token) com Controlo de Acesso Baseado em Funções (RBAC).
 
-Chat em Tempo Real: Canal integrado para suporte pedagógico e interação direta.
+## 7. Roadmap de Evolução (Priorização GUT)
+1.  **Fundação (Mês 1):** Conclusão da API e Segurança. ✅
+2.  **Interface (Mês 2):** Dashboards e Fluxo de Utilizador. ✅
+3.  **Integração (Mês 3 - Atual):** Conexão de dados reais e Módulo Financeiro. ⏳
+4.  **Inovação (Mês 4):** Implementação de IA Musical e Gamificação. 🚀
 
-4.3. Experiência do Aluno
-Trilhas Personalizadas: Interface que adapta o conteúdo sugerido conforme as preferências do aluno.
+## 8. Metas e Restrições
+* **Performance:** Baixa latência na resposta da API para interações fluidas.
+* **Privacidade:** Conformidade com a LGPD no tratamento de dados.
+* **Limitação:** Foco atual em ambiente Web/PWA, com App Nativa prevista para o futuro.
 
-Responsividade Total: Acesso completo via web, tablets ou smartphones para prática em qualquer lugar.
-
-5. Especificações Técnicas
-Frontend: React 19 (última versão), Vite para build rápido e Tailwind CSS para estilização responsiva.
-
-Backend: Node.js com Express, utilizando arquitetura REST.
-
-Banco de Dados: PostgreSQL (Relacional), ideal para a complexidade do modelo Multi-tenancy.
-
-Segurança: Implementação de JWT (JSON Web Token) com controle de acesso baseado em cargos (RBAC - Role Based Access Control).
-
-6. Roadmap de Evolução (Priorização GUT)
-O desenvolvimento segue a Matriz GUT (Gravidade, Urgência e Tendência):
-
-Integração Total de Dados (G:5 U:5 T:5): Conectar os dashboards remanescentes ao banco de dados real para garantir fidedignidade nos relatórios financeiros e de progresso.
-
-Módulo de IA Musical (G:5 U:2 T:3): Implementar processamento de áudio para fornecer feedback de afinação e ritmo em tempo real (Diferencial Competitivo).
-
-Gamificação (G:3 U:2 T:2): Introduzir sistema de conquistas, níveis e rankings para aumentar a retenção de alunos.
-
-7. Metas e Restrições
-Meta de Desempenho: Baixa latência na resposta da API para permitir interações rápidas.
-
-Privacidade: Conformidade com a LGPD no tratamento de dados de menores de idade (comum em escolas de música).
-
-Limitação: A versão atual foca em conectividade web, com o app nativo sendo uma expansão futura.
+---
+**Autores:** Felipe Cardoso, Guilherme Barros, João Roberto, Kayo Dos Santos.  
+**Repositório Oficial:** [GitHub Sonatta](https://github.com/Felipe-Cardoso-Lopes/Sonatta)
