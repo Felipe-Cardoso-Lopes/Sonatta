@@ -69,15 +69,15 @@ function SuperAdminDashboard() {
 
             {/* Faixa de Estatísticas REAIS */}
             <div className="flex flex-wrap justify-center gap-6 mb-8">
-              <div className="border border-key-divider px-8 py-4 rounded-lg border border-purple-700 shadow-md min-w-[150px]">
+              <div className="border border-key-divider px-8 py-4 rounded-lg border-purple-700 shadow-md min-w-[150px]">
                 <h3 className="text-sm font-bold text-purple-400 uppercase tracking-wider mb-1">Escolas Ativas</h3>
                 <p className="text-3xl font-bold">{stats.totalSchools}</p>
               </div>
-              <div className="border border-key-divider px-8 py-4 rounded-lg border border-blue-700 shadow-md min-w-[150px]">
+              <div className="border border-key-divider px-8 py-4 rounded-lg border-blue-700 shadow-md min-w-[150px]">
                 <h3 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-1">Usuários Totais</h3>
                 <p className="text-3xl font-bold">{stats.totalUsers}</p>
               </div>
-              <div className="border border-key-divider px-8 py-4 rounded-lg border border-green-700 shadow-md min-w-[150px]">
+              <div className="border border-key-divider px-8 py-4 rounded-lg border-green-700 shadow-md min-w-[150px]">
                 <h3 className="text-sm font-bold text-green-400 uppercase tracking-wider mb-1">Status do Servidor</h3>
                 <p className={`text-3xl font-bold ${
                   stats.serverStatus === 'Online' ? 'text-green-500' : 
