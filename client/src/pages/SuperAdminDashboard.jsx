@@ -26,7 +26,8 @@ function SuperAdminDashboard() {
     const fetchGlobalStats = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/super-admin/stats`, {
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${API_URL}/api/super-admin/stats`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
