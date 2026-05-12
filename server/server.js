@@ -1,23 +1,23 @@
-  const express = require('express');
-  const dotenv = require('dotenv');
-  const cors = require('cors');
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '.env') });
 
-  // 1. Importação de todas as rotas
-  const userRoutes = require('./routes/userRoutes');
-  const lessonRoutes = require('./routes/lessonRoutes');
-  const adminRoutes = require('./routes/adminRoutes');
-  const superAdminRoutes = require('./routes/superAdminRoutes');
-  const instituicaoRoutes = require('./routes/instituicaoRoutes');
-  const authRoutes = require('./routes/authRoutes');
-  const courseRoutes = require('./routes/courseRoutes');
-  const messageRoutes = require('./routes/messageRoutes');
-  const exerciseRoutes = require('./routes/exerciseRoutes');
-  const reportRoutes = require('./routes/reportRoutes');
+const express = require('express');
+const cors = require('cors');
 
-  dotenv.config();
+// 2. Importação de todas as rotas (Agora elas enxergam as senhas)
+const userRoutes = require('./routes/userRoutes');
+const lessonRoutes = require('./routes/lessonRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const superAdminRoutes = require('./routes/superAdminRoutes');
+const instituicaoRoutes = require('./routes/instituicaoRoutes');
+const authRoutes = require('./routes/authRoutes');
+const courseRoutes = require('./routes/courseRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const exerciseRoutes = require('./routes/exerciseRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
-  const app = express();
-  const PORT = process.env.PORT || 5000;
+const app = express();
+const PORT = process.env.PORT || 5000;
 
   // 2. Middlewares Globais
   app.use(cors());

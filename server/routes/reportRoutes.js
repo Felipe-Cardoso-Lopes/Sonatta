@@ -13,4 +13,12 @@ router.get('/revenue', reportController.getRevenueReport);
 // Endpoint: /api/reports/teachers
 router.get('/teachers', reportController.getTeacherPerformanceReport);
 
+// Endpoint: /api/reports/export/invoice
+// Gera o download do PDF
+router.get('/export/invoice', reportController.exportInvoicePDF);
+
+// Endpoint: /api/reports/export/students
+// Gera o download da planilha CSV
+router.get('/export/students', reportController.exportStudentsCSV);
+
 module.exports = router;
