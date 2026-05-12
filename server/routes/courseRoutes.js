@@ -12,14 +12,15 @@ const {
 } = require('../controllers/courseController');
 
 // Rotas do Professor
-router.post('/teacher', protect, createCourse);
-router.get('/teacher', protect, getTeacherCourses);
-router.get('/teacher/students', protect, getTeacherStudents);
-router.put('/:id', protect, updateCourse);
+router.post('/teacher', verifyToken, createCourse);
+router.get('/teacher', verifyToken, getTeacherCourses);
+router.get('/teacher/students', verifyToken, getTeacherStudents);
+router.put('/:id', verifyToken, updateCourse);  
 
 // Rotas do Aluno
-router.get('/student', protect, getAllCoursesForStudent);
-router.get('/enrolled', protect, getEnrolledCourses);
-router.post('/student/enroll', protect, enrollStudent);
+// Rotas do Aluno
+router.get('/student', verifyToken, getAllCoursesForStudent);
+router.get('/enrolled', verifyToken, getEnrolledCourses);
+router.post('/student/enroll', verifyToken, enrollStudent);
 
 module.exports = router;

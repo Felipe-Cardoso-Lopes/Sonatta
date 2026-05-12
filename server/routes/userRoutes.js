@@ -7,9 +7,9 @@ const { verifyToken } = require('../middlewares/authMiddleware');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
-router.put('/profile', protect, updateUserProfile); 
+router.put('/profile', verifyToken, updateUserProfile); 
 router.put('/complete/:id', completeRegistration);
-router.get('/profile', protect, getUserProfile);
+router.get('/profile', verifyToken, getUserProfile);
 router.post('/preferences', saveMusicalPreferences);
 
 module.exports = router;

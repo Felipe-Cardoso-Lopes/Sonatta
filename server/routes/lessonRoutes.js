@@ -5,7 +5,7 @@ const { verifyToken } = require('../middlewares/authMiddleware');
 
 // Rotas para /api/lessons
 router.route('/')
-  .post(protect, createLesson)
-  .get(protect, getLessons);
+  .post(verifyToken, createLesson)
+  .get(verifyToken, getLessons);
 
 module.exports = router;

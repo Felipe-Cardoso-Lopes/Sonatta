@@ -1,8 +1,6 @@
-// server/middlewares/authMiddleware.js
-
 const jwt = require('jsonwebtoken');
 
-const protect = async (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   let token;
 
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -22,10 +20,20 @@ const protect = async (req, res, next) => {
     }
   }
 
+  // Se o loop terminou e nenhum token foi encontrado:
   if (!token) {
-    // SOLUÇÃO: 'return' adicionado aqui também
     return res.status(401).json({ message: 'Não autorizado, nenhum token fornecido.' });
   }
+}; // <-- A CHAVE DO verifyToken FECHA AQUI!
+
+// A função checkRole fica de fora, isolada
+const checkRole = (roles) => {
+  return (req, res, next) => {
+    if (!req.user || !roles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Acesso negado: privilégios insuficientes.' });
+    }
+    next();
+  };
 };
 
-module.exports = { protect };
+module.exports = { verifyToken, checkRole };
