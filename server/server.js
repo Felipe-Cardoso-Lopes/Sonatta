@@ -12,6 +12,7 @@ const authRoutes = require('./routes/authRoutes');
 const courseRoutes = require('./routes/courseRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const exerciseRoutes = require('./routes/exerciseRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/exercises', exerciseRoutes);
+app.use('/api/reports', reportRoutes);
 
 // 4. Rota raiz de verificação
 app.get('/', (req, res) => {
