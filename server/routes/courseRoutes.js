@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middlewares/authMiddleware');
+const { verifyToken } = require('../middlewares/authMiddleware');
 const { 
   createCourse, 
   updateCourse,

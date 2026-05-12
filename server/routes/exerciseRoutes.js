@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect } = require('../middlewares/authMiddleware');
+const { verifyToken } = require('../middlewares/authMiddleware');
 const { createExercise, getExercisesByCourse } = require('../controllers/exerciseController');
 
 router.post('/', protect, createExercise);
