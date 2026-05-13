@@ -5,6 +5,9 @@ const client = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN,
 });
 
+// ========================
+// Task 6.1 — Checkout
+// ========================
 const createCheckoutSession = async (req, res) => {
   const { plan_id } = req.body;
   const escola = req.user;
@@ -58,6 +61,9 @@ const createCheckoutSession = async (req, res) => {
   }
 };
 
+// ========================
+// Tasks 6.2 e 6.3 — Webhook
+// ========================
 const handleWebhook = async (req, res) => {
   const { type, data } = req.body;
 
@@ -71,7 +77,6 @@ const handleWebhook = async (req, res) => {
 
     const { status, external_reference } = paymentData;
 
-    // ex: "inst_7ea2d3fd-e700-4d2b-84aa-30b3..._plan_Pro"
     const match = external_reference.match(/^inst_(.+)_plan_(.+)$/);
 
     if (!match) {
@@ -79,26 +84,40 @@ const handleWebhook = async (req, res) => {
       return res.sendStatus(200);
     }
 
-    const instituicaoId = match[1]; // uuid
-    const planName = match[2];      // "Pro", "Basic", "Enterprise"
+    const instituicaoId = match[1];
+    const planName = match[2];
 
-    if (status === 'approved') {
-      await db.query(
-        `INSERT INTO subscriptions (instituicao_id, plan_name, status, start_date, end_date, created_at, updated_at)
-         VALUES ($1, $2, 'ativo', NOW(), NOW() + INTERVAL '1 year', NOW(), NOW())
-         ON CONFLICT (instituicao_id)
-         DO UPDATE SET
-           plan_name  = $2,
-           status     = 'ativo',
-           start_date = NOW(),
-           end_date   = NOW() + INTERVAL '1 year',
-           updated_at = NOW()`,
-        [instituicaoId, planName]
-      );
+    // Task 6.3 — Mapeamento completo de status
+    const statusMap = {
+      approved:  'ativo',
+      pending:   'pendente',
+      rejected:  'inadimplente',
+      cancelled: 'cancelado',
+    };
 
-      console.log(`✅ Assinatura ativada — Instituição: ${instituicaoId}, Plano: ${planName}`);
+    const novoStatus = statusMap[status];
+
+    if (!novoStatus) {
+      console.log(`[handleWebhook] Status ignorado: ${status}`);
+      return res.sendStatus(200);
     }
 
+    // end_date só avança quando o pagamento é aprovado
+    const endDate = novoStatus === 'ativo' ? "NOW() + INTERVAL '1 year'" : 'end_date';
+
+    await db.query(
+      `INSERT INTO subscriptions (instituicao_id, plan_name, status, start_date, end_date, created_at, updated_at)
+       VALUES ($1, $2, $3, NOW(), ${endDate}, NOW(), NOW())
+       ON CONFLICT (instituicao_id)
+       DO UPDATE SET
+         plan_name  = $2,
+         status     = $3,
+         end_date   = ${endDate},
+         updated_at = NOW()`,
+      [instituicaoId, planName, novoStatus]
+    );
+
+    console.log(`📋 Assinatura atualizada — Instituição: ${instituicaoId}, Status: ${novoStatus}`);
     return res.sendStatus(200);
 
   } catch (error) {
