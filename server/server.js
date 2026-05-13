@@ -23,8 +23,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // 3. Configuração do Servidor HTTP e Socket.io
-const server = http.createServer(app);
-const io = new Server(server, {
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
   cors: {
     origin: "*", // Na produção, limite isso à URL do seu frontend (ex: http://localhost:5173)
     methods: ["GET", "POST"]
@@ -79,10 +79,10 @@ io.on('connection', (socket) => {
 
 // 7. Inicialização do Servidor (Usando o 'server' do HTTP em vez do 'app')
 if (process.env.NODE_ENV !== 'test') {
-  server.listen(PORT, () => {
+  httpServer.listen(PORT, () => {
     console.log(`Servidor rodando na porta ${PORT}`);
   });
 }
 
 // Exporta o app e o server para uso em testes ou em outros arquivos
-module.exports = { app, server };
+module.exports = { app, httpServer };

@@ -3,7 +3,7 @@ process.env.JWT_SECRET = 'segredo-de-teste';
 
 // 2. Importações (apenas uma vez cada)
 const request = require('supertest');
-const app = require('../server');
+const { app } = require('../server');
 const db = require('../config/db');
 
 // 3. Mock do banco de dados
