@@ -37,6 +37,7 @@ import InstituicaoOverview from './pages/InstituicaoOverview';
 import InstituicaoManagement from './pages/InstituicaoManagement';
 import InstituicaoFinancial from './pages/InstituicaoFinancial';
 import InstituicaoSettings from './pages/InstituicaoSettings';
+import InstituicaoProfile from './pages/InstituicaoProfile';
 
 // Páginas do Super Admin
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
@@ -87,6 +88,7 @@ function App() {
           <Route path="/instituicao/management" element={<InstituicaoManagement />} />
           <Route path="/instituicao/financial" element={<InstituicaoFinancial />} />
           <Route path="/instituicao/settings" element={<InstituicaoSettings />} />
+          <Route path="/instituicao/profile" element={<InstituicaoProfile />} />
 
           {/* Rotas do Super Admin (Torre de Controle) */}
           <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />

@@ -1,138 +1,112 @@
-import React, { useState } from 'react';
-import AdminSidebar from '../components/InstituicaoSidebar';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import InstituicaoSidebar from "../components/InstituicaoSidebar";
 
-// Componente para os cards de informações financeiras
-const FinancialCard = ({ title, items, isHighlighted }) => {
-  const cardClasses = isHighlighted 
-    ? "bg-gray-800 text-white" 
-    : "bg-gray-100 text-black";
-  
-  const buttonClasses = isHighlighted
-    ? "bg-white text-black"
-    : "bg-gray-800 text-white";
+function InstituicaoFinancial() {
+  const [invoices, setInvoices] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  return (
-    <div className={`p-6 rounded-lg shadow-md flex-1 ${cardClasses}`}>
-      <h3 className="font-bold text-xl mb-4">{title}</h3>
-      <ul className="list-disc list-inside space-y-2 mb-6">
-        {items.map((item, index) => (
-          <li key={index}>{item}</li>
-        ))}
-      </ul>
-      <button className={`w-full py-2 rounded-lg font-semibold ${buttonClasses}`}>
-        Detalhes
-      </button>
-    </div>
-  );
-};
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  const token = localStorage.getItem("token");
 
-function AdminFinancial() {
-  // Estados para os filtros de data
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-
-  // Dados de exemplo para os cards
-  const financialData = {
-    saldoDisponivel: ["List item", "List item", "List item", "List item", "List item"],
-    totalFaturado: ["List item", "List item", "List item", "List item", "List item"],
-    valoresAReceber: ["List item", "List item", "List item", "List item", "List item"],
-  };
-
-  // Funções de manipulação para os botões de download
-  const handleDownloadPDF = () => {
-    // A integração com a API do backend feita na Task 7.2 será inserida aqui
-    console.log(`A solicitar PDF. Período: ${startDate} a ${endDate}`);
-  };
-
-  const handleDownloadCSV = () => {
-    // A integração com a API do backend feita na Task 7.2 será inserida aqui
-    console.log(`A solicitar CSV. Período: ${startDate} a ${endDate}`);
-  };
+  useEffect(() => {
+    async function loadInvoices() {
+      try {
+        const res = await axios.get(`${API_URL}/api/instituicao/invoices`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setInvoices(res.data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Erro ao buscar registros financeiros", error);
+        setIsLoading(false);
+      }
+    }
+    loadInvoices();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
-      <AdminSidebar />
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative">
+      <div className="shrink-0 z-20">
+        <InstituicaoSidebar />
+      </div>
 
-      {/* Conteúdo Principal */}
-      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
-        
-        {/* Coluna de Menu Secundária */}
-        <aside className="w-full lg:w-1/4 lg:max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
-          <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold text-white">
-            Financeiro
-          </button>
-          <button className="bg-white text-dark-bg w-full py-3 rounded-lg font-semibold shadow-md">
-            Painel de Saldo
-          </button>
-          <button className="bg-gray-700 text-white w-full py-3 rounded-lg font-semibold hover:bg-gray-600">
-            Solicitar Saque
-          </button>
-          <button className="bg-gray-700 text-white w-full py-3 rounded-lg font-semibold hover:bg-gray-600">
-            Histórico de Transações
-          </button>
-          <button className="bg-gray-700 text-white w-full py-3 rounded-lg font-semibold hover:bg-gray-600">
-            Gerar Relatórios
-          </button>
-        </aside>
-
-        {/* Coluna Principal: Painel Financeiro */}
-        <section className="flex-grow flex flex-col bg-white rounded-lg p-6 text-black">
-          
-          {/* Barra de Ferramentas: Filtros de Data e Botões de Exportação */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-8 bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
-            
-            {/* Filtros de Período */}
-            <div className="flex flex-col sm:flex-row gap-4 items-center">
-              <div className="flex items-center gap-2">
-                <label htmlFor="startDate" className="text-sm font-semibold text-gray-700">Data Inicial:</label>
-                <input
-                  type="date"
-                  id="startDate"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <label htmlFor="endDate" className="text-sm font-semibold text-gray-700">Data Final:</label>
-                <input
-                  type="date"
-                  id="endDate"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="border border-gray-300 rounded-md p-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                />
-              </div>
-            </div>
-
-            {/* Botões de Download */}
-            <div className="flex gap-3 w-full md:w-auto mt-4 md:mt-0">
-              <button
-                onClick={handleDownloadPDF}
-                className="flex-1 md:flex-none bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors shadow flex items-center justify-center gap-2"
-              >
-                📄 Fatura (PDF)
-              </button>
-              <button
-                onClick={handleDownloadCSV}
-                className="flex-1 md:flex-none bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors shadow flex items-center justify-center gap-2"
-              >
-                📊 Alunos (CSV)
-              </button>
-            </div>
-            
+      <main className="flex-grow p-6 md:p-10 flex flex-col h-screen overflow-y-auto">
+        <div className="max-w-6xl mx-auto w-full flex flex-col gap-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">
+              Financeiro & Faturamento
+            </h1>
+            <p className="text-gray-400">
+              Monitore o histórico de pagamentos da assinatura mensal da
+              plataforma Sonatta.
+            </p>
           </div>
 
-          {/* Grade de Cards Financeiros */}
-          <div className="flex flex-col xl:flex-row gap-6">
-            <FinancialCard title="Saldo Disponível" items={financialData.saldoDisponivel} />
-            <FinancialCard title="Total Faturado" items={financialData.totalFaturado} isHighlighted={true} />
-            <FinancialCard title="Valores a receber" items={financialData.valoresAReceber} />
+          <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg">
+            <h2 className="text-xl font-bold text-gray-200 mb-4">
+              Histórico de Faturas SaaS
+            </h2>
+
+            {isLoading ? (
+              <p className="text-gray-400 text-sm">Carregando extrato...</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="border-b border-gray-700 text-gray-400 text-sm">
+                      <th className="pb-3 font-semibold">Cód. Referência</th>
+                      <th className="pb-3 font-semibold">Data de Emissão</th>
+                      <th className="pb-3 font-semibold">
+                        Valor da Mensalidade
+                      </th>
+                      <th className="pb-3 font-semibold text-center">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {invoices.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan="4"
+                          className="pt-6 text-gray-500 text-sm text-center"
+                        >
+                          Nenhum lançamento financeiro registrado até o momento.
+                        </td>
+                      </tr>
+                    ) : (
+                      invoices.map((inv) => (
+                        <tr
+                          key={inv.id}
+                          className="border-b border-gray-700/50 text-sm text-gray-200 hover:bg-gray-700/30 transition-colors"
+                        >
+                          <td className="py-4 font-mono text-xs text-purple-300">
+                            #INV-{inv.id.toString().padStart(5, "0")}
+                          </td>
+                          <td className="py-4 text-gray-400">
+                            {new Date(inv.created_at).toLocaleDateString(
+                              "pt-BR",
+                            )}
+                          </td>
+                          <td className="py-4 font-semibold">
+                            R$ {parseFloat(inv.amount || 0).toFixed(2)}
+                          </td>
+                          <td className="py-4 text-center">
+                            <span className="bg-green-500/20 text-green-400 px-2.5 py-1 rounded text-xs font-bold border border-green-500/30 uppercase tracking-wide">
+                              {inv.status || "Pago"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        </section>
+        </div>
       </main>
     </div>
   );
 }
 
-export default AdminFinancial;
+export default InstituicaoFinancial;

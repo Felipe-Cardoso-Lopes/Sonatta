@@ -60,7 +60,7 @@ function InstituicaoSidebar() {
       </div>
       
       <NavIndicator to="/instituicao/profile">
-        <Link to="/instituicao-profile" className="transition-transform hover:scale-125">
+        <Link to="/instituicao/profile" className="transition-transform hover:scale-125">
           <img src="/assets/Meu-Perfil.png" alt="Perfil" className="w-9 h-9 scale-150" />
         </Link>
       </NavIndicator>
