@@ -64,59 +64,48 @@ app.get("/", (req, res) => {
 });
 
 // 6. Lógica Centralizada de WebSockets
-io.on("connection", (socket) => {
-  console.log(`🟢 Novo cliente conectado: ${socket.id}`);
-
-  socket.on("user_connected", (userId) => {
-    onlineUsers.set(Number(userId), socket.id);
-    socket.join(userId); // Mantém a sala privada da sua Task 5.1
-    io.emit("user_status_changed", {
-      userId: Number(userId),
-      status: "online",
-    });
-    console.log(`👤 Usuário [${userId}] entrou na sala e está online.`);
+io.on('connection', (socket) => {
+  
+  socket.on('user_connected', (userId) => {
+    const idNum = Number(userId);
+    onlineUsers.set(idNum, socket.id);
+    socket.join(String(userId)); // Mantém a sala privada da sua Task 5.1
+    io.emit('user_status_changed', { userId: idNum, status: 'online' });
+    console.log(`🟢 [ONLINE] Usuário ${idNum} conectou! Total online na plataforma: ${onlineUsers.size}`);
   });
 
-  socket.on("check_online", (userId) => {
-    const isOnline = onlineUsers.has(Number(userId));
-    socket.emit("online_status", { userId: Number(userId), isOnline });
+  socket.on('check_online', (userId) => {
+    const idNum = Number(userId);
+    const isOnline = onlineUsers.has(idNum);
+    console.log(`🔍 [CHECK] Consultando se usuário ${idNum} está online -> Resposta: ${isOnline ? 'SIM' : 'NÃO'}`);
+    socket.emit('online_status', { userId: idNum, isOnline });
   });
 
-  socket.on("typing", ({ senderId, receiverId }) => {
+  socket.on('typing', ({ senderId, receiverId }) => {
     const receiverSocketId = onlineUsers.get(Number(receiverId));
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("user_typing", {
-        senderId: Number(senderId),
-      });
-    }
+    if (receiverSocketId) io.to(receiverSocketId).emit('user_typing', { senderId: Number(senderId) });
   });
 
-  socket.on("stop_typing", ({ senderId, receiverId }) => {
+  socket.on('stop_typing', ({ senderId, receiverId }) => {
     const receiverSocketId = onlineUsers.get(Number(receiverId));
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("user_stop_typing", {
-        senderId: Number(senderId),
-      });
-    }
+    if (receiverSocketId) io.to(receiverSocketId).emit('user_stop_typing', { senderId: Number(senderId) });
   });
 
-  socket.on("leave_room", (userId) => {
+  socket.on('leave_room', (userId) => {
     socket.leave(userId);
-    console.log(`👋 Usuário [${userId}] saiu da sala privada.`);
   });
 
-  socket.on("disconnect", () => {
-    console.log(`🔴 Cliente desconectado: ${socket.id}`);
+  socket.on('disconnect', () => {
     for (let [userId, socketId] of onlineUsers.entries()) {
       if (socketId === socket.id) {
         onlineUsers.delete(userId);
-        io.emit("user_status_changed", { userId, status: "offline" });
+        io.emit('user_status_changed', { userId, status: 'offline' });
+        console.log(`🔴 [OFFLINE] Usuário ${userId} desconectou. Total online: ${onlineUsers.size}`);
         break;
       }
     }
   });
 });
-
 // 7. Inicialização do Servidor
 if (process.env.NODE_ENV !== "test") {
   httpServer.listen(PORT, () => {

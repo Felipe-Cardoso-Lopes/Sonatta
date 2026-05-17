@@ -29,24 +29,24 @@ function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userRole", data.role);
         localStorage.setItem("userName", data.name);
-
         localStorage.setItem("userNickname", data.nickname);
+        localStorage.setItem("userId", data.id);
 
         console.log("Login bem-sucedido:", data);
 
         // Lógica de redirecionamento
         const role = data.role;
 
-        if (role === 'pending') {
-          navigate('/pending-approval');
-        } else if (role === 'aluno') { 
-          navigate('/student/dashboard');
-        } else if (role === 'professor') { 
-          navigate('/teacher/dashboard');
-        } else if (role === 'instituicao') {
-          navigate('/instituicao/dashboard');
-        } else if (role === 'super_admin') {
-          navigate('/super-admin/dashboard');
+        if (role === "pending") {
+          navigate("/pending-approval");
+        } else if (role === "aluno") {
+          navigate("/student/dashboard");
+        } else if (role === "professor") {
+          navigate("/teacher/dashboard");
+        } else if (role === "instituicao") {
+          navigate("/instituicao/dashboard");
+        } else if (role === "super_admin") {
+          navigate("/super-admin/dashboard");
         } else {
           navigate("/");
         }
@@ -63,7 +63,7 @@ function Login() {
 
   return (
     // Altere a classe da primeira div do return:
-<div className="relative min-h-screen bg-piano-black text-white-text font-poppins overflow-hidden">
+    <div className="relative min-h-screen bg-piano-black text-white-text font-poppins overflow-hidden">
       <MusicParticles />
       <div className="relative z-10 flex flex-col h-screen">
         <Header />
