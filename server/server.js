@@ -33,6 +33,9 @@ const io = new Server(httpServer, {
   },
 });
 
+// Disponibiliza o Socket.io para todas as rotas do Express
+app.set('io', io);
+
 // 4. Middlewares Globais
 app.use(cors());
 app.use(express.json());

@@ -28,5 +28,6 @@ if (!scheduleController || typeof scheduleController.addAvailability !== 'functi
 router.post('/availability', authMiddleware, scheduleController.addAvailability);
 router.delete('/availability/:id', authMiddleware, scheduleController.deleteAvailability);
 router.get('/availability/:teacherId', authMiddleware, scheduleController.getTeacherAvailability);
+router.post('/book', authMiddleware, scheduleController.bookClass);
 
 module.exports = router;
