@@ -134,7 +134,25 @@ const updateSaaSPlan = async (req, res) => {
   }
 };
 
+const getGlobalStats = async (req, res) => {
+  try {
+    const [schoolsResult, usersResult] = await Promise.all([
+      db.query(`SELECT COUNT(*) FROM instituicoes`),
+      db.query(`SELECT COUNT(*) FROM users`)
+    ]);
+
+    res.status(200).json({
+      totalSchools: parseInt(schoolsResult.rows[0].count),
+      totalUsers: parseInt(usersResult.rows[0].count),
+    });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas globais:', error);
+    res.status(500).json({ message: 'Erro interno no servidor' });
+  }
+};
+
 module.exports = {
+  getGlobalStats,
   getAllSubscriptions,
   createSubscription,
   updateSubscription,
@@ -142,9 +160,4 @@ module.exports = {
   getAllInstitutions,
   getSaaSPlans,
   updateSaaSPlan,
-  getAllInstitutions,
-  getAllSubscriptions,
-  createSubscription,
-  updateSubscription,
-  deleteSubscription
 };

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
-// 1. Importações consolidadas do controlador
 const { 
+  getGlobalStats,
   getAllSubscriptions, 
   createSubscription, 
   updateSubscription, 
@@ -13,7 +13,12 @@ const {
 } = require('../controllers/superAdminController');
 
 // ==========================================
-// 1. RECURSO: ASSINATURAS (SUBSCRIPTIONS)
+// 1. RECURSO: ESTATÍSTICAS GLOBAIS
+// ==========================================
+router.get('/stats', getGlobalStats);
+
+// ==========================================
+// 2. RECURSO: ASSINATURAS (SUBSCRIPTIONS)
 // ==========================================
 router.get('/subscriptions', getAllSubscriptions);
 router.post('/subscriptions', createSubscription);
@@ -21,13 +26,13 @@ router.put('/subscriptions/:id', updateSubscription);
 router.delete('/subscriptions/:id', deleteSubscription);
 
 // ==========================================
-// 2. RECURSO: PLANOS SAAS
+// 3. RECURSO: PLANOS SAAS
 // ==========================================
 router.get('/saas-plans', getSaaSPlans);
 router.put('/saas-plans/:id', updateSaaSPlan);
 
 // ==========================================
-// 3. RECURSO: INSTITUIÇÕES
+// 4. RECURSO: INSTITUIÇÕES
 // ==========================================
 router.get('/institutions', getAllInstitutions);
 
