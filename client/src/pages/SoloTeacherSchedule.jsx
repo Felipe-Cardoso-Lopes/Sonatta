@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SoloTeacherSidebar from '../components/SoloTeacherSidebar';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, addDays, startOfDay } from 'date-fns';
-import ptBR from 'date-fns/locale/pt-BR';
+import { ptBR } from 'date-fns/locale';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 // 1. Configuração de Localização e Datas para o Calendário (Português)
