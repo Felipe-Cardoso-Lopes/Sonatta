@@ -13,9 +13,11 @@ function TeacherProfile() {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ name: '', nickname: '', email: '', password: '' });
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState({ average_rating: null, total_reviews: 0, reviews: [] });
 
   useEffect(() => {
     fetchUserProfile();
+    fetchReviews();
   }, []);
 
   const fetchUserProfile = async () => {
@@ -84,6 +86,17 @@ function TeacherProfile() {
     }
   };
 
+  const fetchReviews = async () => {
+  try {
+    const userId = localStorage.getItem('userId');
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+    const res = await axios.get(`${API_URL}/api/reviews/teacher/${userId}`);
+    setReviews(res.data);
+  } catch (error) {
+    console.error('Erro ao buscar avaliações:', error);
+  }
+};
+
   if (loading) return <div className="min-h-screen bg-dark-bg flex items-center justify-center text-white">Carregando...</div>;
 
   return (
@@ -91,6 +104,40 @@ function TeacherProfile() {
       <div className="shrink-0 z-20">
         <TeacherSidebar />
       </div>
+
+      {/* Depoimentos */}
+{reviews.reviews.length > 0 && (
+  <section className="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow-lg">
+    <h3 className="text-lg font-semibold text-purple-300 border-b border-gray-700 pb-2 mb-4">
+      O que meus alunos dizem
+    </h3>
+    <div className="flex gap-4 overflow-x-auto pb-2">
+      {reviews.reviews.map(review => (
+        <div key={review.id} className="min-w-[280px] bg-gray-700 rounded-xl p-4 border border-gray-600 flex flex-col gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-xs font-bold text-white">
+              {review.student_name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white">{review.student_name}</p>
+              <p className="text-xs text-gray-400">
+                {new Date(review.created_at).toLocaleDateString('pt-BR')}
+              </p>
+            </div>
+          </div>
+          <div className="flex">
+            {[1, 2, 3, 4, 5].map(star => (
+              <span key={star} className={`text-sm ${star <= review.rating ? 'text-yellow-400' : 'text-gray-600'}`}>★</span>
+            ))}
+          </div>
+          {review.comment && (
+            <p className="text-sm text-gray-300 italic">"{review.comment}"</p>
+          )}
+        </div>
+      ))}
+    </div>
+  </section>
+)}
 
       <main className="flex-grow p-6 md:p-12 overflow-y-auto">
         <div className="w-full h-full flex flex-col gap-8 max-w-6xl mx-auto">
@@ -160,12 +207,23 @@ function TeacherProfile() {
                 </div>
                 
                 <div>
-                  <p className="text-sm text-gray-400 mb-1">Avaliação Média</p>
-                  <div className="flex items-center gap-2">
-                    <span className="text-yellow-400 text-xl">★★★★★</span>
-                    <span className="text-white font-bold">4.9</span>
-                  </div>
-                </div>
+  <p className="text-sm text-gray-400 mb-1">Avaliação Média</p>
+  {reviews.average_rating ? (
+    <div className="flex items-center gap-2">
+      <div className="flex">
+        {[1, 2, 3, 4, 5].map(star => (
+          <span key={star} className={`text-xl ${star <= Math.round(reviews.average_rating) ? 'text-yellow-400' : 'text-gray-600'}`}>
+            ★
+          </span>
+        ))}
+      </div>
+      <span className="text-white font-bold">{Number(reviews.average_rating).toFixed(1)}</span>
+      <span className="text-gray-400 text-xs">({reviews.total_reviews} avaliações)</span>
+    </div>
+  ) : (
+    <p className="text-gray-500 text-sm">Nenhuma avaliação ainda.</p>
+  )}
+</div>
               </div>
             </div>
           </section>
