@@ -20,6 +20,7 @@ const exerciseRoutes = require("./routes/exerciseRoutes");
 const reportRoutes = require("./routes/reportRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const scheduleRoutes = require('./routes/scheduleRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -63,6 +64,7 @@ app.use("/api/exercises", exerciseRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use('/api/schedule', scheduleRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 app.get("/", (req, res) => {
   res.send("API do Sonatta está no ar com WebSocket!");
