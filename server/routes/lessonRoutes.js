@@ -8,4 +8,6 @@ router.route('/')
   .post(verifyToken, createLesson)
   .get(verifyToken, getLessons);
 
+router.get('/completed/:teacherId', verifyToken, getCompletedLessons);
+
 module.exports = router;

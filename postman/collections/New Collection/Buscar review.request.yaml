@@ -1,0 +1,5 @@
+$kind: http-request
+name: Buscar review
+url: https://sonatta.onrender.com/api/reviews/teacher/46
+method: GET
+order: 4390739895109806

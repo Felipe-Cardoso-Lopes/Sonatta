@@ -59,43 +59,42 @@ function StudentLessons() {
   const [isTeacherTyping, setIsTeacherTyping] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
 
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [completedLessons, setCompletedLessons] = useState([]);
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState('');
+  const [hoveredStar, setHoveredStar] = useState(0);
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+
   const typingTimeoutRef = useRef(null);
   const chatScrollRef = useRef(null);
-
-  // Referência para guardar o ID do professor ativo e evitar closures desatualizadas no Socket
   const activeTeacherIdRef = useRef(null);
 
   const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
-  // Sincroniza a referência sempre que o curso selecionado mudar
   useEffect(() => {
     if (selectedCourse) {
       activeTeacherIdRef.current = selectedCourse.teacher_id;
     }
   }, [selectedCourse]);
 
-  // 1. BUSCA OS CURSOS APENAS UMA VEZ AO MONTAR A TELA
   useEffect(() => {
     fetchCourses();
   }, []);
 
-  // 2. INICIALIZA O SOCKET APENAS UMA VEZ AO MONTAR A TELA
   useEffect(() => {
     if (!userId || userId === "null" || userId === "undefined") return;
 
     const newSocket = io(API_URL);
     setSocket(newSocket);
 
-    // CURA DA AMNÉSIA: Dispara o ID na conexão inicial e em qualquer reconexão automática
     newSocket.on("connect", () => {
-      console.log(
-        `🔌 [Socket] Conectado! Avisando o servidor que meu ID é: ${userId}`,
-      );
+      console.log(`🔌 [Socket] Conectado! Avisando o servidor que meu ID é: ${userId}`);
       newSocket.emit("user_connected", userId);
 
-      // Se um chat já estiver aberto, re-pergunta o status do professor
       if (activeTeacherIdRef.current) {
         newSocket.emit("check_online", activeTeacherIdRef.current);
       }
@@ -120,16 +119,12 @@ function StudentLessons() {
     });
 
     newSocket.on("online_status", ({ userId: checkedId, isOnline }) => {
-      console.log(
-        `📡 [Radar] Professor ${checkedId} está ${isOnline ? "Online" : "Offline"}`,
-      );
       if (String(activeTeacherIdRef.current) === String(checkedId)) {
         setIsTeacherOnline(isOnline);
       }
     });
 
     newSocket.on("user_status_changed", ({ userId: changedId, status }) => {
-      console.log(`📡 [Radar] Professor ${changedId} ficou ${status}`);
       if (String(activeTeacherIdRef.current) === String(changedId)) {
         setIsTeacherOnline(status === "online");
       }
@@ -138,30 +133,21 @@ function StudentLessons() {
     return () => newSocket.disconnect();
   }, []);
 
-  // 3. RADAR: Pergunta o status do professor assim que o curso carregar
   useEffect(() => {
     if (socket && selectedCourse?.teacher_id) {
-      console.log(
-        `📡 [Varredura] Buscando status do professor ${selectedCourse.teacher_id}...`,
-      );
       socket.emit("check_online", selectedCourse.teacher_id);
     }
   }, [socket, selectedCourse]);
 
-  // 4. ATUALIZA O CHAT AUTOMATICAMENTE AO MUDAR DE CURSO OU ABRIR O MODAL
   useEffect(() => {
     if (isChatOpen && selectedCourse?.teacher_id) {
       const loadChatHistory = async () => {
         try {
           const res = await axios.get(
             `${API_URL}/api/messages/${selectedCourse.teacher_id}`,
-            {
-              headers: { Authorization: `Bearer ${token}` },
-            },
+            { headers: { Authorization: `Bearer ${token}` } },
           );
           setMessages(res.data);
-
-          // Solicita o status online atualizado do novo professor selecionado
           socket?.emit("check_online", selectedCourse.teacher_id);
           setIsTeacherTyping(false);
         } catch (err) {
@@ -243,10 +229,69 @@ function StudentLessons() {
     }
   };
 
+  const fetchCompletedLessons = async (teacherId) => {
+    try {
+      const res = await axios.get(`${API_URL}/api/lessons/completed/${teacherId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setCompletedLessons(res.data);
+    } catch (err) {
+      console.error('Erro ao buscar aulas concluídas:', err);
+    }
+  };
+
+  const handleSubmitReview = async () => {
+    if (reviewRating === 0) {
+      alert('Por favor, selecione uma nota.');
+      return;
+    }
+
+    setIsSubmittingReview(true);
+    try {
+      await axios.post(
+        `${API_URL}/api/reviews`,
+        {
+          lesson_id: selectedLesson.id,
+          rating: reviewRating,
+          comment: reviewComment || null
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      alert('Avaliação enviada com sucesso! ⭐');
+      setIsReviewModalOpen(false);
+      setReviewRating(0);
+      setReviewComment('');
+      setSelectedLesson(null);
+      fetchCompletedLessons(selectedCourse.teacher_id);
+    } catch (err) {
+      if (err.response?.status === 409) {
+        alert('Você já avaliou esta aula.');
+      } else {
+        alert('Erro ao enviar avaliação.');
+      }
+    } finally {
+      setIsSubmittingReview(false);
+    }
+  };
+
+  const openReviewModal = (lesson) => {
+    setSelectedLesson(lesson);
+    setReviewRating(0);
+    setReviewComment('');
+    setIsReviewModalOpen(true);
+  };
+
   useEffect(() => {
     if (chatScrollRef.current)
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
   }, [messages, isChatOpen, isTeacherTyping]);
+
+  useEffect(() => {
+    if (selectedCourse?.teacher_id && selectedCourse?.is_enrolled) {
+      fetchCompletedLessons(selectedCourse.teacher_id);
+    }
+  }, [selectedCourse]);
 
   const nomeProfSelected =
     selectedCourse?.teacher_name || selectedCourse?.professor || "Professor";
@@ -361,6 +406,26 @@ function StudentLessons() {
                     Inscrever-se neste Curso
                   </button>
                 )}
+                
+                {completedLessons.length > 0 && (
+                  <div className="mt-4">
+                    <p className="text-sm text-gray-400 mb-2 font-semibold">Aulas para avaliar:</p>
+                    <div className="flex flex-col gap-2">
+                      {completedLessons.map(lesson => (
+                        <div key={lesson.id} className="flex items-center justify-between bg-gray-700 px-4 py-2 rounded-lg">
+                          <span className="text-sm text-gray-200">{lesson.title}</span>
+                          <button
+                            onClick={() => openReviewModal(lesson)}
+                            className="text-xs bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-3 py-1 rounded-lg transition-colors"
+                          >
+                            ⭐ Avaliar
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
                 <div>
                   <p className="text-sm text-gray-300 mt-3">
                     {selectedCourse.description}
@@ -456,6 +521,74 @@ function StudentLessons() {
               ➤
             </button>
           </form>
+        </div>
+      )}
+
+      {/* MODAL DE AVALIAÇÃO (MOVIDO PARA CÁ) */}
+      {isReviewModalOpen && selectedLesson && (
+        <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4">
+          <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-600">
+            
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-white">Como foi sua aula?</h2>
+              <button
+                onClick={() => setIsReviewModalOpen(false)}
+                className="text-gray-400 hover:text-white text-2xl leading-none"
+              >
+                &times;
+              </button>
+            </div>
+
+            <p className="text-sm text-gray-400 mb-6 text-center">
+              Avaliando: <span className="text-purple-400 font-semibold">{selectedLesson.title}</span>
+            </p>
+
+            <div className="flex justify-center gap-3 mb-6">
+              {[1, 2, 3, 4, 5].map(star => (
+                <button
+                  key={star}
+                  onClick={() => setReviewRating(star)}
+                  onMouseEnter={() => setHoveredStar(star)}
+                  onMouseLeave={() => setHoveredStar(0)}
+                  className="text-4xl transition-transform hover:scale-110"
+                >
+                  <span className={star <= (hoveredStar || reviewRating) ? 'text-yellow-400' : 'text-gray-600'}>
+                    ★
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {reviewRating > 0 && (
+              <p className="text-center text-sm font-semibold mb-4 text-yellow-400">
+                {['', 'Muito ruim', 'Ruim', 'Regular', 'Boa', 'Excelente!'][reviewRating]}
+              </p>
+            )}
+
+            <textarea
+              value={reviewComment}
+              onChange={e => setReviewComment(e.target.value)}
+              placeholder="Deixe um comentário (opcional)..."
+              rows={3}
+              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-sm text-white outline-none focus:border-purple-500 resize-none mb-6"
+            />
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsReviewModalOpen(false)}
+                className="flex-1 py-3 rounded-lg border border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-colors font-semibold text-sm"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSubmitReview}
+                disabled={reviewRating === 0 || isSubmittingReview}
+                className="flex-1 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm transition-colors"
+              >
+                {isSubmittingReview ? 'Enviando...' : 'Enviar Avaliação'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

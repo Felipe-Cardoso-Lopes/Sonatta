@@ -39,4 +39,29 @@ const getLessons = async (req, res) => {
   }
 };
 
+const getCompletedLessons = async (req, res) => {
+  const student_id = req.user.id;
+  const { teacherId } = req.params;
+
+  try {
+    const result = await db.query(
+      `SELECT id, title, lesson_date 
+       FROM lessons 
+       WHERE student_id = $1 
+         AND teacher_id = $2 
+         AND status = 'concluida'
+         AND id NOT IN (
+           SELECT lesson_id FROM reviews WHERE student_id = $1
+         )
+       ORDER BY lesson_date DESC`,
+      [student_id, teacherId]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Erro ao buscar aulas concluídas:', error);
+    res.status(500).json({ message: 'Erro interno no servidor.' });
+  }
+};
+
 module.exports = { createLesson, getLessons };
