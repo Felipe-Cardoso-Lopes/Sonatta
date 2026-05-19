@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { createLesson, getLessons } = require('../controllers/lessonController');
+const { createLesson, getLessons, getCompletedLessons } = require('../controllers/lessonController');
 const { verifyToken } = require('../middlewares/authMiddleware');
 
 // Rotas para /api/lessons

@@ -64,4 +64,4 @@ const getCompletedLessons = async (req, res) => {
   }
 };
 
-module.exports = { createLesson, getLessons };
+module.exports = { createLesson, getLessons, getCompletedLessons };
