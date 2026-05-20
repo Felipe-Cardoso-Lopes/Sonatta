@@ -1,5 +1,3 @@
-const { createClient } = require('@supabase/supabase-js');
-
 // Inicializa o cliente do Supabase com as suas variáveis de ambiente
 // Certifique-se de que SUPABASE_URL e SUPABASE_KEY (anon ou service_role) estão no seu ficheiro .env
 const { createClient } = require('@supabase/supabase-js');
