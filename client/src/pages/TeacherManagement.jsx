@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import TeacherSidebar from '../components/TeacherSidebar';
+import DropZone from '../components/DropZone';
 
 function TeacherManagement() {
   const [activeTab, setActiveTab] = useState('courses'); 
@@ -22,7 +23,6 @@ function TeacherManagement() {
     fetchTeacherData();
   }, []);
 
-  // Quando o modal de edição abrir, tenta buscar os exercícios do curso
   useEffect(() => {
     if (isEditModalOpen && editCourseData.id) {
       fetchExercises(editCourseData.id);
@@ -44,7 +44,6 @@ function TeacherManagement() {
 
   const fetchExercises = async (courseId) => {
     try {
-      // Prepara o terreno para a API de exercícios que vamos criar no backend
       const res = await axios.get(`${API_URL}/api/exercises/course/${courseId}`, { headers });
       setCourseExercises(res.data);
     } catch (err) {
@@ -181,7 +180,7 @@ function TeacherManagement() {
         </div>
       </main>
 
-      {/* Modal Criar Curso (Permanece igual) */}
+      {/* Modal Criar Curso */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-800 w-full max-w-md p-6 rounded-xl border border-gray-600 shadow-2xl">
@@ -189,36 +188,19 @@ function TeacherManagement() {
               <h2 className="text-2xl font-bold text-white">Criar Novo Curso</h2>
               <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
-            
             <form onSubmit={handleCreateCourse} className="space-y-4">
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Título do Curso</label>
-                <input 
-                  type="text" required
-                  value={newCourseData.title}
-                  onChange={(e) => setNewCourseData({...newCourseData, title: e.target.value})}
-                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
-                />
+                <input type="text" required value={newCourseData.title} onChange={(e) => setNewCourseData({...newCourseData, title: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500" />
               </div>
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Instrumento Principal</label>
-                <input 
-                  type="text" required
-                  value={newCourseData.instrument}
-                  onChange={(e) => setNewCourseData({...newCourseData, instrument: e.target.value})}
-                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
-                />
+                <input type="text" required value={newCourseData.instrument} onChange={(e) => setNewCourseData({...newCourseData, instrument: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500" />
               </div>
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Descrição</label>
-                <textarea 
-                  rows="3" required
-                  value={newCourseData.description}
-                  onChange={(e) => setNewCourseData({...newCourseData, description: e.target.value})}
-                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
-                ></textarea>
+                <textarea rows="3" required value={newCourseData.description} onChange={(e) => setNewCourseData({...newCourseData, description: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"></textarea>
               </div>
-              
               <div className="flex gap-3 pt-4">
                 <button type="button" onClick={() => setIsCreateModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold">Cancelar</button>
                 <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold text-white">Criar Curso</button>
@@ -236,44 +218,27 @@ function TeacherManagement() {
               <h2 className="text-2xl font-bold text-white">Editar Curso e Trilhas</h2>
               <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
-            
             <form onSubmit={handleEditCourse} className="space-y-4 overflow-y-auto pr-2">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Título do Curso</label>
-                  <input 
-                    type="text" required
-                    value={editCourseData.title}
-                    onChange={(e) => setEditCourseData({...editCourseData, title: e.target.value})}
-                    className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
-                  />
+                  <input type="text" required value={editCourseData.title} onChange={(e) => setEditCourseData({...editCourseData, title: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500" />
                 </div>
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Instrumento</label>
-                  <input 
-                    type="text" required
-                    value={editCourseData.instrument}
-                    onChange={(e) => setEditCourseData({...editCourseData, instrument: e.target.value})}
-                    className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
-                  />
+                  <input type="text" required value={editCourseData.instrument} onChange={(e) => setEditCourseData({...editCourseData, instrument: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500" />
                 </div>
               </div>
-              
               <div>
                 <label className="block text-sm text-gray-400 mb-1">Descrição</label>
-                <textarea 
-                  rows="2" required
-                  value={editCourseData.description}
-                  onChange={(e) => setEditCourseData({...editCourseData, description: e.target.value})}
-                  className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"
-                ></textarea>
+                <textarea rows="2" required value={editCourseData.description} onChange={(e) => setEditCourseData({...editCourseData, description: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"></textarea>
               </div>
 
-              {/* Lista Dinâmica de Exercícios da Trilha */}
+              {/* Lista de Exercícios */}
               <div className="mt-6 pt-6 border-t border-gray-700">
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="font-bold text-purple-400">Aulas / Exercícios na Trilha</h3>
-                  <button type="button" className="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded"> + Adicionar Exercício</button>
+                  <button type="button" className="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded">+ Adicionar Exercício</button>
                 </div>
                 <div className="bg-gray-900 p-4 rounded border border-gray-700 flex flex-col gap-2">
                   {courseExercises.length > 0 ? (
@@ -281,8 +246,8 @@ function TeacherManagement() {
                       <div key={exercise.id} className="flex items-center justify-between bg-gray-800 p-2 rounded">
                         <span className="text-sm">{idx + 1}. {exercise.title} <span className="text-xs text-gray-500 ml-2">({exercise.type})</span></span>
                         <div className="flex gap-2">
-                           <button type="button" className="text-purple-400 text-xs hover:underline">Editar</button>
-                           <button type="button" className="text-red-400 text-xs hover:underline">Excluir</button>
+                          <button type="button" className="text-purple-400 text-xs hover:underline">Editar</button>
+                          <button type="button" className="text-red-400 text-xs hover:underline">Excluir</button>
                         </div>
                       </div>
                     ))
@@ -291,7 +256,20 @@ function TeacherManagement() {
                   )}
                 </div>
               </div>
-              
+
+              {/* Upload de Partituras */}
+              <div className="mt-6 pt-6 border-t border-gray-700">
+                <h3 className="font-bold text-purple-400 mb-4">📄 Enviar Partitura</h3>
+                <DropZone
+                  accept=".pdf,.xml,.mxl,.musicxml"
+                  label="PDF ou MusicXML até 10MB"
+                  onUploadSuccess={(url) => {
+                    console.log('Partitura enviada:', url);
+                    alert(`Partitura enviada com sucesso!\nURL: ${url}`);
+                  }}
+                />
+              </div>
+
               <div className="flex gap-3 pt-4 border-t border-gray-700 mt-4">
                 <button type="button" onClick={() => setIsEditModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold">Cancelar</button>
                 <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold text-white">Salvar Alterações</button>
