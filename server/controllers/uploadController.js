@@ -2,9 +2,18 @@ const { createClient } = require('@supabase/supabase-js');
 
 // Inicializa o cliente do Supabase com as suas variáveis de ambiente
 // Certifique-se de que SUPABASE_URL e SUPABASE_KEY (anon ou service_role) estão no seu ficheiro .env
+const { createClient } = require('@supabase/supabase-js');
+const WebSocket = require('ws'); // 1. Importa o ws
+
 const supabase = createClient(
   process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_KEY || 'placeholder-key'
+  process.env.SUPABASE_KEY || 'placeholder-key',
+  {
+    // 2. Força o uso do 'ws' caso o ambiente seja Node.js (evita o erro do WebSocket)
+    realtime: {
+      transport: WebSocket
+    }
+  }
 );
 
 exports.uploadFile = async (req, res) => {
