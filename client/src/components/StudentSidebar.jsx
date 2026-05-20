@@ -27,7 +27,7 @@ function StudentSidebar() {
         <NotificationBell />
         
         {/* Logo Sonatta */}
-        <Link to="/student/dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125">
+        <Link to="/student/dashboard" className="w-14 h-14 scale-150 transition-transform hover:scale-125">
           {/* Caminho da imagem corrigido */}
           <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" />
         </Link>
