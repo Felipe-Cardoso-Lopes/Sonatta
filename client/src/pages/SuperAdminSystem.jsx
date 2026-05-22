@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import SuperAdminSidebar from '../components/SuperAdminSidebar';
-import Header from '../components/Header';
 
 function SuperAdminSystem() {
   const [systemStats, setSystemStats] = useState({
@@ -58,7 +57,6 @@ function SuperAdminSystem() {
     <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
       <SuperAdminSidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <Header />
         
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-6xl mx-auto">
