@@ -24,12 +24,13 @@ import TeacherOverview from './pages/TeacherOverview';
 import TeacherManagement from './pages/TeacherManagement';
 import TeacherProfile from './pages/TeacherProfile';
 import TeacherChat from './pages/TeacherChat';
-import SoloTeacherDashboard from './pages/SoloTeacherDashboard';
+
+import SoloTeacherDashboard from "./pages/SoloTeacherDashboard";
+import SoloTeacherOverview from "./pages/SoloTeacherOverview"; // Antigo Dashboard
+import SoloTeacherCourses from "./pages/SoloTeacherCourses";
 import SoloTeacherSchedule from './pages/SoloTeacherSchedule';
-import SoloTeacherCourses from './pages/SoloTeacherCourses';
-import SoloTeacherStudents from './pages/SoloTeacherStudents';
-import SoloTeacherFinancial from './pages/SoloTeacherFinancial';
-import SoloTeacherShowcase from './pages/SoloTeacherShowcase';
+import SoloTeacherFinancial from "./pages/SoloTeacherFinancial";
+import SoloTeacherProfile from "./pages/SoloTeacherProfile"; // Antigo Showcase
 
 // Páginas da Instituição
 import InstituicaoDashboard from './pages/InstituicaoDashboard';
@@ -75,12 +76,13 @@ function App() {
           <Route path="/teacher/management" element={<TeacherManagement />} />
           <Route path="/teacher/profile" element={<TeacherProfile />} />
           <Route path="/teacher/chat" element={<TeacherChat />} />
-          <Route path="/solo-teacher" element={<SoloTeacherDashboard />} />
-        <Route path="/solo-teacher/schedule" element={<SoloTeacherSchedule />} />
-        <Route path="/solo-teacher/courses" element={<SoloTeacherCourses />} />
-        <Route path="/solo-teacher/students" element={<SoloTeacherStudents />} />
-        <Route path="/solo-teacher/financial" element={<SoloTeacherFinancial />} />
-        <Route path="/solo-teacher/showcase" element={<SoloTeacherShowcase />} />
+          
+          <Route path="/solo-teacher/dashboard" element={<SoloTeacherDashboard />} />
+          <Route path="/solo-teacher/overview" element={<SoloTeacherOverview />} />
+          <Route path="/solo-teacher/courses" element={<SoloTeacherCourses />} />
+          <Route path="/solo-teacher/schedule" element={<SoloTeacherSchedule />} />
+          <Route path="/solo-teacher/financial" element={<SoloTeacherFinancial />} />
+          <Route path="/solo-teacher/profile" element={<SoloTeacherProfile />} />
 
           {/* Rotas da Instituição */}
           <Route path="/instituicao/dashboard" element={<InstituicaoDashboard />} />

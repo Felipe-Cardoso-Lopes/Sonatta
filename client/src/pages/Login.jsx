@@ -49,7 +49,7 @@ function Login() {
         } else if (role === "professor") {
           // Lógica garantida: Redireciona o independente
           if (data.teacherType === "independente") {
-            navigate("/solo-teacher");
+            navigate("/solo-teacher/dashboard");
           } else {
             navigate("/teacher/dashboard");
           }

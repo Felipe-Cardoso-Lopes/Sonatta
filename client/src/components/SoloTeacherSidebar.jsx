@@ -26,13 +26,13 @@ function SoloTeacherSidebar() {
 
         
         {/* Logo Sonatta */}
-        <Link to="/solo-teacher" className="w-13 h-13 scale-150 transition-transform hover:scale-125 ">
+        <Link to="/solo-teacher/dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125 ">
           <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" />
         </Link>
 
         {/* Botão Dashboard (Overview) */}
-        <NavIndicator to="/solo-teacher">
-          <Link to="/solo-teacher" className="transition-transform hover:scale-125">
+        <NavIndicator to="/solo-teacher/overview">
+          <Link to="/solo-teacher/overview" className="transition-transform hover:scale-125">
             <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
               <img src="/assets/Overview.png" alt="Dashboard" className="w-7 h-7 scale-150" />
             </div>
@@ -43,7 +43,7 @@ function SoloTeacherSidebar() {
         <NavIndicator to="/solo-teacher/schedule">
           <Link to="/solo-teacher/schedule" className="transition-transform hover:scale-125">
             <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
-              <img src="/assets/Minhas Aulas.png" alt="Agenda" className="w-12 h-12 scale-150" />
+              <img src="/assets/Agenda.png" alt="Agenda" className="w-7 h-7 scale-150" />
             </div>
           </Link>
         </NavIndicator>
@@ -57,14 +57,6 @@ function SoloTeacherSidebar() {
           </Link>
         </NavIndicator>
 
-        {/* Botão Alunos (CRM) */}
-        <NavIndicator to="/solo-teacher/students">
-          <Link to="/solo-teacher/students" className="transition-transform hover:scale-125">
-            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
-              <img src="/assets/Escola.png" alt="Alunos" className="w-8 h-8 scale-150" />
-            </div>
-          </Link>
-        </NavIndicator>
 
         {/* Botão Financeiro */}
         <NavIndicator to="/solo-teacher/financial">
@@ -77,9 +69,9 @@ function SoloTeacherSidebar() {
 
       </div>
 
-      {/* Botão Minha Vitrine / Configurações (Fica solto no rodapé igual ao Meu Perfil) */}
-      <NavIndicator to="/solo-teacher/showcase">
-        <Link to="/solo-teacher/showcase" className="transition-transform hover:scale-125 mt-auto">
+      {/* Botão meu Perfil */}
+      <NavIndicator to="/solo-teacher/profile">
+        <Link to="/solo-teacher/profile" className="transition-transform hover:scale-125 mt-auto">
           <img src="/assets/Meu-Perfil.png" alt="Minha Vitrine" className="w-9 h-9 scale-150 opacity-80 hover:opacity-100 transition-opacity" />
         </Link>
       </NavIndicator>

@@ -1,52 +1,124 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import SoloTeacherSidebar from '../components/SoloTeacherSidebar';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import SoloTeacherSidebar from "../components/SoloTeacherSidebar";
 
 function SoloTeacherDashboard() {
+  const [userName, setUserName] = useState("");
   const navigate = useNavigate();
-  const userName = localStorage.getItem('userName') || "Professor";
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('userRole');
-    const teacherType = localStorage.getItem('teacherType');
+    // 1. Trava de segurança para garantir que apenas o Professor Independente acesse
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("userRole");
+    const teacherType = localStorage.getItem("teacherType");
 
-    // Validação estrita da trava de segurança
     if (!token) {
-      navigate('/login');
-    } else if (role !== 'professor' || teacherType !== 'independente') {
-      // Se não for professor ou se for do tipo institucional, barra o acesso
-      navigate('/');
+      navigate("/login");
+    } else if (role !== "professor" || teacherType !== "independente") {
+      navigate("/");
+    }
+
+    // 2. Recupera o nome para as boas-vindas
+    const storedName = localStorage.getItem("userName");
+    if (storedName) {
+      setUserName(storedName);
     }
   }, [navigate]);
 
-  // Mantive a estrutura original das suas métricas
-  const metrics = [
-    { label: 'Faturamento Mensal', value: 'R$ 3.450', icon: '💰', color: 'text-green-400' },
-    { label: 'Alunos Ativos', value: '28', icon: '👥', color: 'text-blue-400' },
-    { label: 'Aulas Hoje', value: '4', icon: '📅', color: 'text-purple-400' },
-  ];
-
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex">
+      {/* Menu Lateral do Professor Independente */}
       <SoloTeacherSidebar />
-      <div className="flex-1 p-8 overflow-y-auto">
-        <h1 className="text-3xl font-bold mb-2">Painel do Professor Independente</h1>
-        <p className="text-gray-400 mb-8">Bem-vindo de volta, {userName}!</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {metrics.map((metric, idx) => (
-             <div key={idx} className="bg-[#1a1a1a] p-6 rounded-lg border border-key-divider">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-gray-400 text-sm font-medium">{metric.label}</h3>
-                  <span className="text-xl">{metric.icon}</span>
-                </div>
-                <p className={`text-3xl font-bold ${metric.color}`}>{metric.value}</p>
-             </div>
-          ))}
-        </div>
 
-        {/* Mantenha o restante do código que você já tiver aqui dentro do dashboard */}
+      {/* Conteúdo Principal */}
+      <div className="flex-grow flex flex-col">
+        <main className="flex-grow flex flex-col items-center justify-center p-8 overflow-y-auto">
+          {/* Cabeçalho de Boas-Vindas */}
+          <div className="text-center w-full mb-12 mt-4">
+            <h1 className="text-4xl font-bold mb-2">
+              Bem-Vindo(a), {userName}!
+            </h1>
+            <h2 className="text-2xl mb-4 text-gray-300">
+              Área do Professor Independente
+            </h2>
+            <p className="text-lg leading-relaxed max-w-2xl mx-auto text-gray-400">
+              Gerencie seus cursos, acompanhe o progresso de seus alunos e
+              controle suas finanças de forma centralizada.
+            </p>
+          </div>
+
+          {/* Seção de Navegação por Cards */}
+          <section className="flex flex-wrap justify-center gap-12 max-w-6xl w-full">
+            {/* Card Visão Geral */}
+            <Link
+              to="/solo-teacher/overview"
+              className="group flex flex-col items-center text-center"
+            >
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img
+                  src="/assets/Overview.png"
+                  alt="Visão Geral"
+                  className="w-32 h-32 object-contain scale-110"
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
+                Visão Geral
+              </span>
+            </Link>
+
+            {/* Card Agenda */}
+            <Link
+              to="/solo-teacher/schedule"
+              className="group flex flex-col items-center text-center"
+            >
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img
+                  src="/assets/Agenda.png"
+                  alt="Agenda"
+                  className="w-32 h-32 object-contain scale-110"
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
+                Agenda
+              </span>
+            </Link>
+
+            {/* Card Gerenciamento Cursos e Alunos */}
+            <Link
+              to="/solo-teacher/courses"
+              className="group flex flex-col items-center text-center"
+            >
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img
+                  src="/assets/Gerenciamento.png"
+                  alt="Gerenciamento"
+                  className="w-32 h-32 object-contain scale-110"
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
+                Gerenciamento
+              </span>
+            </Link>
+
+
+            {/* Card Financeiro */}
+            <Link
+              to="/solo-teacher/financial"
+              className="group flex flex-col items-center text-center"
+            >
+              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img
+                  src="/assets/Financeiro.png"
+                  alt="Financeiro"
+                  className="w-32 h-32 object-contain scale-110"
+                />
+              </div>
+              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
+                Financeiro
+              </span>
+            </Link>
+          </section>
+        </main>
       </div>
     </div>
   );
