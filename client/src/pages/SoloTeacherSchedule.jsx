@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SoloTeacherSidebar from '../components/SoloTeacherSidebar';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay, addDays, startOfDay } from 'date-fns';
@@ -18,6 +19,21 @@ const localizer = dateFnsLocalizer({
 });
 
 function SoloTeacherSchedule() {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+    const teacherType = localStorage.getItem('teacherType');
+
+    if (!token) {
+      navigate('/login');
+    } else if (role !== 'professor' || teacherType !== 'independente') {
+      navigate('/');
+    }
+  }, [navigate]);
+  
   const [availabilities, setAvailabilities] = useState([]);
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(false);

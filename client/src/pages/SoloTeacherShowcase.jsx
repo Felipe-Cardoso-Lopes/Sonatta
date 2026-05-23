@@ -1,8 +1,24 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SoloTeacherSidebar from "../components/SoloTeacherSidebar";
+import { useNavigate } from 'react-router-dom';
 
 function SoloTeacherShowcase() {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+    const teacherType = localStorage.getItem('teacherType');
+
+    if (!token) {
+      navigate('/login');
+    } else if (role !== 'professor' || teacherType !== 'independente') {
+      navigate('/');
+    }
+  }, [navigate]);
+
   const [reviews, setReviews] = useState({ average_rating: null, total_reviews: 0, reviews: [] });
   const [loading, setLoading] = useState(true);
 

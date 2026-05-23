@@ -1,7 +1,23 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import SoloTeacherSidebar from '../components/SoloTeacherSidebar';
+import { useNavigate } from 'react-router-dom';
 
 function SoloTeacherFinancial() {
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole');
+    const teacherType = localStorage.getItem('teacherType');
+
+    if (!token) {
+      navigate('/login');
+    } else if (role !== 'professor' || teacherType !== 'independente') {
+      navigate('/');
+    }
+  }, [navigate]);
+  
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row">
       <SoloTeacherSidebar />

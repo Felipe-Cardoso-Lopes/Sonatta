@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import NotificationBell from './NotificationBell';
+
 
 // Sub-componente que adiciona a barra lateral se a rota estiver ativa
 const NavIndicator = ({ to, children }) => {
@@ -24,8 +24,6 @@ function SoloTeacherSidebar() {
     <aside className="w-24 min-h-screen bg-gray-800 border-r border-gray-700 p-4 flex flex-col justify-between items-center shrink-0">
       <div className="flex flex-col items-center gap-6">
 
-      {/* Sininho de Notificações */}
-      <NotificationBell />
         
         {/* Logo Sonatta */}
         <Link to="/solo-teacher" className="w-13 h-13 scale-150 transition-transform hover:scale-125 ">
