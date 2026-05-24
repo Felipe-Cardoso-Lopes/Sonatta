@@ -25,12 +25,14 @@ import TeacherManagement from './pages/TeacherManagement';
 import TeacherProfile from './pages/TeacherProfile';
 import TeacherChat from './pages/TeacherChat';
 
+// Páginas do Professor Solo
 import SoloTeacherDashboard from "./pages/SoloTeacherDashboard";
 import SoloTeacherOverview from "./pages/SoloTeacherOverview"; // Antigo Dashboard
 import SoloTeacherCourses from "./pages/SoloTeacherCourses";
 import SoloTeacherSchedule from './pages/SoloTeacherSchedule';
 import SoloTeacherFinancial from "./pages/SoloTeacherFinancial";
-import SoloTeacherProfile from "./pages/SoloTeacherProfile"; // Antigo Showcase
+import SoloTeacherProfile from "./pages/SoloTeacherProfile";
+import SoloTeacherShowcase from './pages/SoloTeacherShowcase'; // Antigo Showcase
 
 // Páginas da Instituição
 import InstituicaoDashboard from './pages/InstituicaoDashboard';
