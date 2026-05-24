@@ -29,7 +29,7 @@ const registerUser = async (req, res) => {
       }
 
       const escola = schoolResult.rows[0];
-      instituicao_id = escola.id; 
+      instituicao_id = escola.id;
 
       if (inviteCode.trim() === escola.codigo_aluno) {
         userRole = 'aluno';
@@ -69,6 +69,9 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
+  // Atualiza a query para incluir teacher_type
+  const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
+
   if (!email || !password) {
     return res.status(401).json({ message: 'Credenciais inválidas' });
   }
@@ -88,8 +91,10 @@ const loginUser = async (req, res) => {
         nickname: user.nickname,
         email: user.email,
         role: user.role,
+        teacherType: user.teacher_type,
         token,
       });
+
     } else {
       res.status(401).json({ message: 'Credenciais inválidas' });
     }
@@ -102,7 +107,7 @@ const loginUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const result = await db.query(
-      'SELECT id, name, nickname, email, birth_date, created_at FROM users WHERE id = $1', 
+      'SELECT id, name, nickname, email, birth_date, created_at FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -118,9 +123,9 @@ const getUserProfile = async (req, res) => {
 };
 
 const updateUserProfile = async (req, res) => {
-  const id = req.user.id; 
-  const { name, nickname, email, password } = req.body; 
-  
+  const id = req.user.id;
+  const { name, nickname, email, password } = req.body;
+
   try {
     let query = 'UPDATE users SET name = COALESCE($1, name), nickname = COALESCE($2, nickname), email = COALESCE($3, email)';
     let values = [name, nickname, email];

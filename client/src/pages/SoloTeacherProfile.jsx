@@ -5,25 +5,23 @@ import SoloTeacherSidebar from '../components/SoloTeacherSidebar';
 
 function SoloTeacherProfile() {
   const navigate = useNavigate();
-  
+
   const [user, setUser] = useState({
-    name: '',
-    nickname: '',
-    email: '',
-    birthDate: '',
-    specialty: '',
-    bio: '',
-    videoUrl: '',
+    name: '', nickname: '', email: '', birthDate: '',
+    specialty: '', bio: '', videoUrl: '',
+    youtubeIntroUrl: '', spotifyArtistUrl: '', offersTrialLesson: false,
   });
-  
+
+  const [formData, setFormData] = useState({
+    name: '', nickname: '', email: '', password: '',
+    birthDate: '', specialty: '', bio: '', videoUrl: '',
+    youtubeIntroUrl: '', spotifyArtistUrl: '', offersTrialLesson: false,
+  });
+
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({ 
-    name: '', nickname: '', email: '', password: '', birthDate: '', specialty: '', bio: '', videoUrl: '' 
-  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Trava de Segurança
     const token = localStorage.getItem('token');
     const role = localStorage.getItem('userRole');
     const teacherType = localStorage.getItem('teacherType');
@@ -54,7 +52,7 @@ function SoloTeacherProfile() {
 
       if (userData.birth_date) {
         dataNascimentoFormatada = new Date(userData.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
-        dataInputFormat = userData.birth_date.split('T')[0]; // Formato YYYY-MM-DD para o input type="date"
+        dataInputFormat = userData.birth_date.split('T')[0];
       }
 
       setUser({
@@ -65,6 +63,9 @@ function SoloTeacherProfile() {
         specialty: userData.specialty || '',
         bio: userData.bio || '',
         videoUrl: userData.video_url || '',
+        youtubeIntroUrl: userData.youtube_intro_url || '',
+        spotifyArtistUrl: userData.spotify_artist_url || '',
+        offersTrialLesson: userData.offers_trial_lesson || false,
       });
 
       setFormData({
@@ -76,11 +77,13 @@ function SoloTeacherProfile() {
         specialty: userData.specialty || '',
         bio: userData.bio || '',
         videoUrl: userData.video_url || '',
+        youtubeIntroUrl: userData.youtube_intro_url || '',
+        spotifyArtistUrl: userData.spotify_artist_url || '',
+        offersTrialLesson: userData.offers_trial_lesson || false,
       });
 
     } catch (error) {
       console.error('Erro ao buscar dados do perfil:', error);
-      // Fallback para exibir dados locais caso a API ainda não tenha as rotas novas
       const fallbackName = localStorage.getItem('userName') || '';
       const fallbackNick = localStorage.getItem('userNickname') || '';
       setUser(prev => ({ ...prev, name: fallbackName, nickname: fallbackNick, email: 'professor.solo@sonatta.com' }));
@@ -116,7 +119,7 @@ function SoloTeacherProfile() {
   const handleLogout = () => {
     if (window.confirm("Tem certeza que deseja sair?")) {
       localStorage.clear();
-      window.location.href = '/login'; 
+      window.location.href = '/login';
     }
   };
 
@@ -130,31 +133,26 @@ function SoloTeacherProfile() {
 
       <main className="flex-grow p-6 md:p-12 overflow-y-auto">
         <div className="w-full h-full flex flex-col gap-12 max-w-6xl mx-auto">
-          
+
           <section className="flex flex-col lg:flex-row gap-8 items-start">
-            
+
             {/* ====== COLUNA ESQUERDA: DADOS PESSOAIS ====== */}
             <div className="flex-1 flex flex-col gap-4 w-full">
               <h3 className="text-xl font-semibold text-purple-300 border-b border-gray-700 pb-2 mb-2">Dados Pessoais</h3>
-              
+
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                
-                {/* Avatar Professor */}
                 <div className="w-32 h-32 bg-gray-800 border-4 border-purple-500 rounded-lg flex items-center justify-center flex-shrink-0 text-5xl font-bold shadow-[0_0_15px_rgba(168,85,247,0.4)]">
                   {user.name ? user.name.charAt(0).toUpperCase() : 'P'}
                 </div>
 
-                {/* Box de Informações */}
                 <div className="bg-gray-700 p-6 rounded-xl flex-1 w-full shadow-lg">
                   {isEditing ? (
-                    // O id "profileForm" permite que os inputs da Vitrine submetam este form
                     <form id="profileForm" onSubmit={handleUpdateProfile} className="flex flex-col gap-3">
                       <input type="text" name="name" value={formData.name} onChange={handleChange} placeholder="Nome Completo" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" required />
                       <input type="text" name="nickname" value={formData.nickname} onChange={handleChange} placeholder="Apelido" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
                       <input type="email" name="email" value={formData.email} onChange={handleChange} placeholder="E-mail" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" required />
                       <input type="date" name="birthDate" value={formData.birthDate} onChange={handleChange} className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-gray-300" />
                       <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="Nova Senha (opcional)" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
-                      
                       <div className="flex gap-2 mt-2">
                         <button type="submit" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-semibold text-white transition-colors">Salvar Alterações</button>
                         <button type="button" onClick={() => setIsEditing(false)} className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-semibold text-white transition-colors">Cancelar</button>
@@ -168,7 +166,6 @@ function SoloTeacherProfile() {
                       </div>
                       {user.nickname && <p className="text-purple-400 font-medium mb-1">"{user.nickname}"</p>}
                       <p className="text-sm text-gray-300 mb-4">{user.email}</p>
-                      
                       <div className="text-gray-400 text-sm border-t border-gray-600 pt-3">
                         <span><strong>Data de Nascimento:</strong> {user.birthDate}</span>
                       </div>
@@ -177,7 +174,6 @@ function SoloTeacherProfile() {
                 </div>
               </div>
 
-              {/* Botões de Ação */}
               <div className="flex gap-4 mt-2">
                 {!isEditing && (
                   <button onClick={() => setIsEditing(true)} className="bg-gray-700 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-colors border border-gray-500 font-semibold shadow-lg">
@@ -193,34 +189,57 @@ function SoloTeacherProfile() {
             {/* ====== COLUNA DIREITA: VITRINE (SHOWCASE) ====== */}
             <div className="flex-1 flex flex-col gap-4 w-full">
               <h3 className="text-xl font-semibold text-purple-300 border-b border-gray-700 pb-2 mb-2">A Minha Vitrine (Showcase)</h3>
-              
+
               <div className="bg-gray-700 p-6 rounded-xl flex-1 w-full shadow-lg h-full">
                 {isEditing ? (
                   <div className="flex flex-col gap-4">
-                    {/* O form="profileForm" vincula estes inputs ao form da coluna esquerda! */}
+
                     <div>
                       <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Especialidade Principal</label>
                       <input form="profileForm" type="text" name="specialty" value={formData.specialty} onChange={handleChange} placeholder="Ex: Aulas de Violão e Teoria" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
                     </div>
+
                     <div>
                       <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Biografia / Sobre mim</label>
                       <textarea form="profileForm" name="bio" value={formData.bio} onChange={handleChange} placeholder="Apresente-se aos seus futuros alunos..." rows="4" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white resize-none" />
                     </div>
+
                     <div>
                       <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Link do Vídeo de Apresentação (YouTube)</label>
                       <input form="profileForm" type="url" name="videoUrl" value={formData.videoUrl} onChange={handleChange} placeholder="https://www.youtube.com/watch?v=..." className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
                     </div>
+
+                    <div>
+                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">🎬 Link do YouTube (Vídeo Introdutório)</label>
+                      <input form="profileForm" type="url" name="youtubeIntroUrl" value={formData.youtubeIntroUrl} onChange={handleChange} placeholder="https://www.youtube.com/watch?v=..." className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
+                    </div>
+
+                    <div>
+                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">🎵 Link do Spotify (Perfil de Artista)</label>
+                      <input form="profileForm" type="url" name="spotifyArtistUrl" value={formData.spotifyArtistUrl} onChange={handleChange} placeholder="https://open.spotify.com/artist/..." className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
+                    </div>
+
+                    <div className="flex items-center gap-3 bg-gray-600 p-3 rounded-lg">
+                      <input form="profileForm" type="checkbox" id="offersTrialLesson" name="offersTrialLesson" checked={formData.offersTrialLesson} onChange={(e) => setFormData({ ...formData, offersTrialLesson: e.target.checked })} className="w-5 h-5 accent-purple-500 cursor-pointer" />
+                      <label htmlFor="offersTrialLesson" className="text-white text-sm cursor-pointer">
+                        Oferecer <strong>aula experimental gratuita</strong> na minha vitrine pública
+                      </label>
+                    </div>
+
                   </div>
                 ) : (
                   <div className="flex flex-col h-full justify-start gap-4">
+
                     <div>
                       <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Especialidade Principal</p>
                       <p className="text-white text-lg font-medium">{user.specialty || 'Não informada'}</p>
                     </div>
+
                     <div>
                       <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Biografia</p>
                       <p className="text-gray-300 text-sm leading-relaxed">{user.bio || 'Nenhuma biografia adicionada até ao momento.'}</p>
                     </div>
+
                     <div>
                       <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Vídeo de Apresentação</p>
                       {user.videoUrl ? (
@@ -231,6 +250,38 @@ function SoloTeacherProfile() {
                         <p className="text-gray-500 text-sm">Nenhum vídeo associado.</p>
                       )}
                     </div>
+
+                    <div>
+                      <p className="text-xs text-gray-400 font-semibold uppercase mb-1">YouTube</p>
+                      {user.youtubeIntroUrl ? (
+                        <a href={user.youtubeIntroUrl} target="_blank" rel="noopener noreferrer" className="text-red-400 hover:text-red-300 hover:underline text-sm truncate block font-medium">
+                          🎬 {user.youtubeIntroUrl}
+                        </a>
+                      ) : (
+                        <p className="text-gray-500 text-sm">Nenhum link do YouTube adicionado.</p>
+                      )}
+                    </div>
+
+                    <div>
+                      <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Spotify</p>
+                      {user.spotifyArtistUrl ? (
+                        <a href={user.spotifyArtistUrl} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300 hover:underline text-sm truncate block font-medium">
+                          🎵 {user.spotifyArtistUrl}
+                        </a>
+                      ) : (
+                        <p className="text-gray-500 text-sm">Nenhum perfil do Spotify adicionado.</p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`w-3 h-3 rounded-full ${user.offersTrialLesson ? 'bg-green-400' : 'bg-gray-600'}`}></span>
+                      <p className="text-sm text-gray-300">
+                        {user.offersTrialLesson
+                          ? <span className="text-green-400 font-semibold">Aula experimental gratuita ativada</span>
+                          : 'Aula experimental não oferecida'}
+                      </p>
+                    </div>
+
                   </div>
                 )}
               </div>
