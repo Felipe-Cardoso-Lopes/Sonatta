@@ -8,6 +8,7 @@ const {
   updateSubscription, 
   deleteSubscription,
   getAllInstitutions,
+  createInstitution,
   getSaaSPlans,
   updateSaaSPlan
 } = require('../controllers/superAdminController');
@@ -35,5 +36,6 @@ router.put('/saas-plans/:id', updateSaaSPlan);
 // 4. RECURSO: INSTITUIÇÕES
 // ==========================================
 router.get('/institutions', getAllInstitutions);
+router.post('/institutions', createInstitution);
 
 module.exports = router;

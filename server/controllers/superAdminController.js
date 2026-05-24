@@ -151,6 +151,37 @@ const getGlobalStats = async (req, res) => {
   }
 };
 
+const createInstitution = async (req, res) => {
+  const { nome, email, telefone, cidade, codigo_aluno, codigo_professor } = req.body;
+
+  if (!nome || !email) {
+    return res.status(400).json({ message: 'Nome e e-mail são obrigatórios.' });
+  }
+
+  try {
+    // Verifica se já existe instituição com o mesmo e-mail
+    const exists = await db.query('SELECT id FROM instituicoes WHERE email = $1', [email]);
+    if (exists.rows.length > 0) {
+      return res.status(400).json({ message: 'Já existe uma instituição cadastrada com este e-mail.' });
+    }
+
+    const result = await db.query(
+      `INSERT INTO instituicoes (nome, email, telefone, cidade, codigo_aluno, codigo_professor, status)
+       VALUES ($1, $2, $3, $4, $5, $6, 'ativo')
+       RETURNING *`,
+      [nome, email, telefone || null, cidade || null, codigo_aluno || null, codigo_professor || null]
+    );
+
+    res.status(201).json({
+      message: 'Instituição cadastrada com sucesso!',
+      institution: result.rows[0]
+    });
+  } catch (error) {
+    console.error('Erro ao criar instituição:', error);
+    res.status(500).json({ message: 'Erro interno no servidor.' });
+  }
+};
+
 module.exports = {
   getGlobalStats,
   getAllSubscriptions,
@@ -158,6 +189,7 @@ module.exports = {
   updateSubscription,
   deleteSubscription,
   getAllInstitutions,
+  createInstitution,
   getSaaSPlans,
   updateSaaSPlan,
 };
