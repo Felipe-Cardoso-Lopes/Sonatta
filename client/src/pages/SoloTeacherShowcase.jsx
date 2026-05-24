@@ -125,7 +125,7 @@ function SoloTeacherShowcase() {
             </p>
             <button
               onClick={() => navigate(`/schedule?teacherId=${teacherId}&trial=true`)}
-              className="bg-white text-purple-700 font-bold px-8 py-4 rounded-xl text-lg hover:bg-purple-50 transition-colors shadow-lg hover:shadow-xl transform hover:scale-105 transition-transform"
+              className="bg-white text-purple-700 font-bold px-8 py-4 rounded-xl text-lg hover:bg-purple-50 shadow-lg hover:shadow-xl transform hover:scale-105 transition-transform"
             >
               🗓️ Agendar Minha Aula Gratuita
             </button>
