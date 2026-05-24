@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Importação única e exclusiva do controller
-const { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences, getUserProfile } = require('../controllers/userController');
+const { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences, getUserProfile, getPublicProfile } = require('../controllers/userController');
 const { verifyToken } = require('../middlewares/authMiddleware');
 
 router.post('/register', registerUser);

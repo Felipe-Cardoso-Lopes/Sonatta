@@ -218,4 +218,12 @@ const getPublicProfile = async (req, res) => {
   }
 };
 
-module.exports = { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences, getUserProfile };
+module.exports = {
+  registerUser,
+  loginUser,
+  updateUserProfile,
+  completeRegistration,
+  saveMusicalPreferences,
+  getUserProfile,
+  getPublicProfile
+};
