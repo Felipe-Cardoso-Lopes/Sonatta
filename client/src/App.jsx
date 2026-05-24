@@ -77,12 +77,14 @@ function App() {
           <Route path="/teacher/profile" element={<TeacherProfile />} />
           <Route path="/teacher/chat" element={<TeacherChat />} />
           
+          {/* Rotas do Professor Solo */}
           <Route path="/solo-teacher/dashboard" element={<SoloTeacherDashboard />} />
           <Route path="/solo-teacher/overview" element={<SoloTeacherOverview />} />
           <Route path="/solo-teacher/courses" element={<SoloTeacherCourses />} />
           <Route path="/solo-teacher/schedule" element={<SoloTeacherSchedule />} />
           <Route path="/solo-teacher/financial" element={<SoloTeacherFinancial />} />
           <Route path="/solo-teacher/profile" element={<SoloTeacherProfile />} />
+          <Route path="/showcase/:teacherId" element={<SoloTeacherShowcase />} />
 
           {/* Rotas da Instituição */}
           <Route path="/instituicao/dashboard" element={<InstituicaoDashboard />} />

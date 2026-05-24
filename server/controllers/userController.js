@@ -199,4 +199,23 @@ const saveMusicalPreferences = async (req, res) => {
   }
 };
 
+const getPublicProfile = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query(
+      `SELECT id, name, nickname, specialty, bio, 
+              youtube_intro_url, spotify_artist_url, offers_trial_lesson
+       FROM users WHERE id = $1 AND role = 'professor'`,
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Professor não encontrado.' });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro no servidor.' });
+  }
+};
+
 module.exports = { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences, getUserProfile };

@@ -11,5 +11,6 @@ router.put('/profile', verifyToken, updateUserProfile);
 router.put('/complete/:id', completeRegistration);
 router.get('/profile', verifyToken, getUserProfile);
 router.post('/preferences', saveMusicalPreferences);
+router.get('/public/:id', getPublicProfile);
 
 module.exports = router;
