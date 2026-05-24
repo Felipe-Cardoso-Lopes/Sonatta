@@ -69,9 +69,6 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
-  // Atualiza a query para incluir teacher_type
-  const result = await db.query('SELECT * FROM users WHERE email = $1', [email]);
-
   if (!email || !password) {
     return res.status(401).json({ message: 'Credenciais inválidas' });
   }
@@ -94,7 +91,6 @@ const loginUser = async (req, res) => {
         teacherType: user.teacher_type,
         token,
       });
-
     } else {
       res.status(401).json({ message: 'Credenciais inválidas' });
     }
