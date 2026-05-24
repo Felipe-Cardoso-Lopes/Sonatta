@@ -119,14 +119,35 @@ const getEnrolledCourses = async (req, res) => {
 
 const enrollStudent = async (req, res) => {
   const { course_id } = req.body;
-  const user_id = req.user.id; 
+  const user_id = req.user.id;
+
   try {
-    const check = await db.query('SELECT * FROM enrollments WHERE user_id = $1 AND course_id = $2', [user_id, course_id]);
+    // ✅ Verifica se o aluno está vinculado a uma instituição
+    const userCheck = await db.query(
+      'SELECT instituicao_id FROM users WHERE id = $1',
+      [user_id]
+    );
+
+    if (!userCheck.rows[0]?.instituicao_id) {
+      return res.status(403).json({ 
+        message: 'Apenas alunos vinculados a uma instituição podem se matricular em cursos.' 
+      });
+    }
+
+    const check = await db.query(
+      'SELECT * FROM enrollments WHERE user_id = $1 AND course_id = $2', 
+      [user_id, course_id]
+    );
+
     if (check.rows.length > 0) {
       return res.status(400).json({ message: 'Você já está matriculado neste curso.' });
     }
 
-    await db.query('INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2)', [user_id, course_id]);
+    await db.query(
+      'INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2)', 
+      [user_id, course_id]
+    );
+
     res.status(201).json({ message: 'Matrícula realizada com sucesso!' });
   } catch (error) {
     console.error('Erro na matrícula:', error);
