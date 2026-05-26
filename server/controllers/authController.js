@@ -149,4 +149,48 @@ const verifyEmailCode = async (req, res) => {
   }
 };
 
-module.exports = { login, sendVerificationEmail, verifyEmailCode };
+const registerInstituicao = async (req, res) => {
+  const { nome, email, senha, telefone, cidade } = req.body;
+
+  if (!nome || !email || !senha) {
+    return res.status(400).json({ message: 'Nome, e-mail e senha são obrigatórios.' });
+  }
+
+  try {
+    // 1. Verifica se já existe usuário com este email
+    const userExists = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (userExists.rows.length > 0) {
+      return res.status(400).json({ message: 'Já existe uma conta com este e-mail.' });
+    }
+
+    // 2. Cria a escola com status 'pendente'
+    const schoolResult = await db.query(
+      `INSERT INTO instituicoes (nome, email, telefone, cidade, status)
+       VALUES ($1, $2, $3, $4, 'pendente') RETURNING *`,
+      [nome, email, telefone || null, cidade || null]
+    );
+
+    const school = schoolResult.rows[0];
+
+    // 3. Cria o usuário administrador vinculado à escola
+    const salt = await bcrypt.genSalt(10);
+    const password_hash = await bcrypt.hash(senha, salt);
+
+    const userResult = await db.query(
+      `INSERT INTO users (name, email, password_hash, role, instituicao_id, is_verified)
+       VALUES ($1, $2, $3, 'instituicao', $4, false) RETURNING id, name, email, role`,
+      [nome, email, password_hash, school.id]
+    );
+
+    res.status(201).json({
+      message: 'Cadastro realizado! Aguarde a aprovação da equipe Sonatta para acessar a plataforma.',
+      institution: { id: school.id, nome: school.nome, status: school.status }
+    });
+
+  } catch (error) {
+    console.error('Erro ao cadastrar instituição:', error);
+    res.status(500).json({ message: 'Erro interno no servidor.' });
+  }
+};
+
+module.exports = { login, sendVerificationEmail, verifyEmailCode, registerInstituicao };

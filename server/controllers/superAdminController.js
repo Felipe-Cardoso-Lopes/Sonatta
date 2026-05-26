@@ -182,6 +182,36 @@ const createInstitution = async (req, res) => {
   }
 };
 
+const approveInstitution = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // 1. Ativa a instituição
+    const schoolResult = await db.query(
+      `UPDATE instituicoes SET status = 'ativo' WHERE id = $1 RETURNING *`,
+      [id]
+    );
+
+    if (schoolResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Instituição não encontrada.' });
+    }
+
+    // 2. Verifica o usuário vinculado
+    await db.query(
+      `UPDATE users SET is_verified = true WHERE instituicao_id = $1 AND role = 'instituicao'`,
+      [id]
+    );
+
+    res.status(200).json({
+      message: 'Instituição aprovada com sucesso!',
+      institution: schoolResult.rows[0]
+    });
+  } catch (error) {
+    console.error('Erro ao aprovar instituição:', error);
+    res.status(500).json({ message: 'Erro interno no servidor.' });
+  }
+};
+
 module.exports = {
   getGlobalStats,
   getAllSubscriptions,
@@ -190,6 +220,7 @@ module.exports = {
   deleteSubscription,
   getAllInstitutions,
   createInstitution,
+  approveInstitution,
   getSaaSPlans,
   updateSaaSPlan,
 };

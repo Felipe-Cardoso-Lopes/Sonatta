@@ -78,6 +78,14 @@ const loginUser = async (req, res) => {
     const user = result.rows[0];
 
     if (user && (await bcrypt.compare(password, user.password_hash))) {
+
+      // ✅ Verificação dentro do try, após encontrar o usuário
+      if (user.role === 'instituicao' && !user.is_verified) {
+        return res.status(403).json({ 
+          message: 'Sua conta ainda não foi aprovada. Aguarde a verificação da equipe Sonatta.' 
+        });
+      }
+
       const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
         expiresIn: '30d',
       });
