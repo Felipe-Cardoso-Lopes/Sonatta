@@ -1,6 +1,6 @@
 const db = require('../config/db');
 const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 // Configuração do serviço de e-mail

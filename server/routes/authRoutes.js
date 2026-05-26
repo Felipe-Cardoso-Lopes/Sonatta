@@ -4,7 +4,7 @@ const {
   login,
   sendVerificationEmail,
   verifyEmailCode,
-  registerInstituicao, // ✅ Import direto, sem spread
+  registerInstituicao,
 } = require("../controllers/authController");
 
 router.post("/login", login);
