@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import SuperAdminSidebar from '../components/SuperAdminSidebar';
-import Button from '../components/Button';
 import Input from '../components/Input';
 
 function SuperAdminSchools() {
+  const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+  const userRole = localStorage.getItem('userRole');
+
   const [schools, setSchools] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -15,11 +19,15 @@ function SuperAdminSchools() {
   });
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-  const token = localStorage.getItem('token');
 
   useEffect(() => {
+    // ✅ Trava de segurança
+    if (!token || userRole !== 'super_admin') {
+      navigate('/login');
+      return;
+    }
     fetchSchools();
-  }, []);
+  }, [navigate, token, userRole]);
 
   const fetchSchools = async () => {
     try {
@@ -83,7 +91,6 @@ function SuperAdminSchools() {
     <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
       <SuperAdminSidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-6xl mx-auto">
 
@@ -134,12 +141,8 @@ function SuperAdminSchools() {
                           </span>
                         </td>
                         <td className="p-4 text-center">
-                          <button className="text-purple-400 hover:text-purple-300 text-sm font-semibold mr-4">
-                            Editar
-                          </button>
-                          <button className="text-gray-500 hover:text-white text-sm font-semibold">
-                            Relatórios
-                          </button>
+                          <button className="text-purple-400 hover:text-purple-300 text-sm font-semibold mr-4">Editar</button>
+                          <button className="text-gray-500 hover:text-white text-sm font-semibold">Relatórios</button>
                         </td>
                       </tr>
                     ))}
@@ -155,94 +158,48 @@ function SuperAdminSchools() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
           <div className="bg-gray-800 w-full max-w-lg p-6 rounded-xl border border-gray-600 shadow-2xl">
-
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white">Cadastrar Nova Escola</h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="text-gray-400 hover:text-white text-xl font-bold"
-              >
-                &times;
-              </button>
+              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
             </div>
 
             <form onSubmit={handleCreateSchool} className="flex flex-col gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">Nome *</label>
-                  <input
-                    type="text" name="nome" required
-                    value={formData.nome} onChange={handleChange}
-                    placeholder="Ex: Escola Harmonia"
-                    className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500"
-                  />
+                  <input type="text" name="nome" required value={formData.nome} onChange={handleChange} placeholder="Ex: Escola Harmonia" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />
                 </div>
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">E-mail *</label>
-                  <input
-                    type="email" name="email" required
-                    value={formData.email} onChange={handleChange}
-                    placeholder="contato@escola.com"
-                    className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500"
-                  />
+                  <input type="email" name="email" required value={formData.email} onChange={handleChange} placeholder="contato@escola.com" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">Telefone</label>
-                  <input
-                    type="text" name="telefone"
-                    value={formData.telefone} onChange={handleChange}
-                    placeholder="(61) 99999-9999"
-                    className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500"
-                  />
+                  <input type="text" name="telefone" value={formData.telefone} onChange={handleChange} placeholder="(61) 99999-9999" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />
                 </div>
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">Cidade</label>
-                  <input
-                    type="text" name="cidade"
-                    value={formData.cidade} onChange={handleChange}
-                    placeholder="Ex: Brasília"
-                    className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500"
-                  />
+                  <input type="text" name="cidade" value={formData.cidade} onChange={handleChange} placeholder="Ex: Brasília" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">Código do Aluno</label>
-                  <input
-                    type="text" name="codigo_aluno"
-                    value={formData.codigo_aluno} onChange={handleChange}
-                    placeholder="Ex: ALU-XYZ01"
-                    className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500"
-                  />
+                  <input type="text" name="codigo_aluno" value={formData.codigo_aluno} onChange={handleChange} placeholder="Ex: ALU-XYZ01" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />
                 </div>
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">Código do Professor</label>
-                  <input
-                    type="text" name="codigo_professor"
-                    value={formData.codigo_professor} onChange={handleChange}
-                    placeholder="Ex: PRF-XYZ01"
-                    className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500"
-                  />
+                  <input type="text" name="codigo_professor" value={formData.codigo_professor} onChange={handleChange} placeholder="Ex: PRF-XYZ01" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />
                 </div>
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="flex-1 bg-gray-700 hover:bg-gray-600 py-2.5 rounded-lg font-bold text-sm transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSaving}
-                  className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 py-2.5 rounded-lg font-bold text-white text-sm transition-colors"
-                >
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-2.5 rounded-lg font-bold text-sm transition-colors">Cancelar</button>
+                <button type="submit" disabled={isSaving} className="flex-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 py-2.5 rounded-lg font-bold text-white text-sm transition-colors">
                   {isSaving ? 'Salvando...' : 'Cadastrar Escola'}
                 </button>
               </div>
