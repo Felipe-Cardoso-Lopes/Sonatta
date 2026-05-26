@@ -1,88 +1,126 @@
 # 🎶 Sonatta
 
-**A revolução no ensino musical potencializada por Inteligência Artificial.**
-
-O **Sonatta** é uma plataforma educacional de ponta desenvolvida para transformar a forma como as pessoas aprendem e ensinam música. Projetado sob o modelo SaaS (*Software as a Service*), o sistema permite que instituições de ensino musical gerenciem suas operações de forma independente, profissional e escalável.
+O **Sonatta** é uma plataforma de gestão e aprendizado musical que conecta alunos, professores particulares e instituições de ensino. O sistema centraliza a rotina educacional, oferecendo ferramentas para agendamento de aulas, acompanhamento de progresso, gestão financeira e comunicação direta.
 
 ---
 
-## 🚀 Modernização e Diferenciais
-Recentemente, o projeto passou por uma refatoração focada em competitividade e experiência do usuário (UX):
-* **Arquitetura Multi-Tenancy:** Preparado para suportar múltiplas escolas com gestões isoladas.
-* **Onboarding Moderno:** Substituição de formulários estáticos por um modal de seleção de tags interativo para definição de perfil musical.
-* **Responsividade Nativa:** Interface 100% adaptada para smartphones, tablets e desktops, garantindo aprendizado em qualquer lugar.
+## 🚀 Tecnologias Utilizadas
+
+**Frontend:**
+- React (com Vite)
+- Tailwind CSS
+- React Router DOM
+- Axios
+- Socket.io Client
+
+**Backend:**
+- Node.js com Express
+- PostgreSQL (via Supabase)
+- Socket.io (Comunicação em tempo real)
+- Supabase Storage (Hospedagem de imagens e arquivos)
+- Multer (Gerenciamento de uploads)
+- Mercado Pago (Integração de pagamentos)
+- JWT (Autenticação e controle de acesso)
+
+**Testes e CI/CD:**
+- Jest & Supertest (Testes unitários e de integração no backend)
+- Playwright (Testes E2E)
+- GitHub Actions (Pipelines automatizados)
 
 ---
 
-## ✨ Funcionalidades do Produto
+## 👥 Arquitetura de Perfis (RBAC)
 
-### 🏫 Painel da Instituição (Gestão da Escola)
-*Nível de acesso master destinado aos proprietários e gestores das escolas parceiras.*
-* **Gestão Administrativa:** Controle total sobre o corpo docente, turmas e matrículas.
-* **Saúde Financeira:** Monitoramento de faturamento, relatórios de receitas e gestão de mensalidades.
-* **Configurações da Unidade:** Customização de métricas e controle de acessos da instituição.
+O Sonatta opera com controle de acesso baseado em papéis:
 
-### 🧑‍🏫 Painel do Professor
-* **Gestão Pedagógica:** Ferramentas para criação e organização de cursos, módulos e materiais didáticos.
-* **Interação em Tempo Real:** Canal de comunicação direta e chat com os alunos.
-* **Acompanhamento:** Visão geral do progresso dos estudantes e feedbacks de atividades.
-
-### 🎓 Área do Aluno
-* **Trilhas de Aprendizado:** Dashboard intuitivo com acesso rápido às aulas e histórico.
-* **Perfil Personalizado:** Sistema de tags (instrumentos e gêneros) que adapta a experiência às preferências do músico.
-* **Ambiente de Prática:** Espaço dedicado para exercícios e evolução técnica.
+1. **Aluno:** Acesso a aulas, práticas, chat com professores e notificações.
+2. **Professor Solo:** Gestão de alunos, agenda, upload de materiais didáticos e vitrine profissional.
+3. **Instituição:** Gerenciamento de múltiplos professores e alunos, visão financeira e relatórios.
+4. **Super Admin:** Torre de controle global, gestão de assinaturas SaaS e cadastro de instituições parceiras.
 
 ---
 
-## 🛠️ Informações Técnicas e Autoria
+## 🛠️ Funcionalidades Principais
 
-### 🔐 Gestão do Ecossistema (Uso Exclusivo dos Autores)
-Para garantir a sustentação e o suporte de alto nível, o grupo de desenvolvimento dispõe de uma camada de **Super Administração** interna (não disponível para clientes finais), que permite:
-* Manutenção da infraestrutura e monitoramento global de estabilidade.
-* Gestão de licenciamento e ativação de novas instituições.
-* Suporte técnico avançado e governança de dados.
-
-### Stack Tecnológica
-* **Frontend:** React 19, Vite, Tailwind CSS.
-* **Backend:** Node.js, Express, PostgreSQL.
-* **Segurança:** Autenticação via JWT com controle de acesso baseado em funções (RBAC).
-* **Ambiente:** Configuração centralizada via variáveis de ambiente (`.env`).
+- **Autenticação Segura:** Login, registro e proteção de rotas via JWT com RBAC.
+- **Chat em Tempo Real:** Comunicação direta entre alunos e professores via Socket.io.
+- **Sistema de Notificações:** Alertas em tempo real integrados à barra lateral.
+- **Agendamento de Aulas:** Sistema de reservas com validação de conflitos de horário.
+- **Sistema de Avaliações:** Alunos avaliam professores após aulas concluídas.
+- **Gestão de Arquivos:** Upload de fotos de perfil e partituras com drag and drop.
+- **Vitrine do Professor Solo:** Página pública com iframes de YouTube e Spotify.
+- **Gestão de Escolas:** Fluxo completo de cadastro e aprovação de instituições parceiras.
+- **Integração de Pagamentos:** Checkout via Mercado Pago com webhook de confirmação.
 
 ---
 
-## 🗺️ Roadmap de Evolução (Priorizado via Matriz GUT)
+## ⚙️ Como Executar o Projeto Localmente
 
-1.  **Integração de Dados (G:5 U:5 T:5):** Finalização da conexão de todos os dashboards com dados reais do banco de dados.
-2.  **Módulo de IA Musical (G:5 U:2 T:3):** Implementação de análise de áudio para feedback de afinação e ritmo em tempo real.
-3.  **Gamificação (G:3 U:2 T:2):** Sistema de conquistas, badges e ranking para engajamento dos alunos.
+### Pré-requisitos
+- Node.js v20 ou superior
+- Conta ativa no Supabase
+
+### 1. Backend
+
+```bash
+cd server
+npm install
+```
+
+Crie o arquivo `server/.env`:
+
+```env
+PORT=5000
+DATABASE_URL=sua_string_de_conexao_postgresql
+JWT_SECRET=seu_segredo_jwt
+NODE_ENV=development
+```
+
+Inicie o servidor:
+
+```bash
+npm run dev
+```
+
+### 2. Frontend
+
+```bash
+cd client
+npm install
+```
+
+Crie o arquivo `client/.env`:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+Inicie a aplicação:
+
+```bash
+npm run dev
+```
 
 ---
 
-## 📦 Como Executar o Projeto
+## 🧪 Testes Automatizados
 
-1.  **Clone o repositório:**
-    ```bash
-    git clone [https://github.com/seu-usuario/sonatta.git](https://github.com/seu-usuario/sonatta.git)
-    ```
+**Backend (Jest):**
+```bash
+cd server
+npm test
+```
 
-2.  **Configuração do Backend:**
-    ```bash
-    cd server
-    npm install
-    # Configure o seu .env com as credenciais do Postgres e JWT_SECRET
-    npm run dev
-    ```
-
-3.  **Configuração do Frontend:**
-    ```bash
-    cd client
-    npm install
-    # Crie um arquivo .env com VITE_API_URL=http://localhost:5000
-    npm run dev
-    ```
+**E2E (Playwright):**
+```bash
+cd client
+npx playwright test
+```
 
 ---
 
 ## 👥 Autores
-Projeto Integrador desenvolvido por alunos do **Centro Universitário de Brasília (CEUB)**.
+
+Projeto Integrador desenvolvido pelos alunos Felipe Cardoso, Kayo Muller, Guilherme Barros e João Roberto do **Centro Universitário de Brasília (CEUB)**.
+
 *Todos os direitos reservados.*
