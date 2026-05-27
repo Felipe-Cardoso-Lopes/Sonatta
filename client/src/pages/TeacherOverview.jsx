@@ -71,11 +71,14 @@ function TeacherOverview() {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMessages(res.data);
+      
+      // Remove as notificações não lidas deste aluno localmente
       setUnreadCounts((prev) => {
         const next = { ...prev };
         delete next[studentId];
         return next;
       });
+      
       socket?.emit("check_online", studentId);
     } catch (err) {
       console.error("Erro ao carregar mensagens", err);
@@ -91,23 +94,28 @@ function TeacherOverview() {
       : null;
   }, [activeChatStudent]);
 
-  // 2. ATUALIZA O CARD DE "AVISOS"
+  // 2. ATUALIZA O CARD DE "AVISOS" (BLINDADO CONTRA DADOS FANTASMAS)
   useEffect(() => {
-    const totalUnread = Object.values(unreadCounts).reduce(
-      (acc, curr) => acc + curr,
-      0,
-    );
+    let totalUnread = 0;
+
+    // A MÁGICA AQUI: Só soma avisos se o sender_id existir na lista REAL de alunos do professor
+    students.forEach((student) => {
+      if (unreadCounts[student.id]) {
+        totalUnread += Number(unreadCounts[student.id]);
+      }
+    });
+
     setMetrics((prev) => {
       const updated = [...prev];
       updated[2].value = totalUnread.toString();
       return updated;
     });
-  }, [unreadCounts]);
+  }, [unreadCounts, students]); // Depende tanto das contagens quanto dos alunos carregados
 
-  // 3. BUSCA INICIAL DE ALUNOS (ISOLADO E GARANTIDO)
+  // 3. BUSCA INICIAL
   useEffect(() => {
     fetchStudents();
-    fetchUnreadCounts();
+    fetchUnreadCounts(); 
   }, []);
 
   // Referência para os alunos (necessária para quando o Socket reconectar)
@@ -123,14 +131,10 @@ function TeacherOverview() {
     const newSocket = io(API_URL);
     setSocket(newSocket);
 
-    // CURA DA AMNÉSIA
     newSocket.on("connect", () => {
-      console.log(
-        `🔌 [Socket] Conectado! Avisando o servidor que meu ID é: ${userId}`,
-      );
+      console.log(`🔌 [Socket] Conectado! Avisando o servidor que meu ID é: ${userId}`);
       newSocket.emit("user_connected", userId);
 
-      // Se a tela já tinha alunos, re-verifica todos eles
       if (studentsRef.current.length > 0) {
         studentsRef.current.forEach((student) => {
           newSocket.emit("check_online", student.id);
@@ -139,20 +143,14 @@ function TeacherOverview() {
     });
 
     newSocket.on("user_status_changed", ({ userId: changedUserId, status }) => {
-      console.log(`📡 [Radar] Aluno ${changedUserId} ficou ${status}`);
       setOnlineUsers((prev) => {
         const next = new Set(prev);
-        status === "online"
-          ? next.add(String(changedUserId))
-          : next.delete(String(changedUserId));
+        status === "online" ? next.add(String(changedUserId)) : next.delete(String(changedUserId));
         return next;
       });
     });
 
     newSocket.on("online_status", ({ userId: checkedId, isOnline }) => {
-      console.log(
-        `📡 [Radar] Aluno ${checkedId} está ${isOnline ? "Online" : "Offline"}`,
-      );
       setOnlineUsers((prev) => {
         const next = new Set(prev);
         isOnline ? next.add(String(checkedId)) : next.delete(String(checkedId));
@@ -163,10 +161,12 @@ function TeacherOverview() {
     newSocket.on("receive_message", (messagePayload) => {
       if (activeChatStudentIdRef.current === String(messagePayload.sender_id)) {
         setMessages((prev) => [...prev, messagePayload]);
+        // Atualiza como lido no backend silenciosamente
         axios.get(`${API_URL}/api/messages/${messagePayload.sender_id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } else {
+        // Se a mensagem for de outro aluno, soma +1 no contador de avisos local
         setUnreadCounts((prev) => ({
           ...prev,
           [messagePayload.sender_id]: (prev[messagePayload.sender_id] || 0) + 1,
@@ -192,12 +192,11 @@ function TeacherOverview() {
   // 5. RADAR: Pergunta quem está online assim que a lista carregar da API
   useEffect(() => {
     if (socket && students.length > 0) {
-      console.log(`📡 [Varredura] Buscando status de ${students.length} alunos...`);
       students.forEach(student => socket.emit('check_online', student.id));
     }
   }, [socket, students]);
 
-  // 6. BUSCA HISTÓRICO AO CLICAR EM UM ALUNO
+  // 6. BUSCA HISTÓRICO AO CLICAR EM UM ALUNO E LIMPA AVISOS
   useEffect(() => {
     if (activeChatStudent) fetchChatHistory(activeChatStudent.id);
   }, [activeChatStudent]);
@@ -289,7 +288,7 @@ function TeacherOverview() {
                 </h2>
               </div>
 
-              <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-2">
+              <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-2 custom-scrollbar">
                 {students.length === 0 ? (
                   <p className="text-gray-500 text-center mt-4">
                     Nenhum aluno encontrado.
@@ -297,7 +296,7 @@ function TeacherOverview() {
                 ) : (
                   students.map((student) => {
                     const isOnline = onlineUsers.has(String(student.id));
-                    const unreadCount = unreadCounts[student.id];
+                    const unreadCount = unreadCounts[student.id] || 0;
 
                     return (
                       <div
@@ -370,7 +369,7 @@ function TeacherOverview() {
 
                   <div
                     ref={chatScrollRef}
-                    className="flex-grow overflow-y-auto p-6 flex flex-col gap-4"
+                    className="flex-grow overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar"
                   >
                     {messages.map((msg) => (
                       <div

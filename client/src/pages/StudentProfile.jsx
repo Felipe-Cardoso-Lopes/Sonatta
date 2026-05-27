@@ -124,14 +124,18 @@ function StudentProfile() {
                   <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-lg">
                     {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
                   </div>
-                  <div className="w-48">
-                    <p className="text-xs text-gray-400 text-center mb-2">Foto de Perfil</p>
-                    <DropZone
-                      accept="image/*"
-                      label="JPG, PNG até 5MB"
-                      onUploadSuccess={(url) => console.log('Foto enviada:', url)}
-                    />
-                  </div>
+                  
+                  {/* Dropzone oculta/exibida com base no isEditing */}
+                  {isEditing && (
+                    <div className="w-48 animate-fadeIn">
+                      <p className="text-xs text-gray-400 text-center mb-2">Foto de Perfil</p>
+                      <DropZone
+                        accept="image/*"
+                        label="JPG, PNG até 5MB"
+                        onUploadSuccess={(url) => console.log('Foto enviada:', url)}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Informações ou Formulário */}
