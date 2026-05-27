@@ -24,9 +24,9 @@ function SoloTeacherDashboard() {
       setUserName(storedName);
     }
   }, [navigate]);
-
-  return (
-    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex">
+return (
+    // Alterado para flex-col md:flex-row para alinhar responsividade com a Instituição
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex flex-col md:flex-row">
       {/* Menu Lateral do Professor Independente */}
       <SoloTeacherSidebar />
 
@@ -47,8 +47,8 @@ function SoloTeacherDashboard() {
             </p>
           </div>
 
-          {/* Seção de Navegação por Cards */}
-          <section className="flex flex-wrap justify-center gap-12 max-w-6xl w-full">
+          {/* Seção de Navegação por Cards (Alinhamento atualizado) */}
+          <section className="flex flex-col xl:flex-row flex-wrap justify-center gap-8 md:gap-12 w-full px-4 md:px-0">
             {/* Card Visão Geral */}
             <Link
               to="/solo-teacher/overview"
@@ -58,7 +58,7 @@ function SoloTeacherDashboard() {
                 <img
                   src="/assets/Overview.png"
                   alt="Visão Geral"
-                  className="w-32 h-32 object-contain scale-110"
+                  className="w-32 h-32 object-contain"
                 />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
@@ -75,7 +75,7 @@ function SoloTeacherDashboard() {
                 <img
                   src="/assets/Agenda.png"
                   alt="Agenda"
-                  className="w-32 h-32 object-contain scale-110"
+                  className="w-32 h-32 object-contain"
                 />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
@@ -92,14 +92,13 @@ function SoloTeacherDashboard() {
                 <img
                   src="/assets/Gerenciamento.png"
                   alt="Gerenciamento"
-                  className="w-32 h-32 object-contain scale-110"
+                  className="w-32 h-32 object-contain"
                 />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
                 Gerenciamento
               </span>
             </Link>
-
 
             {/* Card Financeiro */}
             <Link
@@ -110,7 +109,7 @@ function SoloTeacherDashboard() {
                 <img
                   src="/assets/Financeiro.png"
                   alt="Financeiro"
-                  className="w-32 h-32 object-contain scale-110"
+                  className="w-32 h-32 object-contain"
                 />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
