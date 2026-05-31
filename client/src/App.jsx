@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import VerifyEmail from './pages/VerifyEmail';
 
-// Páginas Públicas e de Autenticação
+// --- Páginas Públicas e de Autenticação ---
+import VerifyEmail from './pages/VerifyEmail';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -11,38 +11,39 @@ import AboutYou from './pages/AboutYou';
 import MusicalProfile from './pages/MusicalProfile';
 import PendingApproval from './pages/PendingApproval';
 
-// Páginas do Aluno
+// --- Páginas do Aluno ---
 import StudentDashboard from './pages/StudentDashboard';
 import StudentProfile from './pages/StudentProfile';
 import StudentLessons from './pages/StudentLessons';
 import StudentPractice from './pages/StudentPractice';
 import StudentChat from './pages/StudentChat';
 
-// Páginas do Professor
+// --- Páginas do Professor Institucional ---
 import TeacherDashboard from './pages/TeacherDashboard';
 import TeacherOverview from './pages/TeacherOverview';
 import TeacherManagement from './pages/TeacherManagement';
 import TeacherProfile from './pages/TeacherProfile';
 import TeacherChat from './pages/TeacherChat';
 
-// Páginas do Professor Solo
+// --- Páginas do Professor Solo ---
 import SoloTeacherDashboard from "./pages/SoloTeacherDashboard";
-import SoloTeacherOverview from "./pages/SoloTeacherOverview"; // Antigo Dashboard
+import SoloTeacherOverview from "./pages/SoloTeacherOverview"; 
 import SoloTeacherCourses from "./pages/SoloTeacherCourses";
 import SoloTeacherSchedule from './pages/SoloTeacherSchedule';
 import SoloTeacherFinancial from "./pages/SoloTeacherFinancial";
 import SoloTeacherProfile from "./pages/SoloTeacherProfile";
-import SoloTeacherShowcase from './pages/SoloTeacherShowcase'; // Antigo Showcase
+import SoloTeacherShowcase from './pages/SoloTeacherShowcase'; 
 
-// Páginas da Instituição
+// --- Páginas da Instituição ---
 import InstituicaoDashboard from './pages/InstituicaoDashboard';
 import InstituicaoOverview from './pages/InstituicaoOverview';
 import InstituicaoManagement from './pages/InstituicaoManagement';
 import InstituicaoFinancial from './pages/InstituicaoFinancial';
 import InstituicaoSettings from './pages/InstituicaoSettings';
 import InstituicaoProfile from './pages/InstituicaoProfile';
+import InstituicaoRegister from './pages/InstituicaoRegister';
 
-// Páginas do Super Admin
+// --- Páginas do Super Admin (Torre de Controle) ---
 import SuperAdminDashboard from './pages/SuperAdminDashboard';
 import SuperAdminSchools from './pages/SuperAdminSchools';
 import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions';
@@ -51,9 +52,11 @@ import SuperAdminSaaS from './pages/SuperAdminSaaS';
 
 function App() {
   return (
-     <div className="w-screen min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
+    // Estrutura base da aplicação cobrindo toda a tela
+    <div className="w-screen min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col">
       <Router>
         <Routes>
+          {/* --- Rotas Públicas --- */}
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -62,33 +65,37 @@ function App() {
           <Route path="/musical-profile" element={<MusicalProfile />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           
-          {/* Rota do Usuário Comum (Sem vínculo) */}
+          {/* Cadastro público de novas instituições */}
+          <Route path="/cadastro-instituicao" element={<InstituicaoRegister />} />
+          
+          {/* Tela de bloqueio para contas recém-criadas aguardando aprovação */}
           <Route path="/pending-approval" element={<PendingApproval />} />
           
-          {/* Rotas do Aluno */}
+          {/* --- Rotas do Aluno --- */}
           <Route path="/student/dashboard" element={<StudentDashboard />} />
           <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/lessons" element={<StudentLessons />} />
           <Route path="/practice" element={<StudentPractice />} />
           <Route path="/student/chat" element={<StudentChat />} /> 
 
-          {/* Rotas do Professor */}
+          {/* --- Rotas do Professor Institucional --- */}
           <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
           <Route path="/teacher/overview" element={<TeacherOverview />} />
           <Route path="/teacher/management" element={<TeacherManagement />} />
           <Route path="/teacher/profile" element={<TeacherProfile />} />
           <Route path="/teacher/chat" element={<TeacherChat />} />
           
-          {/* Rotas do Professor Solo */}
+          {/* --- Rotas do Professor Solo --- */}
           <Route path="/solo-teacher/dashboard" element={<SoloTeacherDashboard />} />
           <Route path="/solo-teacher/overview" element={<SoloTeacherOverview />} />
           <Route path="/solo-teacher/courses" element={<SoloTeacherCourses />} />
           <Route path="/solo-teacher/schedule" element={<SoloTeacherSchedule />} />
           <Route path="/solo-teacher/financial" element={<SoloTeacherFinancial />} />
           <Route path="/solo-teacher/profile" element={<SoloTeacherProfile />} />
+          {/* Rota pública para a vitrine do professor */}
           <Route path="/showcase/:teacherId" element={<SoloTeacherShowcase />} />
 
-          {/* Rotas da Instituição */}
+          {/* --- Rotas da Instituição --- */}
           <Route path="/instituicao/dashboard" element={<InstituicaoDashboard />} />
           <Route path="/instituicao/overview" element={<InstituicaoOverview />} />
           <Route path="/instituicao/management" element={<InstituicaoManagement />} />
@@ -96,13 +103,12 @@ function App() {
           <Route path="/instituicao/settings" element={<InstituicaoSettings />} />
           <Route path="/instituicao/profile" element={<InstituicaoProfile />} />
 
-          {/* Rotas do Super Admin (Torre de Controle) */}
+          {/* --- Rotas do Super Admin --- */}
           <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
           <Route path="/super-admin/schools" element={<SuperAdminSchools />} />
           <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptions />} />
           <Route path="/super-admin/system" element={<SuperAdminSystem />} />
           <Route path="/super-admin/saas" element={<SuperAdminSaaS />} />
-
         </Routes>
       </Router>
     </div>
