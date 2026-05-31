@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import Input from '../components/Input';
 
-function InstituicaoRegister() {
+function InstituicaoRegister() { // <-- Nome da função atualizado
   // Controle de estado do formulário e de feedbacks da UI
   const [formData, setFormData] = useState({ nome: '', email: '', telefone: '', cidade: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -60,7 +60,7 @@ function InstituicaoRegister() {
 
     try {
       // POST para a rota pública de registro de instituições
-      const response = await fetch(`${API_URL}/api/auth/register-instituicao`, {
+      const response = await fetch(`${API_URL}/api/auth/register-institution`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)

@@ -66,7 +66,7 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
           
           {/* Cadastro público de novas instituições */}
-          <Route path="/cadastro-instituicao" element={<InstituicaoRegister />} />
+          <Route path="/cadastro-instituicao" element={<InstituicaoRegister />} /> {/* <-- Rota atualizada */}
           
           {/* Tela de bloqueio para contas recém-criadas aguardando aprovação */}
           <Route path="/pending-approval" element={<PendingApproval />} />
