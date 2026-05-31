@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authMiddleware = require('../middlewares/authMiddleware');
+const { verifyToken } = require('../middlewares/authMiddleware');
 
 const { 
   getGlobalStats,
@@ -16,8 +16,8 @@ const {
   updateSaaSPlan
 } = require('../controllers/superAdminController');
 
-// Protege todas as rotas deste arquivo, exigindo token JWT válido
-router.use(authMiddleware);
+// AQUI ESTAVA O ERRO: Tem que ser verifyToken, não authMiddleware!
+router.use(verifyToken);
 
 // --- Rotas de Estatísticas ---
 router.get('/stats', getGlobalStats);
