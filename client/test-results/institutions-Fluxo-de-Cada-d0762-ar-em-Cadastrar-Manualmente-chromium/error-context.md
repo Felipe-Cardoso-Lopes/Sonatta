@@ -12,10 +12,44 @@
 # Error details
 
 ```
-Error: page.goto: net::ERR_ABORTED at https://sonatta-tau.vercel.app/login
+TimeoutError: page.click: Timeout 60000ms exceeded.
 Call log:
-  - navigating to "https://sonatta-tau.vercel.app/login", waiting until "load"
+  - waiting for locator('button:has-text("+ Cadastrar Manualmente")')
 
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e5]:
+  - banner [ref=e6]:
+    - generic [ref=e7]:
+      - link "Sonatta Logo" [ref=e8] [cursor=pointer]:
+        - /url: /
+        - img "Sonatta Logo" [ref=e9]
+      - link "Sonatta" [ref=e10] [cursor=pointer]:
+        - /url: /
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - heading "Entrar" [level=2] [ref=e13]
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - generic [ref=e16]: E-mail
+          - textbox "E-mail" [ref=e18]:
+            - /placeholder: seuemail@exemplo.com
+        - generic [ref=e19]:
+          - generic [ref=e20]: Senha
+          - generic [ref=e21]:
+            - textbox "Senha" [ref=e22]:
+              - /placeholder: "********"
+            - button "Mostrar" [ref=e23] [cursor=pointer]
+        - link "Esqueceu a senha?" [ref=e25] [cursor=pointer]:
+          - /url: /forgot-password
+        - button "Entrar" [ref=e26] [cursor=pointer]
+      - paragraph [ref=e27]:
+        - text: Não tem uma conta?
+        - link "Cadastre-se" [ref=e28] [cursor=pointer]:
+          - /url: /register
 ```
 
 # Test source
@@ -26,8 +60,7 @@ Call log:
   3  | test.describe('Fluxo de Cadastro de Instituição (TC-005)', () => {
   4  | 
   5  |   test.beforeEach(async ({ page }) => {
-> 6  |     await page.goto('/login');
-     |                ^ Error: page.goto: net::ERR_ABORTED at https://sonatta-tau.vercel.app/login
+  6  |     await page.goto('/login');
   7  |     await page.fill('input[type="email"]', 'joaoroberto@email.com');
   8  |     await page.fill('input[type="password"]', '123456');
   9  |     await page.click('button[type="submit"]');
@@ -38,7 +71,8 @@ Call log:
   14 |   });
   15 | 
   16 |   test('deve abrir o modal ao clicar em + Cadastrar Manualmente', async ({ page }) => {
-  17 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
+> 17 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
+     |                ^ TimeoutError: page.click: Timeout 60000ms exceeded.
   18 |     await expect(page.locator('input[name="nome"]')).toBeVisible();
   19 |   });
   20 | 
