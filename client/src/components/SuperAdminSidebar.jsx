@@ -45,6 +45,16 @@ function SuperAdminSidebar() {
           </Link>
         </NavIndicator>
 
+        {/* Professores Solo (Task 14.2) */}
+        <NavIndicator to="/super-admin/solo-teachers">
+          <Link to="/super-admin/solo-teachers" className="transition-transform hover:scale-125" title="Professores Solo">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
+              {/* Altere o nome do arquivo da imagem abaixo de acordo com os seus assets */}
+              <img src="/assets/Professor.png" alt="Professores Solo" className="w-8 h-8 scale-150" />
+            </div>
+          </Link>
+        </NavIndicator>
+
         {/* Assinaturas SaaS */}
         <NavIndicator to="/super-admin/subscriptions">
           <Link to="/super-admin/subscriptions" className="transition-transform hover:scale-125" title="Assinaturas SaaS">

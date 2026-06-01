@@ -49,6 +49,7 @@ import SuperAdminSchools from './pages/SuperAdminSchools';
 import SuperAdminSubscriptions from './pages/SuperAdminSubscriptions';
 import SuperAdminSystem from './pages/SuperAdminSystem';
 import SuperAdminSaaS from './pages/SuperAdminSaaS';
+import SuperAdminSoloTeachers from './pages/SuperAdminSoloTeachers';
 
 function App() {
   return (
@@ -92,6 +93,7 @@ function App() {
           <Route path="/solo-teacher/schedule" element={<SoloTeacherSchedule />} />
           <Route path="/solo-teacher/financial" element={<SoloTeacherFinancial />} />
           <Route path="/solo-teacher/profile" element={<SoloTeacherProfile />} />
+
           {/* Rota pública para a vitrine do professor */}
           <Route path="/showcase/:teacherId" element={<SoloTeacherShowcase />} />
 
@@ -109,6 +111,7 @@ function App() {
           <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptions />} />
           <Route path="/super-admin/system" element={<SuperAdminSystem />} />
           <Route path="/super-admin/saas" element={<SuperAdminSaaS />} />
+          <Route path="/super-admin/solo-teachers" element={<SuperAdminSoloTeachers />} />
         </Routes>
       </Router>
     </div>

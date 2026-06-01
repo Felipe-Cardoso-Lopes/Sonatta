@@ -254,6 +254,64 @@ const updateSaaSPlan = async (req, res) => {
   }
 };
 
+// ==========================================
+// 4. GESTÃO DE PROFESSORES SOLO (Task 14.2)
+// ==========================================
+
+// READ: Retorna a lista de todos os professores independentes
+const getSoloTeachers = async (req, res) => {
+  try {
+    const result = await db.query(`
+      SELECT id, name, email, is_verified, created_at 
+      FROM users 
+      WHERE role = 'solo_teacher'
+      ORDER BY created_at DESC
+    `);
+    res.status(200).json(result.rows);
+  } catch (error) {
+    console.error('Erro ao listar professores solo:', error);
+    res.status(500).json({ message: 'Erro interno ao buscar professores.' });
+  }
+};
+
+// CREATE: Cria uma conta de professor com privilégios independentes
+const createSoloTeacher = async (req, res) => {
+  const { name, email, password } = req.body;
+
+  // Validação de segurança básica
+  if (!name || !email || !password) {
+    return res.status(400).json({ message: 'Nome, e-mail e senha são obrigatórios.' });
+  }
+
+  try {
+    // 1. Previne duplicidade de contas no sistema
+    const userExists = await db.query('SELECT id FROM users WHERE email = $1', [email]);
+    if (userExists.rows.length > 0) {
+      return res.status(400).json({ message: 'Já existe uma conta com este e-mail.' });
+    }
+
+    // 2. Criptografa a senha para armazenamento seguro
+    const salt = await bcrypt.genSalt(10);
+    const passwordHash = await bcrypt.hash(password, salt);
+
+    // 3. Insere no banco forçando a role 'solo_teacher' e sem vínculo institucional
+    const result = await db.query(
+      `INSERT INTO users (name, email, password_hash, role, teacher_type, is_verified) 
+       VALUES ($1, $2, $3, 'solo_teacher', 'solo', true) 
+       RETURNING id, name, email, role, teacher_type`,
+      [name, email, passwordHash]
+    );
+
+    res.status(201).json({ 
+      message: 'Professor Solo cadastrado com sucesso!', 
+      teacher: result.rows[0] 
+    });
+  } catch (error) {
+    console.error('Erro ao cadastrar professor solo:', error);
+    res.status(500).json({ message: 'Erro interno ao processar o cadastro.' });
+  }
+};
+
 module.exports = {
   getGlobalStats,
   getAllInstitutions,
@@ -265,5 +323,7 @@ module.exports = {
   updateSubscription,
   deleteSubscription,
   getSaaSPlans,
-  updateSaaSPlan
+  updateSaaSPlan,
+  getSoloTeachers,
+  createSoloTeacher
 };

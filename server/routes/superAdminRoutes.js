@@ -13,7 +13,9 @@ const {
   approveInstitution,
   rejectInstitution,
   getSaaSPlans,
-  updateSaaSPlan
+  updateSaaSPlan,
+  getSoloTeachers,
+  createSoloTeacher
 } = require('../controllers/superAdminController');
 
 // AQUI ESTAVA O ERRO: Tem que ser verifyToken, não authMiddleware!
@@ -37,5 +39,9 @@ router.delete('/subscriptions/:id', deleteSubscription);
 // --- Rotas de Configuração de Planos SaaS ---
 router.get('/saas-plans', getSaaSPlans);
 router.put('/saas-plans/:id', updateSaaSPlan);
+
+// --- Rotas de Gestão de Professores Solo ---
+router.get('/solo-teachers', getSoloTeachers);
+router.post('/solo-teachers', createSoloTeacher);
 
 module.exports = router;
