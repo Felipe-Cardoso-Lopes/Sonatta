@@ -13,13 +13,13 @@ test.describe('Fluxo de Cadastro de Instituição (TC-005)', () => {
     await page.goto('/super-admin/schools');
   });
 
-  test('deve abrir o modal ao clicar em Cadastrar Nova Escola', async ({ page }) => {
-    await page.click('button:has-text("Cadastrar Nova Escola")');
+  test('deve abrir o modal ao clicar em + Cadastrar Manualmente', async ({ page }) => {
+    await page.click('button:has-text("+ Cadastrar Manualmente")');
     await expect(page.locator('input[name="nome"]')).toBeVisible();
   });
 
   test('deve bloquear cadastro com campos obrigatórios vazios', async ({ page }) => {
-    await page.click('button:has-text("Cadastrar Nova Escola")');
+    await page.click('button:has-text("+ Cadastrar Manualmente")');
     await page.click('button:has-text("Cadastrar Escola")');
     
     // Verifica se o foco voltou para o input de nome (bloqueado pelo HTML5 required)
@@ -28,7 +28,7 @@ test.describe('Fluxo de Cadastro de Instituição (TC-005)', () => {
   });
 
   test('deve cadastrar uma nova instituição com sucesso', async ({ page }) => {
-    await page.click('button:has-text("Cadastrar Nova Escola")');
+    await page.click('button:has-text("+ Cadastrar Manualmente")');
     
     await page.fill('input[name="nome"]', 'Escola Teste Playwright');
     await page.fill('input[name="email"]', `playwright.${Date.now()}@teste.com`);
@@ -50,7 +50,7 @@ test.describe('Fluxo de Cadastro de Instituição (TC-005)', () => {
   });
 
   test('deve fechar o modal ao clicar em Cancelar', async ({ page }) => {
-    await page.click('button:has-text("Cadastrar Nova Escola")');
+    await page.click('button:has-text("+ Cadastrar Manualmente")');
     await expect(page.locator('input[name="nome"]')).toBeVisible();
     await page.click('button:has-text("Cancelar")');
     await expect(page.locator('input[name="nome"]')).not.toBeVisible();

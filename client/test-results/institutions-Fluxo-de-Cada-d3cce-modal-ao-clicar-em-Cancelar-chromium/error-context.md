@@ -12,44 +12,10 @@
 # Error details
 
 ```
-TimeoutError: page.click: Timeout 30000ms exceeded.
+Error: page.goto: net::ERR_ABORTED at https://sonatta-tau.vercel.app/login
 Call log:
-  - waiting for locator('button:has-text("Cadastrar Nova Escola")')
+  - navigating to "https://sonatta-tau.vercel.app/login", waiting until "load"
 
-```
-
-# Page snapshot
-
-```yaml
-- generic [ref=e5]:
-  - banner [ref=e6]:
-    - generic [ref=e7]:
-      - link "Sonatta Logo" [ref=e8] [cursor=pointer]:
-        - /url: /
-        - img "Sonatta Logo" [ref=e9]
-      - link "Sonatta" [ref=e10] [cursor=pointer]:
-        - /url: /
-  - main [ref=e11]:
-    - generic [ref=e12]:
-      - heading "Entrar" [level=2] [ref=e13]
-      - generic [ref=e14]:
-        - generic [ref=e15]:
-          - generic [ref=e16]: E-mail
-          - textbox "E-mail" [ref=e18]:
-            - /placeholder: seuemail@exemplo.com
-        - generic [ref=e19]:
-          - generic [ref=e20]: Senha
-          - generic [ref=e21]:
-            - textbox "Senha" [ref=e22]:
-              - /placeholder: "********"
-            - button "Mostrar" [ref=e23] [cursor=pointer]
-        - link "Esqueceu a senha?" [ref=e25] [cursor=pointer]:
-          - /url: /forgot-password
-        - button "Entrar" [ref=e26] [cursor=pointer]
-      - paragraph [ref=e27]:
-        - text: Não tem uma conta?
-        - link "Cadastre-se" [ref=e28] [cursor=pointer]:
-          - /url: /register
 ```
 
 # Test source
@@ -60,7 +26,8 @@ Call log:
   3  | test.describe('Fluxo de Cadastro de Instituição (TC-005)', () => {
   4  | 
   5  |   test.beforeEach(async ({ page }) => {
-  6  |     await page.goto('/login');
+> 6  |     await page.goto('/login');
+     |                ^ Error: page.goto: net::ERR_ABORTED at https://sonatta-tau.vercel.app/login
   7  |     await page.fill('input[type="email"]', 'joaoroberto@email.com');
   8  |     await page.fill('input[type="password"]', '123456');
   9  |     await page.click('button[type="submit"]');
@@ -70,13 +37,13 @@ Call log:
   13 |     await page.goto('/super-admin/schools');
   14 |   });
   15 | 
-  16 |   test('deve abrir o modal ao clicar em Cadastrar Nova Escola', async ({ page }) => {
-  17 |     await page.click('button:has-text("Cadastrar Nova Escola")');
+  16 |   test('deve abrir o modal ao clicar em + Cadastrar Manualmente', async ({ page }) => {
+  17 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
   18 |     await expect(page.locator('input[name="nome"]')).toBeVisible();
   19 |   });
   20 | 
   21 |   test('deve bloquear cadastro com campos obrigatórios vazios', async ({ page }) => {
-  22 |     await page.click('button:has-text("Cadastrar Nova Escola")');
+  22 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
   23 |     await page.click('button:has-text("Cadastrar Escola")');
   24 |     
   25 |     // Verifica se o foco voltou para o input de nome (bloqueado pelo HTML5 required)
@@ -85,7 +52,7 @@ Call log:
   28 |   });
   29 | 
   30 |   test('deve cadastrar uma nova instituição com sucesso', async ({ page }) => {
-  31 |     await page.click('button:has-text("Cadastrar Nova Escola")');
+  31 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
   32 |     
   33 |     await page.fill('input[name="nome"]', 'Escola Teste Playwright');
   34 |     await page.fill('input[name="email"]', `playwright.${Date.now()}@teste.com`);
@@ -107,8 +74,7 @@ Call log:
   50 |   });
   51 | 
   52 |   test('deve fechar o modal ao clicar em Cancelar', async ({ page }) => {
-> 53 |     await page.click('button:has-text("Cadastrar Nova Escola")');
-     |                ^ TimeoutError: page.click: Timeout 30000ms exceeded.
+  53 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
   54 |     await expect(page.locator('input[name="nome"]')).toBeVisible();
   55 |     await page.click('button:has-text("Cancelar")');
   56 |     await expect(page.locator('input[name="nome"]')).not.toBeVisible();

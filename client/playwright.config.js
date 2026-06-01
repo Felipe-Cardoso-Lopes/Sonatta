@@ -28,11 +28,11 @@ export default defineConfig({
 
   // 4. CONFIGURAÇÕES BASE DE USO
   use: {
-    baseURL: process.env.BASE_URL || 'https://sonatta-five.vercel.app',
+    // 1. Atualizado para o seu novo link da Vercel
+    baseURL: process.env.BASE_URL || 'https://sonatta-tau.vercel.app', 
     
-    // Aumentado para 60 segundos (60000ms) conforme a sua análise
+    // 2. Mantemos os tempos altos por conta do plano free do Render
     actionTimeout: 60000,      
-    // Aumentado para 90 segundos para suportar o cold start do Render ao carregar a página
     navigationTimeout: 90000,  
     
     headless: true,
