@@ -5,8 +5,8 @@ test.describe('Feature 13/14: Painel de Aprovação do Super Admin', () => {
   test.beforeEach(async ({ page }) => {
     // 1. Simula o Login do Super Admin
     await page.goto('/login');
-    await page.fill('input[name="email"]', 'joaoroberto@email.com'); // Substitua pelo e-mail de teste real
-    await page.fill('input[name="password"]', '123456');  // Substitua pela senha real
+    await page.fill('input[type="email"]', 'joaoroberto@email.com');
+    await page.fill('input[type="password"]', '123456');
     await page.click('button[type="submit"]');
     
     // Aguarda o redirecionamento

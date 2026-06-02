@@ -12,9 +12,9 @@
 # Error details
 
 ```
-TimeoutError: page.click: Timeout 60000ms exceeded.
+TimeoutError: page.fill: Timeout 60000ms exceeded.
 Call log:
-  - waiting for locator('button:has-text("+ Cadastrar Manualmente")')
+  - waiting for locator('input[name="nome"]')
 
 ```
 
@@ -71,12 +71,12 @@ Call log:
   14 |   });
   15 | 
   16 |   test('deve abrir o modal ao clicar em + Cadastrar Manualmente', async ({ page }) => {
-  17 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
+  17 |     const successMessage = page.locator('text=Solicitação recebida com sucesso!');
   18 |     await expect(page.locator('input[name="nome"]')).toBeVisible();
   19 |   });
   20 | 
   21 |   test('deve bloquear cadastro com campos obrigatórios vazios', async ({ page }) => {
-  22 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
+  22 |     const successMessage = page.locator('text=Solicitação recebida com sucesso!');
   23 |     await page.click('button:has-text("Cadastrar Escola")');
   24 |     
   25 |     // Verifica se o foco voltou para o input de nome (bloqueado pelo HTML5 required)
@@ -85,10 +85,10 @@ Call log:
   28 |   });
   29 | 
   30 |   test('deve cadastrar uma nova instituição com sucesso', async ({ page }) => {
-> 31 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
-     |                ^ TimeoutError: page.click: Timeout 60000ms exceeded.
+  31 |     const successMessage = page.locator('text=Solicitação recebida com sucesso!');
   32 |     
-  33 |     await page.fill('input[name="nome"]', 'Escola Teste Playwright');
+> 33 |     await page.fill('input[name="nome"]', 'Escola Teste Playwright');
+     |                ^ TimeoutError: page.fill: Timeout 60000ms exceeded.
   34 |     await page.fill('input[name="email"]', `playwright.${Date.now()}@teste.com`);
   35 |     await page.fill('input[name="telefone"]', '(61) 99999-0000');
   36 |     await page.fill('input[name="cidade"]', 'Brasília');
@@ -108,7 +108,7 @@ Call log:
   50 |   });
   51 | 
   52 |   test('deve fechar o modal ao clicar em Cancelar', async ({ page }) => {
-  53 |     await page.click('button:has-text("+ Cadastrar Manualmente")');
+  53 |     const successMessage = page.locator('text=Solicitação recebida com sucesso!');
   54 |     await expect(page.locator('input[name="nome"]')).toBeVisible();
   55 |     await page.click('button:has-text("Cancelar")');
   56 |     await expect(page.locator('input[name="nome"]')).not.toBeVisible();

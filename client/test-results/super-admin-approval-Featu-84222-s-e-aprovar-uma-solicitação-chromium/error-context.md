@@ -12,9 +12,9 @@
 # Error details
 
 ```
-TimeoutError: page.fill: Timeout 60000ms exceeded.
+TimeoutError: page.click: Timeout 60000ms exceeded.
 Call log:
-  - waiting for locator('input[name="email"]')
+  - waiting for locator('button:has-text("Solicitações Pendentes")')
 
 ```
 
@@ -62,9 +62,8 @@ Call log:
   5  |   test.beforeEach(async ({ page }) => {
   6  |     // 1. Simula o Login do Super Admin
   7  |     await page.goto('/login');
-> 8  |     await page.fill('input[name="email"]', 'joaoroberto@email.com'); // Substitua pelo e-mail de teste real
-     |                ^ TimeoutError: page.fill: Timeout 60000ms exceeded.
-  9  |     await page.fill('input[name="password"]', '123456');  // Substitua pela senha real
+  8  |     await page.fill('input[type="email"]', 'joaoroberto@email.com');
+  9  |     await page.fill('input[type="password"]', '123456');
   10 |     await page.click('button[type="submit"]');
   11 |     
   12 |     // Aguarda o redirecionamento
@@ -76,7 +75,8 @@ Call log:
   18 |     await page.goto('/super-admin/schools');
   19 | 
   20 |     // Navega para a aba de solicitações pendentes
-  21 |     await page.click('button:has-text("Solicitações Pendentes")');
+> 21 |     await page.click('button:has-text("Solicitações Pendentes")');
+     |                ^ TimeoutError: page.click: Timeout 60000ms exceeded.
   22 | 
   23 |     // Prepara o Playwright para aceitar automaticamente os alertas do navegador (window.confirm e window.alert)
   24 |     page.on('dialog', async dialog => {
