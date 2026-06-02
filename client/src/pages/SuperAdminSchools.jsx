@@ -19,7 +19,7 @@ function SuperAdminSchools() {
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('role');
+  const userRole = localStorage.getItem('userRole');
   const navigate = useNavigate();
 
   // 1. Verificação de Segurança (Bloqueio de Rota)
