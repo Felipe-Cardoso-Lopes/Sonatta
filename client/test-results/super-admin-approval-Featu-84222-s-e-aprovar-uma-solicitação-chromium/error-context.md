@@ -12,44 +12,174 @@
 # Error details
 
 ```
-TimeoutError: page.click: Timeout 60000ms exceeded.
+Error: expect(locator).toBeVisible() failed
+
+Locator: locator('text=Nenhuma solicitação pendente no momento.')
+Expected: visible
+Timeout: 60000ms
+Error: element(s) not found
+
 Call log:
-  - waiting for locator('button:has-text("Solicitações Pendentes")')
+  - Expect "toBeVisible" with timeout 60000ms
+  - waiting for locator('text=Nenhuma solicitação pendente no momento.')
 
 ```
 
-# Page snapshot
-
 ```yaml
-- generic [ref=e5]:
-  - banner [ref=e6]:
-    - generic [ref=e7]:
-      - link "Sonatta Logo" [ref=e8] [cursor=pointer]:
-        - /url: /
-        - img "Sonatta Logo" [ref=e9]
-      - link "Sonatta" [ref=e10] [cursor=pointer]:
-        - /url: /
-  - main [ref=e11]:
-    - generic [ref=e12]:
-      - heading "Entrar" [level=2] [ref=e13]
-      - generic [ref=e14]:
-        - generic [ref=e15]:
-          - generic [ref=e16]: E-mail
-          - textbox "E-mail" [ref=e18]:
-            - /placeholder: seuemail@exemplo.com
-        - generic [ref=e19]:
-          - generic [ref=e20]: Senha
-          - generic [ref=e21]:
-            - textbox "Senha" [ref=e22]:
-              - /placeholder: "********"
-            - button "Mostrar" [ref=e23] [cursor=pointer]
-        - link "Esqueceu a senha?" [ref=e25] [cursor=pointer]:
-          - /url: /forgot-password
-        - button "Entrar" [ref=e26] [cursor=pointer]
-      - paragraph [ref=e27]:
-        - text: Não tem uma conta?
-        - link "Cadastre-se" [ref=e28] [cursor=pointer]:
-          - /url: /register
+- complementary:
+  - link "Sonatta Logo":
+    - /url: /super-admin/dashboard
+    - img "Sonatta Logo"
+  - link "Gestão de Escolas":
+    - /url: /super-admin/schools
+    - img "Gestão de Escolas"
+  - link "Professores Solo":
+    - /url: /super-admin/solo-teachers
+    - img "Professores Solo"
+  - link "Assinaturas SaaS":
+    - /url: /super-admin/subscriptions
+    - img "Assinaturas SaaS"
+  - link "Sistema e Logs":
+    - /url: /super-admin/system
+    - img "Sistema e Logs"
+  - button "Sair do Sistema":
+    - img
+- main:
+  - heading "Instituições Parceiras" [level=1]
+  - paragraph: Gerencie todas as escolas conectadas ou pendentes na plataforma.
+  - button "+ Cadastrar Manualmente"
+  - textbox "Pesquisar escola pelo nome..."
+  - button "Instituições Ativas (10)"
+  - button "Solicitações Pendentes 11"
+  - table:
+    - rowgroup:
+      - row "Nome / E-mail Telefone / Local Status Ações":
+        - columnheader "Nome / E-mail"
+        - columnheader "Telefone / Local"
+        - columnheader "Status"
+        - columnheader "Ações"
+    - rowgroup:
+      - row "Escola E2E Playwright e2e-1780338532394@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780338532394@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780338532394@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780418735731@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780418735731@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780418735731@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780419558083@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780419558083@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780419558083@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780420758565@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780420758565@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780420758565@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780421621857@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780421621857@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780421621857@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780425033347@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780425033347@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780425033347@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780425849469@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780425849469@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780425849469@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780337967518@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780337967518@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780337967518@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780339258694@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780339258694@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780339258694@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780342006582@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780342006582@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780342006582@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
+      - row "Escola E2E Playwright e2e-1780342718329@escola.com 11999999999 São Paulo - SP Pendente Aprovar Recusar":
+        - cell "Escola E2E Playwright e2e-1780342718329@escola.com":
+          - paragraph: Escola E2E Playwright
+          - paragraph: e2e-1780342718329@escola.com
+        - cell "11999999999 São Paulo - SP":
+          - paragraph: "11999999999"
+          - paragraph: São Paulo - SP
+        - cell "Pendente"
+        - cell "Aprovar Recusar":
+          - button "Aprovar"
+          - button "Recusar"
 ```
 
 # Test source
@@ -75,8 +205,7 @@ Call log:
   18 |     await page.goto('/super-admin/schools');
   19 | 
   20 |     // Navega para a aba de solicitações pendentes
-> 21 |     await page.click('button:has-text("Solicitações Pendentes")');
-     |                ^ TimeoutError: page.click: Timeout 60000ms exceeded.
+  21 |     await page.click('button:has-text("Solicitações Pendentes")');
   22 | 
   23 |     // Prepara o Playwright para aceitar automaticamente os alertas do navegador (window.confirm e window.alert)
   24 |     page.on('dialog', async dialog => {
@@ -98,7 +227,8 @@ Call log:
   40 |       await expect(page.locator('table')).toBeVisible();
   41 |     } else {
   42 |       // Caso não existam pendências, valida a mensagem de lista vazia
-  43 |       await expect(page.locator('text=Nenhuma solicitação pendente no momento.')).toBeVisible();
+> 43 |       await expect(page.locator('text=Nenhuma solicitação pendente no momento.')).toBeVisible();
+     |                                                                                   ^ Error: expect(locator).toBeVisible() failed
   44 |     }
   45 |   });
   46 | });

@@ -14,33 +14,32 @@ test.describe('Feature 13/14: Painel de Aprovação do Super Admin', () => {
   });
 
   test('Deve visualizar instituições pendentes e aprovar uma solicitação', async ({ page }) => {
-    // Acessa a rota de gestão de escolas
     await page.goto('/super-admin/schools');
 
     // Navega para a aba de solicitações pendentes
     await page.click('button:has-text("Solicitações Pendentes")');
 
-    // Prepara o Playwright para aceitar automaticamente os alertas do navegador (window.confirm e window.alert)
     page.on('dialog', async dialog => {
       await dialog.accept();
     });
 
-    // Localiza o primeiro botão "Aprovar" na tabela
     const btnAprovar = page.locator('button:has-text("Aprovar")').first();
-    
-    // Se existir uma instituição pendente, realiza o clique
+    const mensagemVazia = page.locator('text=Nenhuma solicitação pendente no momento.');
+
+    // CORREÇÃO: Aguarda ativamente o React renderizar o conteúdo da aba (seja a tabela ou a mensagem vazia)
+    await expect(btnAprovar.or(mensagemVazia)).toBeVisible();
+
+    // Com o DOM estabilizado, a condicional executará o caminho correto
     if (await btnAprovar.isVisible()) {
       await btnAprovar.click();
 
-      // Aguarda um momento para a recarga dos dados da API e atualização da aba
+      // Aguarda recarga dos dados da API
       await page.waitForTimeout(1000); 
 
-      // Retorna para a aba Ativas e verifica se a interface carregou a lista principal
       await page.click('button:has-text("Instituições Ativas")');
       await expect(page.locator('table')).toBeVisible();
     } else {
-      // Caso não existam pendências, valida a mensagem de lista vazia
-      await expect(page.locator('text=Nenhuma solicitação pendente no momento.')).toBeVisible();
+      await expect(mensagemVazia).toBeVisible();
     }
   });
 });
