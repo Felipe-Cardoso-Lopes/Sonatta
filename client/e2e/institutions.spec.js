@@ -14,12 +14,12 @@ test.describe('Fluxo de Cadastro de Instituição (TC-005)', () => {
   });
 
   test('deve abrir o modal ao clicar em + Cadastrar Manualmente', async ({ page }) => {
-    const successMessage = page.locator('text=Solicitação recebida com sucesso!');
+    await page.click('button:has-text("+ Cadastrar Manualmente")');
     await expect(page.locator('input[name="nome"]')).toBeVisible();
   });
 
   test('deve bloquear cadastro com campos obrigatórios vazios', async ({ page }) => {
-    const successMessage = page.locator('text=Solicitação recebida com sucesso!');
+    await page.click('button:has-text("+ Cadastrar Manualmente")');
     await page.click('button:has-text("Cadastrar Escola")');
     
     // Verifica se o foco voltou para o input de nome (bloqueado pelo HTML5 required)
@@ -28,8 +28,10 @@ test.describe('Fluxo de Cadastro de Instituição (TC-005)', () => {
   });
 
   test('deve cadastrar uma nova instituição com sucesso', async ({ page }) => {
-    const successMessage = page.locator('text=Solicitação recebida com sucesso!');
+    // 1. ABRIR O MODAL PRIMEIRO
+    await page.click('button:has-text("+ Cadastrar Manualmente")');
     
+    // 2. PREENCHER OS DADOS COM O MODAL ABERTO
     await page.fill('input[name="nome"]', 'Escola Teste Playwright');
     await page.fill('input[name="email"]', `playwright.${Date.now()}@teste.com`);
     await page.fill('input[name="telefone"]', '(61) 99999-0000');
@@ -37,20 +39,21 @@ test.describe('Fluxo de Cadastro de Instituição (TC-005)', () => {
     await page.fill('input[name="codigo_aluno"]', `ALU-PW${Date.now()}`);
     await page.fill('input[name="codigo_professor"]', `PRF-PW${Date.now()}`);
 
-    // Prepara para aceitar o "alert" de sucesso
+    // 3. PREPARAR INTERCEPTAÇÃO DO ALERT
     page.once('dialog', async dialog => {
       expect(dialog.message()).toContain('sucesso');
       await dialog.accept();
     });
 
+    // 4. CLICAR NO BOTÃO DE CADASTRAR/SUBMETER (E não no de abrir o modal)
     await page.click('button:has-text("Cadastrar Escola")');
     
-    // Aguarda o modal desaparecer da tela (indicando sucesso)
+    // 5. VALIDAR O DESAPARECIMENTO DO MODAL
     await expect(page.locator('input[name="nome"]')).not.toBeVisible({ timeout: 8000 });
   });
 
   test('deve fechar o modal ao clicar em Cancelar', async ({ page }) => {
-    const successMessage = page.locator('text=Solicitação recebida com sucesso!');
+    await page.click('button:has-text("+ Cadastrar Manualmente")');
     await expect(page.locator('input[name="nome"]')).toBeVisible();
     await page.click('button:has-text("Cancelar")');
     await expect(page.locator('input[name="nome"]')).not.toBeVisible();

@@ -28,7 +28,7 @@ test.describe('Cadastro Público de Instituição', () => {
     await page.click('button[type="submit"]');
 
     // Valida a exibição do feedback de sucesso e o desaparecimento do formulário
-    const successMessage = page.locator('text=Cadastro recebido com sucesso!');
+    const successMessage = page.locator('text=Solicitação recebida com sucesso!');
     await expect(successMessage).toBeVisible();
     await expect(page.locator('input[name="nome"]')).toBeHidden();
   });
