@@ -43,6 +43,19 @@ const deleteModule = async (req, res) => {
   } catch (err) { res.status(500).json({ message: 'Erro ao deletar módulo.' }); }
 };
 
+// --- ATUALIZAR MÓDULO ---
+const updateModule = async (req, res) => {
+  const { moduleId } = req.params;
+  const { title } = req.body;
+  try {
+    const result = await db.query(
+      'UPDATE modules SET title = $1 WHERE id = $2 RETURNING *',
+      [title, moduleId]
+    );
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ message: 'Erro ao atualizar módulo.' }); }
+};
+
 // --- AULAS GRAVADAS (F18a) ---
 const createClass = async (req, res) => {
   const { moduleId } = req.params;
@@ -54,6 +67,27 @@ const createClass = async (req, res) => {
     );
     res.status(201).json(result.rows[0]);
   } catch (err) { res.status(500).json({ message: 'Erro ao criar aula.' }); }
+};
+
+// --- ATUALIZAR E DELETAR AULAS GRAVADAS ---
+const updateClass = async (req, res) => {
+  const { classId } = req.params;
+  const { title, description, video_url } = req.body;
+  try {
+    const result = await db.query(
+      'UPDATE module_classes SET title=$1, description=$2, video_url=$3 WHERE id=$4 RETURNING *',
+      [title, description, video_url, classId]
+    );
+    res.json(result.rows[0]);
+  } catch (err) { res.status(500).json({ message: 'Erro ao atualizar aula.' }); }
+};
+
+const deleteClass = async (req, res) => {
+  const { classId } = req.params;
+  try {
+    await db.query('DELETE FROM module_classes WHERE id = $1', [classId]);
+    res.json({ message: 'Aula removida.' });
+  } catch (err) { res.status(500).json({ message: 'Erro ao deletar aula.' }); }
 };
 
 // --- DOCUMENTOS (F18b) ---
@@ -69,4 +103,13 @@ const addDocument = async (req, res) => {
   } catch (err) { res.status(500).json({ message: 'Erro ao adicionar doc.' }); }
 };
 
-module.exports = { getModules, createModule, deleteModule, createClass, addDocument };
+// --- DELETAR DOCUMENTO ---
+const deleteDocument = async (req, res) => {
+  const { documentId } = req.params;
+  try {
+    await db.query('DELETE FROM class_documents WHERE id = $1', [documentId]);
+    res.json({ message: 'Documento removido.' });
+  } catch (err) { res.status(500).json({ message: 'Erro ao deletar documento.' }); }
+};
+
+module.exports = { getModules, createModule, deleteModule, updateModule, createClass, updateClass, deleteClass, addDocument, deleteDocument };

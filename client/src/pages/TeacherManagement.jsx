@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import DropZone from '../components/DropZone';
 import TeacherSidebar from '../components/TeacherSidebar';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -20,6 +21,68 @@ function TeacherManagement() {
   const [newClass, setNewClass] = useState({ title: '', video_url: '', module_id: null });
 
   const getAuthHeaders = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+
+  // Estados para Edição
+  const [editingModule, setEditingModule] = useState(null);
+  const [editingClass, setEditingClass] = useState(null);
+  
+  // Estado para saber qual aula está com a área de anexo (DropZone) aberta
+  const [activeAttachmentClassId, setActiveAttachmentClassId] = useState(null);
+  const [docName, setDocName] = useState('');
+
+// --- Funções de Edição e Exclusão (CORRIGIDAS) ---
+  const handleUpdateModule = async (e, moduleId) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${API_URL}/api/courses/${selectedCourse.id}/modules/${moduleId}`, { title: editingModule.title }, getAuthHeaders());
+      setEditingModule(null);
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao atualizar módulo'); }
+  };
+
+  const handleDeleteModule = async (moduleId) => {
+    if(window.confirm('Excluir este módulo? Todas as aulas dentro dele serão perdidas.')){
+      try {
+        await axios.delete(`${API_URL}/api/courses/${selectedCourse.id}/modules/${moduleId}`, getAuthHeaders());
+        openModuleManager(selectedCourse);
+      } catch (err) { alert('Erro ao excluir'); }
+    }
+  };
+
+  const handleUpdateClass = async (e, classId) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${API_URL}/api/courses/${selectedCourse.id}/modules/classes/${classId}`, editingClass, getAuthHeaders());
+      setEditingClass(null);
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao atualizar aula'); }
+  };
+
+  const handleDeleteClass = async (classId) => {
+    if(window.confirm('Excluir esta aula?')){
+      try {
+        await axios.delete(`${API_URL}/api/courses/${selectedCourse.id}/modules/classes/${classId}`, getAuthHeaders());
+        openModuleManager(selectedCourse);
+      } catch (err) { alert('Erro ao excluir aula'); }
+    }
+  };
+
+  const handleDeleteDocument = async (docId) => {
+    try {
+      await axios.delete(`${API_URL}/api/courses/${selectedCourse.id}/modules/documents/${docId}`, getAuthHeaders());
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao excluir documento'); }
+  };
+
+  const handleAddDocument = async (url) => {
+    if(!docName.trim()) { alert('Dê um nome ao arquivo primeiro!'); return; }
+    try {
+      await axios.post(`${API_URL}/api/courses/${selectedCourse.id}/modules/classes/${activeAttachmentClassId}/documents`, { name: docName, url }, getAuthHeaders());
+      setActiveAttachmentClassId(null);
+      setDocName('');
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao anexar arquivo'); }
+  };
 
   useEffect(() => {
     fetchCourses();
@@ -208,10 +271,10 @@ function TeacherManagement() {
         </div>
       )}
 
-      {/* MODAL MÓDULOS E AULAS */}
+      {/* MODAL MÓDULOS E AULAS (F17 e F18 com Edição e Drag & Drop) */}
       {isModuleModalOpen && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-gray-700 rounded-2xl w-full max-w-3xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+          <div className="bg-[#1a1a1a] border border-gray-700 rounded-2xl w-full max-w-4xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
               <h3 className="text-2xl font-bold text-white">Gerir: {selectedCourse?.title}</h3>
               <button onClick={() => setIsModuleModalOpen(false)} className="text-gray-400 hover:text-white text-xl">✖</button>
@@ -223,26 +286,84 @@ function TeacherManagement() {
               <button type="submit" className="bg-purple-600 px-4 py-2 rounded text-white font-bold">+ Módulo</button>
             </form>
 
-            {/* Lista de Módulos e Aulas */}
             <div className="space-y-6">
               {modules.map(mod => (
                 <div key={mod.id} className="bg-gray-800 border border-gray-700 rounded-lg p-4">
-                  <h4 className="text-lg font-bold text-purple-300 mb-3">{mod.title}</h4>
+                  {editingModule?.id === mod.id ? (
+                    <form onSubmit={(e) => handleUpdateModule(e, mod.id)} className="flex gap-2 mb-3">
+                      <input type="text" value={editingModule.title} onChange={e => setEditingModule({...editingModule, title: e.target.value})} className="flex-grow bg-gray-900 border border-gray-600 rounded p-2 text-white text-sm" required />
+                      <button type="submit" className="bg-green-600 px-3 py-1 rounded text-white font-bold text-sm">Salvar</button>
+                      <button type="button" onClick={() => setEditingModule(null)} className="bg-gray-600 px-3 py-1 rounded text-white font-bold text-sm">X</button>
+                    </form>
+                  ) : (
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="text-lg font-bold text-purple-300">{mod.title}</h4>
+                      <div className="flex gap-2">
+                        <button onClick={() => setEditingModule(mod)} className="text-blue-400 hover:text-blue-300 text-sm font-semibold">✏️ Editar</button>
+                        <button onClick={() => handleDeleteModule(mod.id)} className="text-red-400 hover:text-red-300 text-sm font-semibold">🗑️ Excluir</button>
+                      </div>
+                    </div>
+                  )}
                   
                   {/* Aulas do Módulo */}
-                  <div className="space-y-2 mb-4">
+                  <div className="space-y-3 mb-4">
                     {mod.classes?.map(cls => (
-                      <div key={cls.id} className="bg-gray-900 p-3 rounded border border-gray-700 flex justify-between items-center">
-                        <span className="text-sm text-gray-200">▶ {cls.title}</span>
+                      <div key={cls.id} className="bg-gray-900 p-3 rounded-lg border border-gray-700 flex flex-col gap-2">
+                        {editingClass?.id === cls.id ? (
+                          <form onSubmit={(e) => handleUpdateClass(e, cls.id)} className="flex flex-col gap-2">
+                            <input type="text" value={editingClass.title} onChange={e => setEditingClass({...editingClass, title: e.target.value})} className="bg-gray-800 border border-gray-600 rounded p-2 text-white text-sm" required />
+                            <input type="text" value={editingClass.video_url} onChange={e => setEditingClass({...editingClass, video_url: e.target.value})} className="bg-gray-800 border border-gray-600 rounded p-2 text-white text-sm" required />
+                            <div className="flex gap-2">
+                              <button type="submit" className="bg-green-600 px-3 py-1 rounded text-white font-bold text-sm">Salvar</button>
+                              <button type="button" onClick={() => setEditingClass(null)} className="bg-gray-600 px-3 py-1 rounded text-white font-bold text-sm">Cancelar</button>
+                            </div>
+                          </form>
+                        ) : (
+                          <>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-semibold text-gray-200">▶ {cls.title}</span>
+                              <div className="flex gap-3">
+                                <button onClick={() => setActiveAttachmentClassId(cls.id === activeAttachmentClassId ? null : cls.id)} className="text-green-400 hover:text-green-300 text-xs font-semibold">📎 Anexar Arquivo</button>
+                                <button onClick={() => setEditingClass(cls)} className="text-blue-400 hover:text-blue-300 text-xs font-semibold">✏️ Editar</button>
+                                <button onClick={() => handleDeleteClass(cls.id)} className="text-red-400 hover:text-red-300 text-xs font-semibold">🗑️</button>
+                              </div>
+                            </div>
+
+                            {/* Lista de Documentos da Aula */}
+                            {cls.documents && cls.documents.length > 0 && (
+                              <div className="pl-4 mt-1 border-l border-gray-700 flex flex-col gap-1">
+                                {cls.documents.map(doc => (
+                                  <div key={doc.id} className="flex justify-between items-center">
+                                    <a href={doc.url} target="_blank" rel="noreferrer" className="text-xs text-blue-300 hover:underline">📄 {doc.name}</a>
+                                    <button onClick={() => handleDeleteDocument(doc.id)} className="text-red-500 hover:text-red-400 text-xs">✖</button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Área de Drag & Drop para Anexos */}
+                            {activeAttachmentClassId === cls.id && (
+                              <div className="mt-3 p-4 bg-gray-800 border border-dashed border-purple-500/50 rounded-lg animate-fadeIn">
+                                <p className="text-xs text-gray-400 mb-2">Envie PDFs, Documentos, Imagens ou Outros Vídeos</p>
+                                <input type="text" placeholder="Nome do arquivo (ex: Material em PDF)" value={docName} onChange={e => setDocName(e.target.value)} className="w-full mb-3 bg-gray-900 border border-gray-600 rounded p-2 text-white text-sm" />
+                                <DropZone 
+                                  accept="*/*" 
+                                  label="Arraste ou Clique para fazer Upload" 
+                                  onUploadSuccess={(url) => handleAddDocument(url)} 
+                                />
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
 
                   {/* Add Nova Aula */}
-                  <form onSubmit={handleCreateClass} className="flex gap-2 mt-2">
+                  <form onSubmit={handleCreateClass} className="flex gap-2 mt-2 pt-3 border-t border-gray-700">
                     <input type="text" placeholder="Título da Aula" value={newClass.module_id === mod.id ? newClass.title : ''} onChange={e => setNewClass({...newClass, title: e.target.value, module_id: mod.id})} className="flex-grow bg-[#252525] text-sm border border-gray-600 rounded p-2 text-white" required />
-                    <input type="text" placeholder="Link (YouTube)" value={newClass.module_id === mod.id ? newClass.video_url : ''} onChange={e => setNewClass({...newClass, video_url: e.target.value})} className="flex-grow bg-[#252525] text-sm border border-gray-600 rounded p-2 text-white" required />
-                    <button type="submit" disabled={newClass.module_id !== mod.id} className="bg-blue-600 disabled:bg-gray-600 px-3 py-1 rounded text-white text-sm font-bold">+ Aula</button>
+                    <input type="text" placeholder="Link do Vídeo (YouTube)" value={newClass.module_id === mod.id ? newClass.video_url : ''} onChange={e => setNewClass({...newClass, video_url: e.target.value})} className="flex-grow bg-[#252525] text-sm border border-gray-600 rounded p-2 text-white" required />
+                    <button type="submit" disabled={newClass.module_id !== mod.id} className="bg-blue-600 disabled:bg-gray-600 px-4 py-2 rounded text-white text-sm font-bold">+ Nova Aula</button>
                   </form>
                 </div>
               ))}
