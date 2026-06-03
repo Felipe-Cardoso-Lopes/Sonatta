@@ -118,6 +118,7 @@ const getEnrolledCourses = async (req, res) => {
 };
 
 // F16/F19 - Matricular aluno num curso
+// F16/F19 - Matricular aluno num curso
 const enrollStudent = async (req, res) => {
   const { course_id } = req.body;
   const user_id = req.user.id; // ID do utilizador que vem do verifyToken
@@ -127,7 +128,17 @@ const enrollStudent = async (req, res) => {
   }
 
   try {
-    // 1. Verifica se o aluno já está matriculado
+    // 1. Verifica se o aluno tem um vínculo com instituição
+    const userCheck = await db.query(
+      'SELECT instituicao_id FROM users WHERE id = $1',
+      [user_id]
+    );
+
+    if (userCheck.rows.length === 0 || !userCheck.rows[0].instituicao_id) {
+      return res.status(403).json({ message: 'Apenas alunos vinculados a uma instituição podem se matricular em cursos.' });
+    }
+
+    // 2. Verifica se o aluno já está matriculado
     const check = await db.query(
       'SELECT * FROM enrollments WHERE user_id = $1 AND course_id = $2',
       [user_id, course_id]
@@ -137,7 +148,7 @@ const enrollStudent = async (req, res) => {
       return res.status(400).json({ message: 'Você já está matriculado neste curso.' });
     }
 
-    // 2. Realiza a matrícula
+    // 3. Realiza a matrícula
     await db.query(
       'INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2)',
       [user_id, course_id]
