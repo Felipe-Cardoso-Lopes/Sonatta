@@ -117,25 +117,19 @@ const getEnrolledCourses = async (req, res) => {
   }
 };
 
+// F16/F19 - Matricular aluno num curso
 const enrollStudent = async (req, res) => {
   const { course_id } = req.body;
-  const user_id = req.user.id;
+  const user_id = req.user.id; // ID do utilizador que vem do verifyToken
+
+  if (!course_id) {
+    return res.status(400).json({ message: 'O ID do curso é obrigatório.' });
+  }
 
   try {
-    // ✅ Verifica se o aluno está vinculado a uma instituição
-    const userCheck = await db.query(
-      'SELECT instituicao_id FROM users WHERE id = $1',
-      [user_id]
-    );
-
-    if (!userCheck.rows[0]?.instituicao_id) {
-      return res.status(403).json({ 
-        message: 'Apenas alunos vinculados a uma instituição podem se matricular em cursos.' 
-      });
-    }
-
+    // 1. Verifica se o aluno já está matriculado
     const check = await db.query(
-      'SELECT * FROM enrollments WHERE user_id = $1 AND course_id = $2', 
+      'SELECT * FROM enrollments WHERE user_id = $1 AND course_id = $2',
       [user_id, course_id]
     );
 
@@ -143,8 +137,9 @@ const enrollStudent = async (req, res) => {
       return res.status(400).json({ message: 'Você já está matriculado neste curso.' });
     }
 
+    // 2. Realiza a matrícula
     await db.query(
-      'INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2)', 
+      'INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2)',
       [user_id, course_id]
     );
 
@@ -155,6 +150,19 @@ const enrollStudent = async (req, res) => {
   }
 };
 
+const unenrollStudent = async (req, res) => {
+  const { course_id, student_id } = req.body; // Aceita desmatricular o próprio aluno ou o professor remover o aluno
+  const targetId = student_id || req.user.id;
+
+  try {
+    await db.query('DELETE FROM enrollments WHERE user_id = $1 AND course_id = $2', [targetId, course_id]);
+    res.json({ message: 'Matrícula cancelada com sucesso.' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao desmatricular.' });
+  }
+};
+
+
 module.exports = { 
   createCourse, 
   updateCourse, 
@@ -162,5 +170,6 @@ module.exports = {
   getTeacherStudents, 
   getAllCoursesForStudent, 
   getEnrolledCourses,
-  enrollStudent 
+  enrollStudent,
+  unenrollStudent
 };
