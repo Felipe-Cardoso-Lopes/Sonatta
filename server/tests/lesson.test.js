@@ -2,13 +2,14 @@ const request = require('supertest');
 const express = require('express');
 const lessonRoutes = require('../routes/lessonRoutes');
 const db = require('../config/db');
+const { verifyToken } = require('../middlewares/authMiddleware');
 
 // Mock do banco de dados
 jest.mock('../config/db');
 
 // Mock do middleware de autenticação (simulando um professor logado com ID 1)
 jest.mock('../middlewares/authMiddleware', () => ({
-  protect: (req, res, next) => {
+  verifyToken: (req, res, next) => {
     req.user = { id: 1, role: 'professor' }; 
     next();
   }

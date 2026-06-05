@@ -12,7 +12,6 @@ function Register() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'aluno',
   });
   const [acceptTerms, setAcceptTerms] = useState(false);
 
@@ -20,10 +19,9 @@ function Register() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Validações básicas
     if (formData.password !== formData.confirmPassword) {
       return alert("As senhas não coincidem!");
     }
@@ -31,33 +29,15 @@ function Register() {
       return alert("Você deve aceitar os termos de uso!");
     }
 
-    try {
-      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-      const response = await fetch(`${API_URL}/api/users/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          role: formData.role
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("Cadastro inicial realizado! Agora, vamos configurar seu perfil.");
-        // Redireciona para a configuração de perfil usando o ID retornado pelo banco
-        navigate(`/about-you/${data.id}`);
-      } else {
-        alert(data.message || "Erro ao realizar cadastro.");
-      }
-    } catch (error) {
-      console.error("Erro ao conectar com o servidor:", error);
-      alert("Erro ao conectar com o servidor. Verifique se o backend está rodando.");
-    }
+    // NOVO COMPORTAMENTO: Avança para a tela About You, 
+    // passando os dados do formulário sem salvar no banco de dados ainda.
+    navigate("/about-you", { 
+      state: { 
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      } 
+    });
   };
 
   return (
@@ -85,22 +65,8 @@ function Register() {
                 label="Confirme a Senha" id="confirmPassword" name="confirmPassword" type="password"
                 placeholder="Confirme sua senha" value={formData.confirmPassword} onChange={handleChange} required
               />
-              <div className="mb-4">
-                <label className="block text-sm font-bold text-white-text mb-1" htmlFor="role">
-                  Eu sou um:
-                </label>
-                <select
-                  id="role"
-                  name="role"
-                  value={formData.role}
-                  onChange={handleChange}
-                  className="w-full p-2 rounded bg-dark-bg border border-gray-600 text-white-text focus:outline-none focus:border-purple-500"
-                >
-                  <option value="aluno">Aluno (Quero aprender)</option>
-                  <option value="professor">Professor (Quero ensinar)</option>
-                </select>
-              </div>
-              <div className="mb-6 flex items-center">
+
+              <div className="mb-6 flex items-center mt-4">
                 <input
                   type="checkbox" id="acceptTerms" checked={acceptTerms}
                   onChange={(e) => setAcceptTerms(e.target.checked)}
@@ -110,6 +76,7 @@ function Register() {
                   Eu concordo com os Termos de Uso.
                 </label>
               </div>
+              
               <Button type="submit" variant="primary" className="w-full">
                 Próximo
               </Button>

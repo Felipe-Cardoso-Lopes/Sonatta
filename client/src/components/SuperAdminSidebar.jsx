@@ -1,8 +1,23 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-function SuperAdminSidebar() {
+// Sub-componente que adiciona a barra lateral indicadora se a rota estiver ativa
+const NavIndicator = ({ to, children }) => {
   const location = useLocation();
+  const isActive = location.pathname.includes(to);
+
+  return (
+    <div className="relative flex items-center justify-center">
+      {/* Barrinha indicadora que aparece se a rota estiver ativa */}
+      {isActive && (
+        <div className="absolute -left-4 w-1.5 h-10 bg-white rounded-full"></div>
+      )}
+      {children}
+    </div>
+  );
+};
+
+function SuperAdminSidebar() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -12,64 +27,66 @@ function SuperAdminSidebar() {
     navigate('/login');
   };
 
-  // Função auxiliar para destacar o link ativo
-  const isActive = (path) => location.pathname === path;
-
   return (
-    <aside className="w-full md:w-64 bg-dark-gray border-r border-gray-800 flex flex-col min-h-screen">
-      {/* Cabeçalho da Sidebar / Logo */}
-      <div className="p-6 flex items-center justify-center border-b border-gray-800">
-        <Link to="/super-admin-dashboard" className="flex items-center gap-3 transition-transform hover:scale-105">
-          <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" className="w-10 h-10" />
-          <span className="text-2xl font-bold text-white-text">Sonatta</span>
+    <aside className="w-24 min-h-screen bg-gray-800 border-r border-gray-700 p-4 flex flex-col justify-between items-center">
+      <div className="flex flex-col items-center gap-6">
+
+        {/* Logo Sonatta (Redireciona para o Dashboard / Torre de Controle) */}
+        <Link to="/super-admin/dashboard" className="w-14 h-14 scale-150 transition-transform hover:scale-125 mb-4">
+          <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" />
         </Link>
+
+        {/* Gestão de Escolas */}
+        <NavIndicator to="/super-admin/schools">
+          <Link to="/super-admin/schools" className="transition-transform hover:scale-125" title="Gestão de Escolas">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
+              <img src="/assets/Escola.png" alt="Gestão de Escolas" className="w-8 h-8 scale-150" />
+            </div>
+          </Link>
+        </NavIndicator>
+
+        {/* Professores Solo (Task 14.2) */}
+        <NavIndicator to="/super-admin/solo-teachers">
+          <Link to="/super-admin/solo-teachers" className="transition-transform hover:scale-125" title="Professores Solo">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
+              {/* Altere o nome do arquivo da imagem abaixo de acordo com os seus assets */}
+              <img src="/assets/Professor.png" alt="Professores Solo" className="w-8 h-8 scale-150" />
+            </div>
+          </Link>
+        </NavIndicator>
+
+        {/* Assinaturas SaaS */}
+        <NavIndicator to="/super-admin/subscriptions">
+          <Link to="/super-admin/subscriptions" className="transition-transform hover:scale-125" title="Assinaturas SaaS">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
+              <img src="/assets/Financeiro.png" alt="Assinaturas SaaS" className="w-8 h-8 scale-150" />
+            </div>
+          </Link>
+        </NavIndicator>
+
+        {/* Sistema e Logs */}
+        <NavIndicator to="/super-admin/system">
+          <Link to="/super-admin/system" className="transition-transform hover:scale-125" title="Sistema e Logs">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
+              <img src="/assets/Gerenciamento.png" alt="Sistema e Logs" className="w-8 h-8 scale-150" />
+            </div>
+          </Link>
+        </NavIndicator>
+
       </div>
-      
-      {/* Badge de Identificação da Equipe */}
-      <div className="bg-purple-900/30 py-2 px-4 text-center border-b border-purple-800/50">
-        <span className="text-xs font-bold text-purple-400 uppercase tracking-widest">Equipe Global</span>
-      </div>
-
-      {/* Menu de Navegação */}
-      <nav className="flex-1 px-4 py-6 space-y-2">
-        <Link 
-          to="/super-admin-dashboard" 
-          className={`block px-4 py-3 rounded-lg transition-colors ${isActive('/super-admin-dashboard') ? 'bg-purple-600 text-white font-bold shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
-        >
-          Torre de Controle
-        </Link>
-
-        <Link 
-          to="/super-admin/schools" 
-          className={`block px-4 py-3 rounded-lg transition-colors ${isActive('/super-admin/schools') ? 'bg-purple-600 text-white font-bold shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
-        >
-          Gestão de Escolas
-        </Link>
-
-        <Link 
-          to="/super-admin/subscriptions" 
-          className={`block px-4 py-3 rounded-lg transition-colors ${isActive('/super-admin/subscriptions') ? 'bg-purple-600 text-white font-bold shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
-        >
-          Assinaturas SaaS
-        </Link>
-
-        <Link 
-          to="/super-admin/system" 
-          className={`block px-4 py-3 rounded-lg transition-colors ${isActive('/super-admin/system') ? 'bg-purple-600 text-white font-bold shadow-md' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
-        >
-          Sistema e Logs
-        </Link>
-      </nav>
 
       {/* Botão de Logout */}
-      <div className="p-4 border-t border-gray-800">
-        <button 
-          onClick={handleLogout}
-          className="w-full px-4 py-3 flex items-center justify-center gap-2 rounded-lg font-bold transition duration-300 ease-in-out cursor-pointer bg-transparent text-red-500 border border-red-500 hover:bg-red-500 hover:text-white"
-        >
-          Sair do Sistema
-        </button>
-      </div>
+      <button 
+        onClick={handleLogout}
+        className="transition-transform hover:scale-125 mt-4"
+        title="Sair do Sistema"
+      >
+        <div className="w-12 h-12 rounded-full flex items-center justify-center bg-red-500/10 border-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </div>
+      </button>
     </aside>
   );
 }

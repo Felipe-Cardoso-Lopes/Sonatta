@@ -3,7 +3,7 @@ process.env.JWT_SECRET = 'segredo-de-teste';
 
 // 2. Importações (apenas uma vez cada)
 const request = require('supertest');
-const app = require('../server');
+const { app } = require('../server');
 const db = require('../config/db');
 
 // 3. Mock do banco de dados
@@ -42,7 +42,7 @@ describe('Testes da Rota de Cadastro (/api/users/register)', () => {
       .send({ email: 'aluno@teste.com' });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe('Por favor, preencha todos os campos.');
+    expect(response.body.message).toBe('Por favor, preencha todos os campos obrigatórios.');
   });
 
   it('deve retornar erro 400 se o e-mail já estiver cadastrado', async () => {

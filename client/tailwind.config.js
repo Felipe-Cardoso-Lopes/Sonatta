@@ -3,16 +3,15 @@ export default {
   // Configura os arquivos onde o Tailwind deve procurar por classes CSS
   content: [
     './index.html',
-    './src/**/*.{js,ts,jsx,tsx}', // Busca em todos os arquivos JS, TS, JSX, TSX dentro de src/
+    './src/**/*.{js,ts,jsx,tsx}',
   ],
   theme: {
     extend: {
-      // Adiciona a família de fontes Poppins ao Tailwind
       fontFamily: {
         poppins: ['Poppins', 'sans-serif'],
       },
-      // Define suas cores personalizadas
-      colors: {
+      // Nova paleta minimalista focada no tema "Piano"
+       colors: {
         'dark-bg': '#0C0C0C', 
         'white-text': '#FFFFFF', 
         'sidebar-bg': '#393E46', 

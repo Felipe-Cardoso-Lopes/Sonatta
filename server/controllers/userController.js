@@ -3,15 +3,14 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const registerUser = async (req, res) => {
-  const { name, email, password, role } = req.body;
+  const { name, email, password, inviteCode } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).json({ message: 'Por favor, preencha todos os campos.' });
+    return res.status(400).json({ message: 'Por favor, preencha todos os campos obrigatórios.' });
   }
 
-  let userRole = 'aluno'; 
-  if (role === 'professor' || role === 'ensinar') userRole = 'professor';
-  else if (role === 'admin') userRole = 'admin';
+  let userRole = 'aluno';
+  let instituicao_id = null;
 
   try {
     const userExists = await db.query('SELECT * FROM users WHERE email = $1', [email]);
@@ -19,12 +18,32 @@ const registerUser = async (req, res) => {
       return res.status(400).json({ message: 'Usuário já cadastrado com este e-mail.' });
     }
 
+    if (inviteCode && inviteCode.trim() !== '') {
+      const schoolResult = await db.query(
+        'SELECT id, codigo_aluno, codigo_professor FROM instituicoes WHERE codigo_aluno = $1 OR codigo_professor = $1',
+        [inviteCode.trim()]
+      );
+
+      if (schoolResult.rows.length === 0) {
+        return res.status(400).json({ message: 'Código de convite inválido. Verifique com a sua instituição.' });
+      }
+
+      const escola = schoolResult.rows[0];
+      instituicao_id = escola.id;
+
+      if (inviteCode.trim() === escola.codigo_aluno) {
+        userRole = 'aluno';
+      } else if (inviteCode.trim() === escola.codigo_professor) {
+        userRole = 'professor';
+      }
+    }
+
     const salt = await bcrypt.genSalt(10);
     const password_hash = await bcrypt.hash(password, salt);
 
     const newUser = await db.query(
-      'INSERT INTO users (name, email, password_hash, role) VALUES ($1, $2, $3, $4) RETURNING id, name, email, role',
-      [name, email, password_hash, userRole] 
+      'INSERT INTO users (name, email, password_hash, role, instituicao_id) VALUES ($1, $2, $3, $4, $5) RETURNING id, name, email, role, instituicao_id',
+      [name, email, password_hash, userRole, instituicao_id]
     );
 
     const user = newUser.rows[0];
@@ -38,6 +57,7 @@ const registerUser = async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      instituicao_id: user.instituicao_id,
       token,
     });
   } catch (error) {
@@ -58,6 +78,14 @@ const loginUser = async (req, res) => {
     const user = result.rows[0];
 
     if (user && (await bcrypt.compare(password, user.password_hash))) {
+
+      // ✅ Verificação dentro do try, após encontrar o usuário
+      if (user.role === 'instituicao' && !user.is_verified) {
+        return res.status(403).json({ 
+          message: 'Sua conta ainda não foi aprovada. Aguarde a verificação da equipe Sonatta.' 
+        });
+      }
+
       const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, {
         expiresIn: '30d',
       });
@@ -68,6 +96,7 @@ const loginUser = async (req, res) => {
         nickname: user.nickname,
         email: user.email,
         role: user.role,
+        teacherType: user.teacher_type,
         token,
       });
     } else {
@@ -81,9 +110,8 @@ const loginUser = async (req, res) => {
 
 const getUserProfile = async (req, res) => {
   try {
-    // Adicionamos o birth_date na busca
     const result = await db.query(
-      'SELECT id, name, nickname, email, gender, birth_date, created_at FROM users WHERE id = $1', 
+      'SELECT id, name, nickname, email, birth_date, created_at FROM users WHERE id = $1',
       [req.user.id]
     );
 
@@ -99,16 +127,14 @@ const getUserProfile = async (req, res) => {
 };
 
 const updateUserProfile = async (req, res) => {
-  const id = req.user.id; 
-  const { name, nickname, email, password } = req.body; 
-  
+  const id = req.user.id;
+  const { name, nickname, email, password } = req.body;
+
   try {
-    // Começamos a montar a query dinamicamente
     let query = 'UPDATE users SET name = COALESCE($1, name), nickname = COALESCE($2, nickname), email = COALESCE($3, email)';
     let values = [name, nickname, email];
     let valueIndex = 4;
 
-    // Se o usuário enviou uma senha nova, nós a criptografamos e adicionamos na query
     if (password && password.trim() !== '') {
       const salt = await bcrypt.genSalt(10);
       const password_hash = await bcrypt.hash(password, salt);
@@ -117,7 +143,6 @@ const updateUserProfile = async (req, res) => {
       valueIndex++;
     }
 
-    // Finaliza a query
     query += ` WHERE id = $${valueIndex} RETURNING id, name, nickname, email, role`;
     values.push(id);
 
@@ -134,22 +159,21 @@ const updateUserProfile = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    // Se o e-mail já existir em outra conta, o banco vai dar erro de restrição (UNIQUE)
     if (error.code === '23505') {
       return res.status(400).json({ message: 'Este e-mail já está em uso por outra conta.' });
     }
     res.status(500).json({ message: 'Erro no servidor ao atualizar perfil.' });
   }
 };
-// Função para concluir o cadastro com os dados "Sobre Você"
+
 const completeRegistration = async (req, res) => {
   const { id } = req.params;
-  const { nickname, birth_date, gender } = req.body;
+  const { nickname, birth_date } = req.body;
 
   try {
     const result = await db.query(
-      'UPDATE users SET nickname = $1, birth_date = $2, gender = $3 WHERE id = $4 RETURNING *',
-      [nickname, birth_date, gender, id]
+      'UPDATE users SET nickname = $1, birth_date = $2 WHERE id = $3 RETURNING *',
+      [nickname, birth_date, id]
     );
 
     if (result.rows.length === 0) {
@@ -163,7 +187,6 @@ const completeRegistration = async (req, res) => {
   }
 };
 
-// Função para salvar preferências do perfil musical (tags do modal)
 const saveMusicalPreferences = async (req, res) => {
   const { userId, nivel, instrumentos, generos } = req.body;
 
@@ -184,5 +207,31 @@ const saveMusicalPreferences = async (req, res) => {
   }
 };
 
-// O module.exports TEM que ser a última coisa no arquivo!
-module.exports = { registerUser, loginUser, updateUserProfile, completeRegistration, saveMusicalPreferences, getUserProfile };
+const getPublicProfile = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await db.query(
+      `SELECT id, name, nickname, specialty, bio, 
+              youtube_intro_url, spotify_artist_url, offers_trial_lesson
+       FROM users WHERE id = $1 AND role = 'professor'`,
+      [id]
+    );
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Professor não encontrado.' });
+    }
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erro no servidor.' });
+  }
+};
+
+module.exports = {
+  registerUser,
+  loginUser,
+  updateUserProfile,
+  completeRegistration,
+  saveMusicalPreferences,
+  getUserProfile,
+  getPublicProfile
+};

@@ -58,7 +58,7 @@ describe('Componente de Login', () => {
       expect(global.fetch).toHaveBeenCalled();
       expect(localStorage.getItem('token')).toBe('fake-jwt-token');
       expect(localStorage.getItem('userRole')).toBe('aluno');
-      expect(mockNavigate).toHaveBeenCalledWith('/student-dashboard');
+      expect(mockNavigate).toHaveBeenCalledWith('/student/dashboard');
     });
   });
 
@@ -112,7 +112,7 @@ describe('Componente de Login', () => {
 
     await waitFor(() => {
       expect(localStorage.getItem('userRole')).toBe('professor');
-      expect(mockNavigate).toHaveBeenCalledWith('/teacher-dashboard');
+      expect(mockNavigate).toHaveBeenCalledWith('/teacher/dashboard');
     });
   });
 
@@ -140,7 +140,7 @@ describe('Componente de Login', () => {
     await waitFor(() => {
       expect(localStorage.getItem('userRole')).toBe('instituicao');
       // ATENÇÃO: Se no seu App.jsx a rota for /instituicao-dashboard, altere a linha abaixo
-      expect(mockNavigate).toHaveBeenCalledWith('/instituicao-dashboard');
+      expect(mockNavigate).toHaveBeenCalledWith('/instituicao/dashboard');
     });
   });
 
@@ -167,7 +167,7 @@ describe('Componente de Login', () => {
 
     await waitFor(() => {
       expect(localStorage.getItem('userRole')).toBe('super_admin');
-      expect(mockNavigate).toHaveBeenCalledWith('/super-admin-dashboard');
+      expect(mockNavigate).toHaveBeenCalledWith('/super-admin/dashboard');
     });
   });
 });

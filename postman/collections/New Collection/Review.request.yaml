@@ -1,0 +1,23 @@
+$kind: http-request
+name: Review
+url: https://sonatta.onrender.com/api/reviews
+method: POST
+headers:
+  - key: Authorization
+    value: Bearer
+      eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NTAsInJvbGUiOiJhbHVubyIsImlhdCI6MTc3OTE5Mjg1MSwiZXhwIjoxNzgxNzg0ODUxfQ.aFu5qqBdjBCe8sQ_XhQ7a1Jodx7iEYHQ9SKzNaJBPmQ
+body:
+  type: json
+  content: "{\r
+
+    \  \"lesson_id\": 1,\r
+
+    \  \"rating\": 5,\r
+
+    \  \"comment\": \"Aula excelente, professor muito didático!\"\r
+
+    }"
+auth:
+  credentials: []
+  type: bearer
+order: 3950628340060093

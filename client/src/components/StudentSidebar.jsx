@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import NotificationBell from './NotificationBell';
 
 // Sub-componente que adiciona a barra lateral se a rota estiver ativa
 const NavIndicator = ({ to, children }) => {
@@ -19,11 +20,11 @@ const NavIndicator = ({ to, children }) => {
 
 function StudentSidebar() {
   return (
-    <aside className="w-24 min-h-screen bg-sidebar-bg p-4 flex flex-col justify-between items-center ">
+    <aside className="w-24 min-h-screen bg-gray-800 border-r border-gray-700 p-4 flex flex-col justify-between items-center">
       <div className="flex flex-col items-center gap-6">
         
         {/* Logo Sonatta */}
-        <Link to="/student-dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125">
+        <Link to="/student/dashboard" className="w-14 h-14 scale-150 transition-transform hover:scale-125">
           {/* Caminho da imagem corrigido */}
           <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" />
         </Link>
@@ -52,8 +53,8 @@ function StudentSidebar() {
       </div>
 
       {/* Botão Meu Perfil */}
-      <NavIndicator to="/student-profile">
-        <Link to="/student-profile" className="transition-transform hover:scale-125 ">
+      <NavIndicator to="/student/profile">
+        <Link to="/student/profile" className="transition-transform hover:scale-125 ">
           {/* Caminho da imagem corrigido */}
           <img src="/assets/Meu-Perfil.png" alt="Perfil" className="w-9 h-9 scale-150" />
         </Link>

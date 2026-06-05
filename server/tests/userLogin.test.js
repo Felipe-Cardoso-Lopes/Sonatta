@@ -2,7 +2,7 @@
 process.env.JWT_SECRET = 'segredo-de-teste';
 
 const request = require('supertest');
-const app = require('../server');
+const { app } = require('../server');
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 

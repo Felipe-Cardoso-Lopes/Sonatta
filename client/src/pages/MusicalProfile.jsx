@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom'; 
 import axios from 'axios';
 import Header from '../components/Header';
 import Button from '../components/Button';
@@ -15,7 +15,10 @@ function MusicalProfile() {
   const [generosSelecionados, setGenerosSelecionados] = useState([]);
   
   const navigate = useNavigate();
-  const { id: userId } = useParams();
+  const location = useLocation();
+
+  // Pega TODOS os dados acumulados nas telas anteriores (Register + About You)
+  const accumulatedData = location.state || {};
 
   const toggleSelecao = (item, listaAtual, setLista) => {
     if (listaAtual.includes(item)) {
@@ -25,7 +28,7 @@ function MusicalProfile() {
     }
   };
 
-  const handleSubmit = async (e) => {
+ const handleFinishProfile = async (e) => {
     e.preventDefault();
 
     if (!nivelSelecionado || instrumentosSelecionados.length === 0 || generosSelecionados.length === 0) {
@@ -35,18 +38,39 @@ function MusicalProfile() {
     try {
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
       
+      // 1. Cria o usuário no banco de dados (Equivalente ao Register)
+      const registerResponse = await axios.post(`${API_URL}/api/users/register`, {
+        name: accumulatedData.name,
+        email: accumulatedData.email,
+        password: accumulatedData.password,
+      });
+
+      // O backend retorna os dados do usuário criado, incluindo o novo ID
+      const newUserId = registerResponse.data.id;
+
+      // 2. Atualiza o cadastro com os dados do About You
+      await axios.put(`${API_URL}/api/users/complete/${newUserId}`, {
+        nickname: accumulatedData.nickname,
+        birth_date: accumulatedData.birthDate,
+      });
+
+      // 3. Salva as Preferências Musicais
       await axios.post(`${API_URL}/api/users/preferences`, {
-        userId: userId,
+        userId: newUserId,
         nivel: nivelSelecionado,
         instrumentos: instrumentosSelecionados,
         generos: generosSelecionados
       });
 
-      alert("Perfil musical criado com sucesso! Faça seu login.");
+      // Sucesso total! Redireciona para o login.
+      alert("Cadastro finalizado com sucesso! Agora você pode fazer o login.");
       navigate('/login');
+
     } catch (error) {
-      console.error('Erro ao salvar preferências:', error);
-      alert("Erro ao salvar suas preferências. Tente novamente.");
+      console.error('Erro ao finalizar cadastro:', error);
+      // Pega a mensagem de erro específica do backend, se houver
+      const errorMsg = error.response?.data?.message || "Erro ao salvar seus dados no banco. Tente novamente.";
+      alert(errorMsg);
     }
   };
 
@@ -57,8 +81,8 @@ function MusicalProfile() {
       onClick={onClick}
       className={`px-4 py-2 m-1 rounded-full text-sm font-semibold transition-all duration-300 border ${
         isSelected 
-          ? 'bg-white-text text-dark-bg border-white-text scale-105 shadow-[0_0_10px_rgba(255,255,255,0.5)]' 
-          : 'bg-transparent text-gray-400 border-gray-600 hover:border-gray-400'
+          ? 'bg-white-text text-dark-bg border-white-text  hover:border-purple-500 scale-105 shadow-[0_0_10px_rgba(255,255,255,0.5)]' 
+          : 'bg-dark-bg border border-gray-600 text-white-text focus:outline-none hover:border-purple-500'
       }`}
     >
       {label}
@@ -72,11 +96,11 @@ function MusicalProfile() {
       <div className="relative z-10 flex flex-col items-center">
         
         <main className="w-full max-w-2xl mt-10 px-4">
-          <div className="bg-dark-gray p-8 rounded-lg shadow-lg border border-gray-700">
+          <div className="bg-dark-gray p-8 rounded-lg shadow-lg">
             <h2 className="text-3xl font-bold mb-2 text-center">Seu Perfil Musical</h2>
             <p className="text-gray-400 text-center mb-8">Conte-nos o que você curte para personalizarmos sua experiência.</p>
             
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleFinishProfile} className="space-y-8"> {/* Alterado para handleFinishProfile */}
               
               {/* Seção: Nível */}
               <section>

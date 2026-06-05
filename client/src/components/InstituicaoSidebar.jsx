@@ -18,10 +18,10 @@ const NavIndicator = ({ to, children }) => {
 
 function InstituicaoSidebar() {
   return (
-    <aside className="w-24 min-h-screen bg-sidebar-bg p-4 flex flex-col justify-between items-center">
+    <aside className="w-24 min-h-screen bg-gray-800 border-r border-gray-700 p-4 flex flex-col justify-between items-center">
       <div className="flex flex-col items-center gap-6">
         
-        <Link to="/instituicao-dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125">
+        <Link to="/instituicao/dashboard" className="w-13 h-13 scale-150 transition-transform hover:scale-125">
           <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" />
         </Link>
 
@@ -59,8 +59,8 @@ function InstituicaoSidebar() {
 
       </div>
       
-      <NavIndicator to="/instituicao-profile">
-        <Link to="/instituicao-profile" className="transition-transform hover:scale-125">
+      <NavIndicator to="/instituicao/profile">
+        <Link to="/instituicao/profile" className="transition-transform hover:scale-125">
           <img src="/assets/Meu-Perfil.png" alt="Perfil" className="w-9 h-9 scale-150" />
         </Link>
       </NavIndicator>

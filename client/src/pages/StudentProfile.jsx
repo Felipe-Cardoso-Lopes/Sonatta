@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import StudentSidebar from '../components/StudentSidebar';
+import DropZone from '../components/DropZone';
 
 function StudentProfile() {
   const [user, setUser] = useState({
@@ -8,18 +9,15 @@ function StudentProfile() {
     nickname: '',
     email: '',
     birthDate: '',
-    gender: ''
   });
-  
-  // Estado para controlar se estamos no modo de edição
+
   const [isEditing, setIsEditing] = useState(false);
-  
-  // Estado para armazenar os dados do formulário temporariamente
+
   const [formData, setFormData] = useState({
     name: '',
     nickname: '',
     email: '',
-    password: '' // Senha fica em branco, só preenche se for alterar
+    password: ''
   });
 
   const [loading, setLoading] = useState(true);
@@ -42,27 +40,21 @@ function StudentProfile() {
       // Formata a data de nascimento (evitando problemas de fuso horário)
       let dataNascimentoFormatada = 'Não informada';
       if (userData.birth_date) {
-        // Usa UTC para evitar que o dia volte 1 dia para trás devido ao fuso do Brasil
         dataNascimentoFormatada = new Date(userData.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
       }
-
-      // Como o backend já devolve "Masculino" ou "Feminino", apenas pegamos o valor direto:
-      let generoFormatado = userData.gender || 'Não informado';
 
       setUser({
         name: userData.name,
         nickname: userData.nickname || '',
         email: userData.email,
         birthDate: dataNascimentoFormatada,
-        gender: generoFormatado
       });
 
-      // Popula o formulário de edição com os dados atuais
       setFormData({
         name: userData.name,
         nickname: userData.nickname || '',
         email: userData.email,
-        password: '' // Senha vazia por padrão
+        password: ''
       });
 
     } catch (error) {
@@ -87,18 +79,24 @@ function StudentProfile() {
       });
 
       alert(response.data.message);
-      
-      // Atualiza o localStorage caso o nome/apelido tenha mudado
+
       localStorage.setItem('userName', response.data.user.name);
       localStorage.setItem('userNickname', response.data.user.nickname);
 
-      // Desliga o modo de edição e busca os dados atualizados
       setIsEditing(false);
       fetchUserProfile();
 
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
       alert(error.response?.data?.message || 'Erro ao atualizar perfil.');
+    }
+  };
+
+  // Função de Logout
+  const handleLogout = () => {
+    if (window.confirm("Tem certeza que deseja sair?")) {
+      localStorage.clear();
+      window.location.href = '/';
     }
   };
 
@@ -116,15 +114,28 @@ function StudentProfile() {
 
       <main className="flex-grow p-6 md:p-12">
         <div className="w-full h-full flex flex-col gap-8">
-          
+
           <section className="flex flex-col lg:flex-row gap-8">
-            {/* Card de Perfil */}
             <div className="flex-1 flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                
+
                 {/* Avatar */}
-                <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center flex-shrink-0 text-4xl font-bold shadow-lg">
-                  {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                <div className="flex flex-col items-center gap-3 flex-shrink-0">
+                  <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-lg">
+                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  
+                  {/* Dropzone oculta/exibida com base no isEditing */}
+                  {isEditing && (
+                    <div className="w-48 animate-fadeIn">
+                      <p className="text-xs text-gray-400 text-center mb-2">Foto de Perfil</p>
+                      <DropZone
+                        accept="image/*"
+                        label="JPG, PNG até 5MB"
+                        onUploadSuccess={(url) => console.log('Foto enviada:', url)}
+                      />
+                    </div>
+                  )}
                 </div>
 
                 {/* Informações ou Formulário */}
@@ -147,7 +158,7 @@ function StudentProfile() {
                         <label className="text-xs text-gray-400">Nova Senha (deixe em branco para não alterar)</label>
                         <input type="password" name="password" value={formData.password} onChange={handleChange} placeholder="********" className="w-full bg-gray-600 text-white p-2 rounded outline-none focus:ring-2 focus:ring-purple-500" />
                       </div>
-                      
+
                       <div className="flex gap-2 mt-2">
                         <button type="submit" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-semibold transition">Salvar</button>
                         <button type="button" onClick={() => setIsEditing(false)} className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-semibold transition">Cancelar</button>
@@ -158,25 +169,34 @@ function StudentProfile() {
                       <h2 className="font-bold text-2xl">{user.name}</h2>
                       {user.nickname && <p className="text-purple-400 font-medium mb-1">"{user.nickname}"</p>}
                       <p className="text-sm text-gray-300 mb-4">{user.email}</p>
-                      
+
                       <div className="flex flex-col sm:flex-row sm:justify-between text-gray-400 text-sm border-t border-gray-600 pt-3 gap-2">
                         <span><strong>Data de Nascimento:</strong> {user.birthDate}</span>
-                        <span><strong>Gênero:</strong> {user.gender}</span>
+                        {/* Gênero removido daqui */}
                       </div>
                     </>
                   )}
                 </div>
               </div>
 
-              {/* Botão de Editar (some quando já estiver editando) */}
-              {!isEditing && (
-                <button 
-                  onClick={() => setIsEditing(true)} 
-                  className="bg-purple-600 text-white w-32 py-2 rounded-lg hover:bg-purple-700 transition-colors shadow-md"
+              {/* Botões de Ação */}
+              <div className="flex gap-4 mt-2">
+                {!isEditing && (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors shadow-md font-semibold"
+                  >
+                    Editar Perfil
+                  </button>
+                )}
+
+                <button
+                  onClick={handleLogout}
+                  className="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors shadow-md font-semibold"
                 >
-                  Editar Perfil
+                  Sair da Conta
                 </button>
-              )}
+              </div>
             </div>
 
             {/* Card de Medalhas */}

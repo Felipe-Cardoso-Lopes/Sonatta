@@ -1,94 +1,293 @@
-import React from 'react';
-import TeacherSidebar from '../components/TeacherSidebar';
-
-// Componente para um item da lista de mensagens
-const MessageItem = ({ name, course, isNew }) => (
-  <div className={`p-3 rounded-lg flex items-center justify-between cursor-pointer ${isNew ? 'bg-gray-600' : 'hover:bg-gray-600'}`}>
-    <div className="flex items-center gap-3">
-      <span className="text-yellow-400">☆</span>
-      <div>
-        <p className="font-semibold">{name}</p>
-        <p className="text-xs text-gray-400">{course}</p>
-      </div>
-    </div>
-    <div className="w-6 h-6 bg-gray-800 rounded-sm flex items-center justify-center">
-      {isNew ? '■' : '□'}
-    </div>
-  </div>
-);
-
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
+import { io } from "socket.io-client";
+import TeacherSidebar from "../components/TeacherSidebar";
 
 function TeacherOverview() {
-  // Dados de exemplo para as mensagens
-  const messages = [
-    { name: 'João Roberto', course: 'Curso: Piano para Iniciantes', isNew: true },
-    { name: 'Guilherme Barros', course: 'Formas de praticar', isNew: false },
-    { name: 'Felipe Cardoso', course: 'Preciso de um feedback', isNew: false },
-  ];
+  const [metrics, setMetrics] = useState([
+    { label: "Alunos Ativos", value: "0", icon: "👨‍🎓", color: "text-blue-400" },
+    { label: "Cursos Criados", value: "0", icon: "📚", color: "text-purple-400" },
+    { label: "Avisos", value: "0", icon: "🔔", color: "text-green-400" },
+  ]);
+
+  const [students, setStudents] = useState([]);
+  const [activeChatStudent, setActiveChatStudent] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+
+  const [socket, setSocket] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
+  const [typingUsers, setTypingUsers] = useState(new Set());
+  const [unreadCounts, setUnreadCounts] = useState({});
+
+  const typingTimeoutRef = useRef(null);
+  const chatScrollRef = useRef(null);
+  const activeChatStudentIdRef = useRef(null);
+
+  const token = localStorage.getItem("token");
+  const userId = localStorage.getItem("userId");
+  const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
+  const fetchStudents = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/courses/teacher/students`, { headers: { Authorization: `Bearer ${token}` } });
+      setStudents(res.data);
+      setMetrics((prev) => {
+        const newMetrics = [...prev];
+        newMetrics[0].value = res.data.length.toString();
+        return newMetrics;
+      });
+    } catch (err) { console.error("Erro ao carregar alunos", err); }
+  };
+
+  const fetchCourses = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/courses/teacher`, { headers: { Authorization: `Bearer ${token}` } });
+      setMetrics((prev) => {
+        const newMetrics = [...prev];
+        newMetrics[1].value = res.data.length.toString();
+        return newMetrics;
+      });
+    } catch (err) { console.error("Erro ao carregar cursos", err); }
+  };
+
+  const fetchUnreadCounts = async () => {
+    try {
+      const res = await axios.get(`${API_URL}/api/messages/unread-counts`, { headers: { Authorization: `Bearer ${token}` } });
+      const counts = {};
+      res.data.forEach((item) => { counts[item.sender_id] = item.unread_count; });
+      setUnreadCounts(counts);
+    } catch (err) { console.error("Erro ao buscar contagem", err); }
+  };
+
+  const fetchChatHistory = async (studentId) => {
+    try {
+      const res = await axios.get(`${API_URL}/api/messages/${studentId}`, { headers: { Authorization: `Bearer ${token}` } });
+      setMessages(res.data);
+      setUnreadCounts((prev) => {
+        const next = { ...prev };
+        delete next[studentId];
+        return next;
+      });
+      socket?.emit("check_online", studentId);
+    } catch (err) { console.error("Erro ao carregar mensagens", err); }
+  };
+
+  useEffect(() => {
+    activeChatStudentIdRef.current = activeChatStudent ? String(activeChatStudent.id) : null;
+  }, [activeChatStudent]);
+
+  useEffect(() => {
+    let totalUnread = 0;
+    students.forEach((student) => {
+      if (unreadCounts[student.id]) { totalUnread += Number(unreadCounts[student.id]); }
+    });
+    setMetrics((prev) => {
+      const updated = [...prev];
+      updated[2].value = totalUnread.toString();
+      return updated;
+    });
+  }, [unreadCounts, students]);
+
+  useEffect(() => {
+    fetchStudents();
+    fetchCourses();
+    fetchUnreadCounts();
+  }, []);
+
+  const studentsRef = useRef([]);
+  useEffect(() => { studentsRef.current = students; }, [students]);
+
+  useEffect(() => {
+    if (!userId || userId === "null" || userId === "undefined") return;
+    const newSocket = io(API_URL);
+    setSocket(newSocket);
+
+    newSocket.on("connect", () => {
+      newSocket.emit("user_connected", userId);
+      if (studentsRef.current.length > 0) {
+        studentsRef.current.forEach((student) => { newSocket.emit("check_online", student.id); });
+      }
+    });
+
+    newSocket.on("user_status_changed", ({ userId: changedUserId, status }) => {
+      setOnlineUsers((prev) => {
+        const next = new Set(prev);
+        status === "online" ? next.add(String(changedUserId)) : next.delete(String(changedUserId));
+        return next;
+      });
+    });
+
+    newSocket.on("online_status", ({ userId: checkedId, isOnline }) => {
+      setOnlineUsers((prev) => {
+        const next = new Set(prev);
+        isOnline ? next.add(String(checkedId)) : next.delete(String(checkedId));
+        return next;
+      });
+    });
+
+    newSocket.on("receive_message", (messagePayload) => {
+      if (activeChatStudentIdRef.current === String(messagePayload.sender_id)) {
+        setMessages((prev) => [...prev, messagePayload]);
+        axios.get(`${API_URL}/api/messages/${messagePayload.sender_id}`, { headers: { Authorization: `Bearer ${token}` } });
+      } else {
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [messagePayload.sender_id]: (prev[messagePayload.sender_id] || 0) + 1,
+        }));
+      }
+    });
+
+    newSocket.on("user_typing", ({ senderId }) => { setTypingUsers((prev) => new Set(prev).add(String(senderId))); });
+    newSocket.on("user_stop_typing", ({ senderId }) => {
+      setTypingUsers((prev) => {
+        const next = new Set(prev);
+        next.delete(String(senderId));
+        return next;
+      });
+    });
+
+    return () => newSocket.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (socket && students.length > 0) {
+      students.forEach(student => socket.emit('check_online', student.id));
+    }
+  }, [socket, students]);
+
+  useEffect(() => {
+    if (activeChatStudent) fetchChatHistory(activeChatStudent.id);
+  }, [activeChatStudent]);
+
+  useEffect(() => {
+    if (chatScrollRef.current) chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+  }, [messages, typingUsers]);
+
+  const handleTyping = (e) => {
+    setNewMessage(e.target.value);
+    if (socket && activeChatStudent) {
+      socket.emit("typing", { senderId: userId, receiverId: activeChatStudent.id });
+      clearTimeout(typingTimeoutRef.current);
+      typingTimeoutRef.current = setTimeout(() => {
+        socket.emit("stop_typing", { senderId: userId, receiverId: activeChatStudent.id });
+      }, 2000);
+    }
+  };
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !activeChatStudent) return;
+    try {
+      socket?.emit("stop_typing", { senderId: userId, receiverId: activeChatStudent.id });
+      const res = await axios.post(
+        `${API_URL}/api/messages`,
+        { receiver_id: activeChatStudent.id, message: newMessage },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessages([...messages, res.data]);
+      setNewMessage("");
+    } catch (err) { alert("Erro ao enviar mensagem."); }
+  };
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
-      <TeacherSidebar />
-
-      {/* Conteúdo Principal */}
-      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
-        
-        {/* Coluna de Menu Secundária */}
-        <aside className="w-full lg:w-1/4 lg:max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4">
-          <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold hover:bg-opacity-80">
-            Visão Geral
-          </button>
-          <button className="bg-gray-700 w-full py-3 rounded-lg hover:bg-gray-600">
-            Atividades Recentes
-          </button>
-          
-          {/* Seção de Mensagens */}
-          <div className="bg-gray-700 rounded-lg p-3 flex-grow">
-            <h3 className="font-bold mb-3 px-2">Mensagens Recentes</h3>
-            <div className="flex flex-col gap-2">
-              {messages.map((msg, index) => (
-                <MessageItem key={index} {...msg} />
-              ))}
-            </div>
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative">
+      <div className="shrink-0 z-20"><TeacherSidebar /></div>
+      <main className="flex-grow p-6 md:p-10 flex flex-col h-screen overflow-hidden">
+        <div className="max-w-6xl mx-auto w-full flex flex-col h-full gap-6">
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Visão Geral</h1>
+            <p className="text-gray-400">Suas métricas e comunicação em tempo real com alunos.</p>
           </div>
-
-          <button className="bg-gray-700 w-full py-3 rounded-lg hover:bg-gray-600">
-            Calendário
-          </button>
-          <button className="bg-gray-700 w-full py-3 rounded-lg hover:bg-gray-600">
-            Notificações
-          </button>
-        </aside>
-
-        {/* Coluna Principal: Chat */}
-        <section className="flex-grow flex flex-col bg-black rounded-lg p-6 min-h-[500px] lg:min-h-0">
-          <div className="flex-grow overflow-y-auto">
-            {/* Mensagens do Chat */}
-            <div className="mb-4">
-              <div className="bg-white text-black p-3 rounded-lg max-w-md">
-                Bom dia Professor! Estou com uma dúvida num exercício do módulo 1.
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 shrink-0">
+            {metrics.map((metric, index) => (
+              <div key={index} className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg flex items-center justify-between">
+                <div>
+                  <p className="text-gray-400 text-sm mb-1">{metric.label}</p>
+                  <p className={`text-4xl font-bold ${metric.color}`}>{metric.value}</p>
+                </div>
+                <div className="text-5xl opacity-80">{metric.icon}</div>
               </div>
-            </div>
-            <div className="flex justify-end mb-4">
-              <div className="bg-white text-black p-3 rounded-lg max-w-md">
-                Sim, vamos começar!
+            ))}
+          </div>
+
+          <div className="flex-grow flex flex-col lg:flex-row gap-6 min-h-0">
+            <aside className="w-full lg:w-1/3 bg-gray-800 rounded-xl border border-gray-700 flex flex-col overflow-hidden shadow-lg">
+              <div className="p-4 bg-gray-900 border-b border-gray-700 flex justify-between items-center">
+                <h2 className="text-lg font-bold text-purple-300">Meus Alunos</h2>
               </div>
-            </div>
-          </div>
+              <div className="flex-grow overflow-y-auto p-4 flex flex-col gap-2 custom-scrollbar">
+                {students.length === 0 ? (
+                  <p className="text-gray-500 text-center mt-4">Nenhum aluno encontrado.</p>
+                ) : (
+                  students.map((student) => {
+                    const isOnline = onlineUsers.has(String(student.id));
+                    const unreadCount = unreadCounts[student.id] || 0;
+                    return (
+                      <div key={student.id} onClick={() => setActiveChatStudent(student)} className={`p-3 rounded-lg cursor-pointer transition-all flex items-center gap-3 relative ${activeChatStudent?.id === student.id ? "bg-purple-600 shadow-md" : "bg-gray-700 hover:bg-gray-600"}`}>
+                        <div className="relative">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-inner ${activeChatStudent?.id === student.id ? "bg-purple-800 text-white" : "bg-blue-500 text-white"}`}>
+                            {student.name.charAt(0).toUpperCase()}
+                          </div>
+                          {isOnline && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-gray-800 rounded-full"></span>}
+                        </div>
+                        <div className="flex-grow overflow-hidden">
+                          <p className={`font-semibold text-sm truncate ${activeChatStudent?.id === student.id ? "text-white" : "text-gray-200"}`}>{student.name}</p>
+                          <p className={`text-xs truncate ${activeChatStudent?.id === student.id ? "text-purple-200" : "text-gray-400"}`}>{student.course_title}</p>
+                        </div>
+                        {unreadCount > 0 && activeChatStudent?.id !== student.id && (
+                          <div className="bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center absolute right-4">{unreadCount}</div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </aside>
 
-          {/* Input de Mensagem */}
-          <div className="mt-4 flex flex-col sm:flex-row gap-4">
-            <input 
-              type="text" 
-              placeholder="Mensagem" 
-              className="flex-grow bg-gray-700 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-sidebar-bg"
-            />
-            <button className="bg-sidebar-bg px-8 py-3 rounded-lg font-bold hover:bg-opacity-80">
-              Enviar
-            </button>
+            <section className="w-full lg:w-2/3 bg-gray-900 rounded-xl border border-gray-700 flex flex-col shadow-lg overflow-hidden">
+              {activeChatStudent ? (
+                <>
+                  <div className="bg-gray-800 p-4 border-b border-gray-700 flex items-center gap-3 shadow-md z-10">
+                    <div className="relative">
+                      <div className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center font-bold text-white text-xl">
+                        {activeChatStudent.name.charAt(0).toUpperCase()}
+                      </div>
+                      {onlineUsers.has(String(activeChatStudent.id)) && <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-500 border-2 border-gray-800 rounded-full"></span>}
+                    </div>
+                    <div>
+                      <h2 className="font-bold text-lg leading-tight">{activeChatStudent.name}</h2>
+                      <p className="text-xs text-gray-400">{onlineUsers.has(String(activeChatStudent.id)) ? <span className="text-green-400">Online</span> : "Offline"}</p>
+                    </div>
+                  </div>
+                  <div ref={chatScrollRef} className="flex-grow overflow-y-auto p-6 flex flex-col gap-4 custom-scrollbar">
+                    {messages.map((msg) => (
+                      <div key={msg.id} className={`flex ${msg.isMine ? "justify-end" : "justify-start"}`}>
+                        <div className={`p-3 rounded-xl max-w-[80%] text-sm shadow-md ${msg.isMine ? "bg-purple-600 text-white rounded-br-none" : "bg-gray-700 text-gray-200 rounded-bl-none"}`}>
+                          <p>{msg.message}</p>
+                          {msg.time && <span className="text-[10px] opacity-50 block mt-1 text-right">{msg.time}</span>}
+                        </div>
+                      </div>
+                    ))}
+                    {typingUsers.has(String(activeChatStudent.id)) && (
+                      <div className="flex justify-start">
+                        <div className="p-3 rounded-xl bg-gray-700 text-gray-400 rounded-bl-none text-xs italic flex gap-1">
+                          Digitando<span className="animate-bounce">.</span><span className="animate-bounce delay-100">.</span><span className="animate-bounce delay-200">.</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <form onSubmit={handleSendMessage} className="p-4 bg-gray-800 border-t border-gray-700 flex gap-3">
+                    <input type="text" value={newMessage} onChange={handleTyping} placeholder="Escreva sua mensagem..." className="flex-grow bg-gray-900 border border-gray-600 rounded-full px-4 py-3 text-sm text-white outline-none focus:border-purple-500" />
+                    <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white w-12 h-12 rounded-full flex items-center justify-center transition shadow-lg shrink-0">➤</button>
+                  </form>
+                </>
+              ) : (
+                <div className="flex-grow flex items-center justify-center text-gray-500">Selecione um aluno na lista para conversar</div>
+              )}
+            </section>
           </div>
-        </section>
-
+        </div>
       </main>
     </div>
   );

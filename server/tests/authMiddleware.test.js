@@ -3,7 +3,7 @@ process.env.JWT_SECRET = "segredo-de-teste";
 
 const request = require("supertest");
 const jwt = require("jsonwebtoken");
-const app = require("../server");
+const { app } = require('../server');
 const db = require("../config/db");
 
 // Mock do banco de dados

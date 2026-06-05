@@ -1,16 +1,10 @@
 name: Backend Tests (Jest)
 
-# Define os gatilhos de execução
 on:
   push:
     branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
-
-# Define que todos os comandos npm devem correr dentro da pasta server
-defaults:
-  run:
-    working-directory: ./server
 
 jobs:
   test:
@@ -18,11 +12,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Faz o checkout do código
       - name: Checkout do código
         uses: actions/checkout@v4
 
-      # 2. Prepara o ambiente Node.js (versão 20)
       - name: Configurar Node.js
         uses: actions/setup-node@v4
         with:
@@ -30,10 +22,14 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./server/package-lock.json
 
-      # 3. Instala as dependências do backend (Express, Jest, Supertest, etc.)
       - name: Instalar dependências
         run: npm install
+        working-directory: ./server
 
-      # 4. Executa a suíte de testes do Jest
       - name: Executar Jest
-        run: npx jest
+        run: npm test
+        working-directory: ./server
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NODE_ENV: test

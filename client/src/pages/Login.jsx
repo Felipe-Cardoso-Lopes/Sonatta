@@ -9,14 +9,15 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-
+                  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
       const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-      const response = await fetch(`${API_URL}/api/users/login`, {
+      // Endpoint atualizado para coincidir com as rotas de auth
+      const response = await fetch(`${API_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -25,28 +26,37 @@ function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        // Armazena as informações de sessão lendo direto da raiz do 'data'
         localStorage.setItem("token", data.token);
         localStorage.setItem("userRole", data.role);
         localStorage.setItem("userName", data.name);
-
-        localStorage.setItem("userNickname", data.nickname);
+        localStorage.setItem("userNickname", data.nickname || "");
+        localStorage.setItem("userId", data.id);
+        
+        if (data.teacherType) {
+          localStorage.setItem("teacherType", data.teacherType);
+        } else {
+          localStorage.setItem("teacherType", "institucional");
+        }
 
         console.log("Login bem-sucedido:", data);
 
-        // Lógica de redirecionamento
-        const role = data.role; // <-- Garantindo que não há ".user" aqui!
-        
-        if (role === 'aluno') { 
-          navigate('/student-dashboard');
-        } else if (role === 'professor') { 
-          navigate('/teacher-dashboard');
-        } else if (role === 'instituicao') {
-          navigate('/instituicao-dashboard');
-          } else if (role === 'super_admin') {
-            
-          // NOVO: Redireciona a equipe criadora para a torre de controle
-          navigate('/super-admin-dashboard');
+        const role = data.role;
+
+        if (role === "pending") {
+          navigate("/pending-approval");
+        } else if (role === "aluno") {
+          navigate("/student/dashboard");
+        } else if (role === "professor") {
+          // Lógica garantida: Redireciona o independente
+          if (data.teacherType === "independente") {
+            navigate("/solo-teacher/dashboard");
+          } else {
+            navigate("/teacher/dashboard");
+          }
+        } else if (role === "instituicao") {
+          navigate("/instituicao/dashboard");
+        } else if (role === "super_admin") {
+          navigate("/super-admin/dashboard");
         } else {
           navigate("/");
         }
@@ -55,14 +65,12 @@ function Login() {
       }
     } catch (error) {
       console.error("Erro ao conectar com o servidor:", error);
-      alert(
-        "Erro ao conectar com o servidor. Verifique se o backend está rodando.",
-      );
+      alert("Erro ao conectar com o servidor. Verifique se o backend está rodando.");
     }
-  };
+  }; 
 
   return (
-    <div className="relative min-h-screen bg-dark-bg text-white-text font-poppins overflow-hidden">
+    <div className="relative min-h-screen bg-piano-black text-white-text font-poppins overflow-hidden">
       <MusicParticles />
       <div className="relative z-10 flex flex-col h-screen">
         <Header />
