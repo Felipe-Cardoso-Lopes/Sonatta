@@ -30,4 +30,11 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
     },
   ],
+
+  webServer: {
+    command: 'npm run dev', // Comando para iniciar o seu frontend
+    url: 'http://localhost:5173', // URL que o Playwright deve aguardar ficar disponível
+    reuseExistingServer: !process.env.CI, // Reaproveita o servidor se você já tiver rodado "npm run dev" manualmente
+    timeout: 120 * 1000,
+  },
 });
