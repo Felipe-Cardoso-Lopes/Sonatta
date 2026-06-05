@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast'; // <-- Importação do Toast
 import InstituicaoSidebar from '../components/InstituicaoSidebar';
 import DropZone from '../components/DropZone';
 
@@ -8,7 +9,6 @@ function InstituicaoProfile() {
   const [profile, setProfile] = useState({ name: '', nickname: '', email: '' });
   const [passwordData, setPasswordData] = useState({ currentPassword: '', newPassword: '' });
   
-  // 1. Estado de controle do Perfil Público
   const [publicProfile, setPublicProfile] = useState({
     descricao_longa: '',
     logo_url: '',
@@ -33,21 +33,22 @@ function InstituicaoProfile() {
       nickname: localStorage.getItem('userNickname') || '',
       email: ''
     });
-    // TODO: Adicionar requisição GET para carregar os dados públicos atuais da instituição
+    // Opcional: GET para preencher publicProfile ao carregar a tela
   }, []);
 
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setIsSavingProfile(true);
+    const toastId = toast.loading('Atualizando dados...');
     try {
       await axios.put(`${API_URL}/api/users/profile`, profile, {
         headers: { Authorization: `Bearer ${token}` }
       });
       localStorage.setItem('userName', profile.name);
       localStorage.setItem('userNickname', profile.nickname);
-      alert("Informações atualizadas com sucesso!");
+      toast.success("Informações atualizadas com sucesso!", { id: toastId });
     } catch (error) {
-      alert("Erro ao atualizar informações do perfil.");
+      toast.error("Erro ao atualizar informações do perfil.", { id: toastId });
     } finally {
       setIsSavingProfile(false);
     }
@@ -56,32 +57,36 @@ function InstituicaoProfile() {
   const handleChangePassword = async (e) => {
     e.preventDefault();
     setIsSavingPassword(true);
+    const toastId = toast.loading('Alterando senha...');
     try {
       await axios.put(`${API_URL}/api/users/change-password`, passwordData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert("Senha alterada com sucesso!");
+      toast.success("Senha alterada com sucesso!", { id: toastId });
       setPasswordData({ currentPassword: '', newPassword: '' });
     } catch (error) {
-      alert("Erro ao redefinir credenciais.");
+      toast.error("Erro ao redefinir credenciais.", { id: toastId });
     } finally {
       setIsSavingPassword(false);
     }
   };
 
-  // 2. Função de submissão do formulário de Perfil Público
   const handleUpdatePublicProfile = async (e) => {
     e.preventDefault();
     setIsSavingPublic(true);
+    // Feedback visual de carregamento
+    const toastId = toast.loading('Salvando perfil público...');
+    
     try {
-      // Ajuste a URL '/api/instituicoes' conforme mapeado no seu server.js
       await axios.put(`${API_URL}/api/instituicoes/profile`, publicProfile, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      alert("Perfil público atualizado com sucesso!");
+      // Substitui o loading pela notificação de sucesso
+      toast.success("Perfil público atualizado com sucesso!", { id: toastId });
     } catch (error) {
       console.error(error);
-      alert(error.response?.data?.message || "Erro ao atualizar o perfil público.");
+      // Substitui o loading pela notificação de erro
+      toast.error(error.response?.data?.message || "Erro ao atualizar o perfil público.", { id: toastId });
     } finally {
       setIsSavingPublic(false);
     }
@@ -96,6 +101,15 @@ function InstituicaoProfile() {
 
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative">
+      {/* Componente que renderiza os toasts na tela */}
+      <Toaster position="top-right" reverseOrder={false} toastOptions={{
+        style: {
+          background: '#333',
+          color: '#fff',
+          borderRadius: '8px',
+        },
+      }} />
+
       <div className="shrink-0 z-20">
         <InstituicaoSidebar />
       </div>
@@ -178,7 +192,6 @@ function InstituicaoProfile() {
             </div>
           </div>
 
-          {/* 3. Estrutura Visual do Formulário de Perfil Público com DropZone */}
           <form onSubmit={handleUpdatePublicProfile} className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg flex flex-col gap-6 w-full">
             <h2 className="text-xl font-bold text-green-400">Perfil Público da Escola</h2>
             <p className="text-sm text-gray-400 -mt-4">Estas informações serão exibidas para visitantes e alunos na plataforma.</p>
