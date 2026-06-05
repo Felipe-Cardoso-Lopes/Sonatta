@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const instituicaoController = require('../controllers/instituicaoController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 // Importação do middleware de segurança (JWT)
 const { verifyToken } = require('../middlewares/authMiddleware');
@@ -21,5 +23,8 @@ router.put('/approve-user', approveUser);
 // --- Rotas de Gestão de Professores (Task 14.1) ---
 router.get('/teachers', getTeachers);
 router.post('/teachers', createTeacher);
+
+// Definição do endpoint de atualização do perfil público (pode utilizar PUT ou PATCH)
+router.put('/profile', authMiddleware, instituicaoController.updateProfile);
 
 module.exports = router;
