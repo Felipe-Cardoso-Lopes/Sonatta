@@ -1,18 +1,23 @@
+// ==========================================
+// IMPORTAÇÕES GLOBAIS
+// ==========================================
+const db = require('../config/db');
+const bcrypt = require('bcryptjs'); // ou 'bcrypt'
+
+// ==========================================
+// APROVAÇÃO DE USUÁRIOS
+// ==========================================
 const approveUser = async (req, res) => {
   const { email, newRole } = req.body;
-  const db = require('../config/db');
 
-  // 1. Validação de campos obrigatórios
   if (!email || !newRole) {
     return res.status(400).json({ message: 'E-mail e novo cargo são obrigatórios.' });
   }
 
-  // 2. Trava de segurança para impedir cargos inválidos
   if (newRole !== 'aluno' && newRole !== 'professor') {
     return res.status(400).json({ message: 'Cargo inválido. O usuário deve ser aluno ou professor.' });
   }
 
-  // 3. ✅ Bloqueia perfil 'aluno' de executar esta ação
   if (req.user.role === 'aluno') {
     return res.status(403).json({ message: 'Acesso negado. Apenas instituições podem aprovar usuários.' });
   }
@@ -48,9 +53,7 @@ const approveUser = async (req, res) => {
 // GESTÃO DE PROFESSORES DA INSTITUIÇÃO
 // ==========================================
 
-// READ: Listar apenas os professores vinculados à instituição logada
 const getTeachers = async (req, res) => {
-  // O authMiddleware injeta os dados do token em req.user
   const instituicao_id = req.user.id;
 
   try {
@@ -68,11 +71,8 @@ const getTeachers = async (req, res) => {
   }
 };
 
-// CREATE: Cadastrar um novo professor forçando o vínculo à instituição
 const createTeacher = async (req, res) => {
   const { name, email, password } = req.body;
-
-  // Segurança: Extrai o ID da instituição do Token JWT (inviolável)
   const instituicao_id = req.user.id;
 
   if (!name || !email || !password) {
@@ -80,18 +80,14 @@ const createTeacher = async (req, res) => {
   }
 
   try {
-    // 1. Evita duplicidade de e-mail no sistema
     const userExists = await db.query('SELECT id FROM users WHERE email = $1', [email]);
     if (userExists.rows.length > 0) {
       return res.status(400).json({ message: 'Este e-mail já está em uso por outro usuário.' });
     }
 
-    // 2. Criptografa a senha antes de salvar
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // 3. Insere no banco cravando a role 'teacher' e o instituicao_id
-    // O professor já nasce como is_verified = true (pois foi criado pela própria escola)
     const result = await db.query(
       `INSERT INTO users (name, email, password_hash, role, teacher_type, instituicao_id, is_verified) 
        VALUES ($1, $2, $3, 'teacher', 'institucional', $4, true) 
@@ -109,13 +105,15 @@ const createTeacher = async (req, res) => {
   }
 };
 
+// ==========================================
+// GESTÃO DO PERFIL PÚBLICO
+// ==========================================
+
 const updateProfile = async (req, res) => {
-  // 1. Defesa de perfil: garante que apenas usuários com a role de instituição executem a ação
   if (req.user.role !== 'instituicao') {
     return res.status(403).json({ message: 'Acesso negado. Apenas instituições podem alterar este perfil.' });
   }
 
-  // O id da instituição autenticada é injetado pelo authMiddleware no objeto req.user
   const instituicao_id = req.user.id; 
   
   const {
@@ -128,7 +126,6 @@ const updateProfile = async (req, res) => {
     facebook_url
   } = req.body;
 
-  // 2. Validação simples de formato de URLs (se fornecidas)
   const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([\/\w .-]*)*\/?$/;
   const urlsParaValidar = { logo_url, banner_url, website_url, instagram_url, linkedin_url, facebook_url };
 
@@ -139,8 +136,6 @@ const updateProfile = async (req, res) => {
   }
 
   try {
-    // 3. Execução do comando SQL no banco de dados
-    // Nota: Certifique-se se a correspondência do ID na tabela instituicoes mapeia diretamente para o ID do usuário (1:1)
     const result = await db.query(
       `UPDATE instituicoes 
        SET descricao_longa = COALESCE($1, descricao_longa),

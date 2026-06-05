@@ -1,7 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const instituicaoController = require('../controllers/instituicaoController');
-const authMiddleware = require('../middlewares/authMiddleware');
 
 // Importação do middleware de segurança (JWT)
 const { verifyToken } = require('../middlewares/authMiddleware');
@@ -10,7 +8,8 @@ const { verifyToken } = require('../middlewares/authMiddleware');
 const { 
   approveUser,
   getTeachers, 
-  createTeacher 
+  createTeacher,
+  updateProfile // <-- Função importada corretamente
 } = require('../controllers/instituicaoController');
 
 // Aplica o middleware globalmente para TODAS as rotas abaixo desta linha.
@@ -24,7 +23,7 @@ router.put('/approve-user', approveUser);
 router.get('/teachers', getTeachers);
 router.post('/teachers', createTeacher);
 
-// Definição do endpoint de atualização do perfil público (pode utilizar PUT ou PATCH)
-router.put('/profile', authMiddleware, instituicaoController.updateProfile);
+// --- Rotas de Perfil (Task 20.2) ---
+router.put('/profile', updateProfile);
 
 module.exports = router;
