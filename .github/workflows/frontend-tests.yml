@@ -32,7 +32,7 @@ jobs:
 
       # 3. Instala as dependências (React, Vite, Vitest, etc.)
       - name: Instalar dependências
-        run: npm install
+        run: npm ci
 
       # 4. Executa os testes automatizados
       # O parâmetro --run impede que o Vitest fique em modo "watch" aguardando mudanças
