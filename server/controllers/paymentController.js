@@ -126,4 +126,57 @@ const handleWebhook = async (req, res) => {
   }
 };
 
-module.exports = { createCheckoutSession, handleWebhook };
+// ========================
+// Feature 22 - Dashboard Financeiro
+// ========================
+const getInstitutionFinancialSummary = async (req, res) => {
+  const instId = req.user.instituicao_id;
+  try {
+    // Faturamento Líquido do Mês Atual
+    const currentMonthResult = await db.query(`
+      SELECT COALESCE(SUM(net_value), 0) as total 
+      FROM institution_transactions 
+      WHERE instituicao_id = $1 
+      AND status = 'paid' 
+      AND date_trunc('month', payment_date) = date_trunc('month', CURRENT_DATE)
+    `, [instId]);
+
+    // Repasses Pendentes
+    const pendingResult = await db.query(`
+      SELECT COALESCE(SUM(net_value), 0) as total 
+      FROM institution_transactions 
+      WHERE instituicao_id = $1 AND status = 'pending'
+    `, [instId]);
+
+    res.json({
+      currentMonthRevenue: parseFloat(currentMonthResult.rows[0].total),
+      pendingTransfers: parseFloat(pendingResult.rows[0].total),
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar resumo financeiro.' });
+  }
+};
+
+const getInstitutionTransactions = async (req, res) => {
+  const instId = req.user.instituicao_id;
+  const { startDate, endDate, status } = req.query;
+
+  let query = 'SELECT * FROM institution_transactions WHERE instituicao_id = $1';
+  const params = [instId];
+  let paramIndex = 2;
+
+  if (startDate) { query += ` AND payment_date >= $${paramIndex++}`; params.push(startDate); }
+  if (endDate) { query += ` AND payment_date <= $${paramIndex++}`; params.push(`${endDate} 23:59:59`); }
+  if (status && status !== 'all') { query += ` AND status = $${paramIndex++}`; params.push(status); }
+
+  query += ' ORDER BY payment_date DESC LIMIT 100'; // Paginação simplificada (limite 100)
+
+  try {
+    const result = await db.query(query, params);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar transações.' });
+  }
+};
+
+module.exports = { createCheckoutSession, handleWebhook, getInstitutionFinancialSummary, getInstitutionTransactions };

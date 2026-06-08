@@ -9,7 +9,9 @@ const {
   approveUser,
   getTeachers, 
   createTeacher,
-  updateProfile // <-- Função importada corretamente
+  updateProfile,    
+  updateSecurity,
+  updatePreferences
 } = require('../controllers/instituicaoController');
 
 // Aplica o middleware globalmente para TODAS as rotas abaixo desta linha.
@@ -25,5 +27,9 @@ router.post('/teachers', createTeacher);
 
 // --- Rotas de Perfil (Task 20.2) ---
 router.put('/profile', updateProfile);
+
+// --- Rotas de Configurações de Conta institucional ---
+router.put('/security', verifyToken, updateSecurity);
+router.put('/preferences', verifyToken, updatePreferences);
 
 module.exports = router;

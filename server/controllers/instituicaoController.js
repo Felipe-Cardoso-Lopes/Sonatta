@@ -174,9 +174,52 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// --- F21: CONFIGURAÇÕES DE SEGURANÇA E PREFERÊNCIAS ---
+
+const updateSecurity = async (req, res) => {
+  const userId = req.user.id;
+  const { currentPassword, newPassword } = req.body;
+
+  try {
+    const userQuery = await db.query('SELECT password_hash FROM users WHERE id = $1', [userId]);
+    if (userQuery.rows.length === 0) return res.status(404).json({ message: 'Usuário não encontrado.' });
+
+    const validPassword = await bcrypt.compare(currentPassword, userQuery.rows[0].password_hash);
+    if (!validPassword) return res.status(401).json({ message: 'Senha atual incorreta.' });
+
+    const salt = await bcrypt.genSalt(10);
+    const newHash = await bcrypt.hash(newPassword, salt);
+
+    await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [newHash, userId]);
+    res.json({ message: 'Senha atualizada com sucesso!' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erro ao atualizar segurança.' });
+  }
+};
+
+const updatePreferences = async (req, res) => {
+  const instId = req.user.instituicao_id;
+  const { notif_email, notif_sms, notif_marketing } = req.body;
+
+  try {
+    const result = await db.query(
+      `UPDATE instituicoes 
+       SET notif_email = $1, notif_sms = $2, notif_marketing = $3 
+       WHERE id = $4 RETURNING notif_email, notif_sms, notif_marketing`,
+      [notif_email, notif_sms, notif_marketing, instId]
+    );
+    res.json({ message: 'Preferências salvas!', preferences: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ message: 'Erro ao atualizar preferências.' });
+  }
+};
+
 module.exports = {
   approveUser,
   getTeachers,
   createTeacher,
-  updateProfile
+  updateProfile,
+  updateSecurity,
+  updatePreferences
 };

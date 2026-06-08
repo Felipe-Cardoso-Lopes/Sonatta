@@ -1,128 +1,102 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import InstituicaoSidebar from '../components/InstituicaoSidebar';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
 function InstituicaoSettings() {
-  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+  const [activeTab, setActiveTab] = useState('general');
+  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const [preferences, setPreferences] = useState({ notif_email: true, notif_sms: false, notif_marketing: true });
 
-  // Função disparada ao clicar em "Fazer Upgrade"
-  const handleUpgrade = async () => {
-    setIsLoadingPayment(true);
+  const getAuthHeaders = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
+
+  const handleSecurityUpdate = async (e) => {
+    e.preventDefault();
+    if (passwords.newPassword !== passwords.confirmPassword) return alert("As senhas não coincidem!");
     try {
-      const token = localStorage.getItem('token'); 
-      
-      const response = await fetch('http://localhost:5000/api/payments/create-preference', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          plan: 'PRO',
-          description: 'Assinatura Sonatta - Plano Instituição',
-          price: 499.90
-        })
-      });
+      await axios.put(`${API_URL}/api/instituicoes/security`, passwords, getAuthHeaders());
+      alert("Senha atualizada com sucesso!");
+      setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err) { alert(err.response?.data?.message || "Erro ao atualizar senha."); }
+  };
 
-      const data = await response.json();
-
-      // Redireciona para o Checkout Pro do Mercado Pago
-      if (data.init_point) {
-        window.location.href = data.init_point;
-      } else {
-        alert('Erro ao gerar sessão de pagamento. Tente novamente.');
-      }
-    } catch (error) {
-      console.error('Erro ao redirecionar para pagamento:', error);
-      alert('Falha na comunicação com o servidor de pagamentos.');
-    } finally {
-      setIsLoadingPayment(false);
-    }
+  const handlePreferencesUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.put(`${API_URL}/api/instituicoes/preferences`, preferences, getAuthHeaders());
+      alert("Preferências salvas com sucesso!");
+      setPreferences(res.data.preferences);
+    } catch (err) { alert("Erro ao salvar preferências."); }
   };
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-piano-black text-white-text flex">
       <InstituicaoSidebar />
+      <main className="flex-grow p-8 overflow-y-auto">
+        <h1 className="text-3xl font-bold mb-6">Configurações da Instituição</h1>
 
-      {/* Conteúdo Principal */}
-      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8">
-        
-        {/* Coluna de Menu Secundária */}
-        <aside className="w-full lg:w-1/4 lg:max-w-xs bg-gray-800 rounded-lg p-4 flex flex-col gap-4 h-fit">
-          <button className="bg-gray-700 text-white w-full py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
-            Configurações da Escola
-          </button>
-          <button className="bg-gray-700 text-white w-full py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
-            Perfil da Escola
-          </button>
-          <button className="bg-sidebar-bg w-full py-3 rounded-lg font-bold text-white shadow-md">
-            Configurações de Pagamento
-          </button>
-          <button className="bg-gray-700 text-white w-full py-3 rounded-lg font-semibold hover:bg-gray-600 transition-colors">
-            Notificações
-          </button>
-        </aside>
+        {/* Tabs */}
+        <div className="flex border-b border-gray-700 mb-8">
+          {['general', 'security', 'notifications'].map((tab, idx) => (
+            <button
+              key={idx}
+              className={`px-6 py-3 font-semibold transition-colors relative ${activeTab === tab ? 'text-purple-400' : 'text-gray-400 hover:text-gray-200'}`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab === 'general' ? 'Geral' : tab === 'security' ? 'Segurança' : 'Notificações'}
+              {activeTab === tab && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500"></span>}
+            </button>
+          ))}
+        </div>
 
-        {/* Coluna Principal: Área de Configuração */}
-        <section className="flex-grow flex flex-col bg-white rounded-lg p-6 text-black">
-          
-          <h2 className="text-2xl font-bold border-b border-gray-200 pb-4 mb-6">Gerenciamento de Assinatura</h2>
-          
-          {/* Secção de Upgrade de Plano */}
-          <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm">
-            <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6">
-              
-              <div className="flex-1">
-                <h3 className="text-xl font-bold mb-2">Plano Atual: <span className="text-gray-500">Gratuito (Trial)</span></h3>
-                <p className="text-sm text-gray-600 mb-4">
-                  Faça o upgrade para o <strong className="text-blue-600">Plano Pro</strong> e desbloqueie o cadastro ilimitado de professores e alunos, além da emissão de relatórios consolidados.
-                </p>
-                
-                <ul className="text-sm text-gray-700 space-y-2 list-none">
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Professores Ilimitados
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Alunos Ilimitados
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="text-green-500">✓</span> Faturamento e Relatórios CSV/PDF
-                  </li>
-                </ul>
-              </div>
-
-              <div className="w-full xl:w-auto flex flex-col items-center gap-4 border-t xl:border-t-0 xl:border-l border-gray-200 pt-6 xl:pt-0 xl:pl-8">
-                <div className="text-center">
-                  <span className="text-3xl font-black text-gray-800">R$ 499,90</span>
-                  <span className="text-sm font-normal text-gray-500">/mês</span>
-                </div>
-                
-                <button
-                  onClick={handleUpgrade}
-                  disabled={isLoadingPayment}
-                  className={`px-8 py-3 rounded-lg font-bold text-white transition-all shadow-md flex items-center justify-center w-full min-w-[240px]
-                    ${isLoadingPayment ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
-                >
-                  {isLoadingPayment ? (
-                    <span className="flex items-center gap-2">
-                      <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Gerando Sessão...
-                    </span>
-                  ) : (
-                    '⭐ Assinar Plano Pro'
-                  )}
-                </button>
-                <span className="text-xs text-gray-400 flex items-center gap-1">
-                  🔒 Pagamento seguro via Mercado Pago
-                </span>
-              </div>
-              
+        <div className="bg-[#1a1a1a] rounded-xl border border-gray-700 p-8 shadow-lg max-w-3xl">
+          {activeTab === 'general' && (
+            <div>
+              <h2 className="text-xl font-bold mb-4">Configurações Gerais</h2>
+              <p className="text-gray-400">Edite as informações públicas da sua escola na tela de "Perfil".</p>
             </div>
-          </div>
+          )}
 
-        </section>
+          {activeTab === 'security' && (
+            <form onSubmit={handleSecurityUpdate} className="space-y-5 animate-fadeIn">
+              <h2 className="text-xl font-bold mb-4">Alterar Senha</h2>
+              <div>
+                <label className="block text-sm text-gray-400 mb-1">Senha Atual</label>
+                <input type="password" value={passwords.currentPassword} onChange={e => setPasswords({...passwords, currentPassword: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Nova Senha</label>
+                  <input type="password" value={passwords.newPassword} onChange={e => setPasswords({...passwords, newPassword: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-1">Confirmar Nova Senha</label>
+                  <input type="password" value={passwords.confirmPassword} onChange={e => setPasswords({...passwords, confirmPassword: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />
+                </div>
+              </div>
+              <button type="submit" className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white font-bold mt-4 transition">Atualizar Segurança</button>
+            </form>
+          )}
+
+          {activeTab === 'notifications' && (
+            <form onSubmit={handlePreferencesUpdate} className="space-y-6 animate-fadeIn">
+              <h2 className="text-xl font-bold mb-4">Preferências de Notificação</h2>
+              
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" checked={preferences.notif_email} onChange={e => setPreferences({...preferences, notif_email: e.target.checked})} className="w-5 h-5 accent-purple-600" />
+                <span className="text-gray-200">Receber e-mails sobre novas matrículas e repasses</span>
+              </label>
+
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input type="checkbox" checked={preferences.notif_marketing} onChange={e => setPreferences({...preferences, notif_marketing: e.target.checked})} className="w-5 h-5 accent-purple-600" />
+                <span className="text-gray-200">Receber dicas de marketing e novidades da Sonatta</span>
+              </label>
+
+              <button type="submit" className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white font-bold transition">Salvar Preferências</button>
+            </form>
+          )}
+        </div>
       </main>
     </div>
   );
