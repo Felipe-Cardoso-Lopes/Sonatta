@@ -1,283 +1,377 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import TeacherSidebar from '../components/TeacherSidebar';
 import DropZone from '../components/DropZone';
+import TeacherSidebar from '../components/TeacherSidebar';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
 function TeacherManagement() {
   const [activeTab, setActiveTab] = useState('courses'); 
-  const [myCourses, setMyCourses] = useState([]);
-  const [myStudents, setMyStudents] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [students, setStudents] = useState([]);
   
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [newCourseData, setNewCourseData] = useState({ title: '', instrument: '', description: '' });
+  // Modais e Estados F16-F18
+  const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
+  const [isModuleModalOpen, setIsModuleModalOpen] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [modules, setModules] = useState([]);
+  
+  const [newCourse, setNewCourse] = useState({ title: '', description: '', instrument: '', status: 'draft' });
+  const [newModule, setNewModule] = useState({ title: '' });
+  const [newClass, setNewClass] = useState({ title: '', video_url: '', module_id: null });
 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editCourseData, setEditCourseData] = useState({ id: null, title: '', instrument: '', description: '' });
-  const [courseExercises, setCourseExercises] = useState([]);
+  const getAuthHeaders = () => ({ headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } });
 
-  const token = localStorage.getItem('token');
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-  const headers = { Authorization: `Bearer ${token}` };
+  // Estados para Edição
+  const [editingModule, setEditingModule] = useState(null);
+  const [editingClass, setEditingClass] = useState(null);
+  
+  // Estado para saber qual aula está com a área de anexo (DropZone) aberta
+  const [activeAttachmentClassId, setActiveAttachmentClassId] = useState(null);
+  const [docName, setDocName] = useState('');
+
+// --- Funções de Edição e Exclusão (CORRIGIDAS) ---
+  const handleUpdateModule = async (e, moduleId) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${API_URL}/api/courses/${selectedCourse.id}/modules/${moduleId}`, { title: editingModule.title }, getAuthHeaders());
+      setEditingModule(null);
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao atualizar módulo'); }
+  };
+
+  const handleDeleteModule = async (moduleId) => {
+    if(window.confirm('Excluir este módulo? Todas as aulas dentro dele serão perdidas.')){
+      try {
+        await axios.delete(`${API_URL}/api/courses/${selectedCourse.id}/modules/${moduleId}`, getAuthHeaders());
+        openModuleManager(selectedCourse);
+      } catch (err) { alert('Erro ao excluir'); }
+    }
+  };
+
+  const handleUpdateClass = async (e, classId) => {
+    e.preventDefault();
+    try {
+      await axios.put(`${API_URL}/api/courses/${selectedCourse.id}/modules/classes/${classId}`, editingClass, getAuthHeaders());
+      setEditingClass(null);
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao atualizar aula'); }
+  };
+
+  const handleDeleteClass = async (classId) => {
+    if(window.confirm('Excluir esta aula?')){
+      try {
+        await axios.delete(`${API_URL}/api/courses/${selectedCourse.id}/modules/classes/${classId}`, getAuthHeaders());
+        openModuleManager(selectedCourse);
+      } catch (err) { alert('Erro ao excluir aula'); }
+    }
+  };
+
+  const handleDeleteDocument = async (docId) => {
+    try {
+      await axios.delete(`${API_URL}/api/courses/${selectedCourse.id}/modules/documents/${docId}`, getAuthHeaders());
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao excluir documento'); }
+  };
+
+  const handleAddDocument = async (url) => {
+    if(!docName.trim()) { alert('Dê um nome ao arquivo primeiro!'); return; }
+    try {
+      await axios.post(`${API_URL}/api/courses/${selectedCourse.id}/modules/classes/${activeAttachmentClassId}/documents`, { name: docName, url }, getAuthHeaders());
+      setActiveAttachmentClassId(null);
+      setDocName('');
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao anexar arquivo'); }
+  };
 
   useEffect(() => {
-    fetchTeacherData();
+    fetchCourses();
+    fetchStudents();
   }, []);
 
-  useEffect(() => {
-    if (isEditModalOpen && editCourseData.id) {
-      fetchExercises(editCourseData.id);
-    }
-  }, [isEditModalOpen, editCourseData.id]);
-
-  const fetchTeacherData = async () => {
+  const fetchCourses = async () => {
     try {
-      const [coursesRes, studentsRes] = await Promise.all([
-        axios.get(`${API_URL}/api/courses/teacher`, { headers }),
-        axios.get(`${API_URL}/api/courses/teacher/students`, { headers })
-      ]);
-      setMyCourses(coursesRes.data);
-      setMyStudents(studentsRes.data);
-    } catch (error) {
-      console.error("Erro ao buscar dados do professor", error);
-    }
+      const res = await axios.get(`${API_URL}/api/courses/teacher`, getAuthHeaders());
+      setCourses(res.data);
+    } catch (err) { console.error('Erro ao buscar cursos', err); }
   };
 
-  const fetchExercises = async (courseId) => {
+  const fetchStudents = async () => {
     try {
-      const res = await axios.get(`${API_URL}/api/exercises/course/${courseId}`, { headers });
-      setCourseExercises(res.data);
-    } catch (err) {
-      console.warn("Rota de exercícios ainda não existe no backend. Exibindo vazio.");
-      setCourseExercises([]);
-    }
+      const res = await axios.get(`${API_URL}/api/courses/teacher/students`, getAuthHeaders());
+      setStudents(res.data);
+    } catch (err) { console.error('Erro ao buscar alunos', err); }
   };
 
+  // --- F16: Criar Curso & Mudar Status ---
   const handleCreateCourse = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(`${API_URL}/api/courses/teacher`, newCourseData, { headers });
-      alert(response.data.message || "Curso criado!");
-      setIsCreateModalOpen(false);
-      setNewCourseData({ title: '', instrument: '', description: '' });
-      fetchTeacherData();
-    } catch (error) {
-      alert("Erro ao criar curso. Verifique sua conexão.");
-    }
+      await axios.post(`${API_URL}/api/courses/teacher`, newCourse, getAuthHeaders());
+      setIsCourseModalOpen(false);
+      setNewCourse({ title: '', description: '', instrument: '', status: 'draft' });
+      fetchCourses();
+    } catch (err) { alert('Erro ao criar curso'); }
   };
 
-  const openEditModal = (course) => {
-    setEditCourseData(course);
-    setIsEditModalOpen(true);
+  const toggleCourseStatus = async (course) => {
+    const updatedStatus = course.status === 'published' ? 'draft' : 'published';
+    try {
+      await axios.put(`${API_URL}/api/courses/${course.id}`, { ...course, status: updatedStatus }, getAuthHeaders());
+      fetchCourses();
+    } catch (err) { alert('Erro ao atualizar status'); }
   };
 
-  const handleEditCourse = async (e) => {
+  // --- F17/F18: Gerenciar Módulos e Aulas ---
+  const openModuleManager = async (course) => {
+    setSelectedCourse(course);
+    try {
+      const res = await axios.get(`${API_URL}/api/courses/${course.id}/modules`, getAuthHeaders());
+      setModules(res.data);
+      setIsModuleModalOpen(true);
+    } catch (err) { console.error(err); }
+  };
+
+  const handleCreateModule = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${API_URL}/api/courses/${editCourseData.id}`, editCourseData, { headers });
-      alert("Curso atualizado com sucesso!");
-      setIsEditModalOpen(false);
-      fetchTeacherData();
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao atualizar o curso.");
+      await axios.post(`${API_URL}/api/courses/${selectedCourse.id}/modules`, newModule, getAuthHeaders());
+      setNewModule({ title: '' });
+      openModuleManager(selectedCourse); // Recarrega os módulos
+    } catch (err) { alert('Erro ao criar módulo'); }
+  };
+
+  const handleCreateClass = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post(`${API_URL}/api/courses/${selectedCourse.id}/modules/${newClass.module_id}/classes`, newClass, getAuthHeaders());
+      setNewClass({ title: '', video_url: '', module_id: null });
+      openModuleManager(selectedCourse);
+    } catch (err) { alert('Erro ao criar aula'); }
+  };
+
+  // --- F19: Remover Aluno do Curso ---
+  const handleRemoveStudent = async (studentId, courseId) => {
+    if(window.confirm('Tem a certeza que deseja desmatricular este aluno?')) {
+      try {
+        await axios.post(`${API_URL}/api/courses/unenroll`, { student_id: studentId, course_id: courseId }, getAuthHeaders());
+        fetchStudents();
+      } catch (err) { alert('Erro ao remover aluno'); }
     }
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative">
-      <div className="shrink-0 z-20">
-        <TeacherSidebar />
-      </div>
-
-      <main className="flex-grow p-6 md:p-10 overflow-y-auto max-h-screen">
-        <div className="max-w-6xl mx-auto space-y-8">
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex">
+      <TeacherSidebar />
+      <div className="flex-grow flex flex-col h-screen overflow-hidden">
+        <main className="flex-grow p-8 overflow-y-auto">
           
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <header className="mb-8 flex justify-between items-end">
             <div>
               <h1 className="text-3xl font-bold mb-2">Gerenciamento</h1>
-              <p className="text-gray-400">Administre seus cursos e acompanhe as turmas.</p>
+              <p className="text-gray-400">Administre os seus cursos, módulos, aulas e acompanhe os seus alunos.</p>
             </div>
-            <button 
-              onClick={() => setIsCreateModalOpen(true)}
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-semibold shadow-lg transition"
-            >
-              + Criar Novo Curso
-            </button>
-          </div>
+            {activeTab === 'courses' && (
+              <button onClick={() => setIsCourseModalOpen(true)} className="bg-purple-600 hover:bg-purple-500 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-lg">
+                + Novo Curso
+              </button>
+            )}
+          </header>
 
-          <div className="flex gap-4 border-b border-gray-700 pb-2">
-            <button 
-              onClick={() => setActiveTab('courses')}
-              className={`pb-2 font-semibold transition ${activeTab === 'courses' ? 'text-purple-400 border-b-2 border-purple-500' : 'text-gray-500 hover:text-gray-300'}`}
-            >
+          {/* Abas */}
+          <div className="flex border-b border-gray-700 mb-8">
+            <button className={`px-6 py-3 font-semibold text-lg transition-colors relative ${activeTab === 'courses' ? 'text-purple-400' : 'text-gray-400 hover:text-gray-200'}`} onClick={() => setActiveTab('courses')}>
               Meus Cursos
+              {activeTab === 'courses' && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500 shadow-[0_0_8px_#a855f7]"></span>}
             </button>
-            <button 
-              onClick={() => setActiveTab('students')}
-              className={`pb-2 font-semibold transition ${activeTab === 'students' ? 'text-purple-400 border-b-2 border-purple-500' : 'text-gray-500 hover:text-gray-300'}`}
-            >
-              Meus Alunos
+            <button className={`px-6 py-3 font-semibold text-lg transition-colors relative ${activeTab === 'students' ? 'text-purple-400' : 'text-gray-400 hover:text-gray-200'}`} onClick={() => setActiveTab('students')}>
+              Meus Alunos (CRM)
+              {activeTab === 'students' && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-500 shadow-[0_0_8px_#a855f7]"></span>}
             </button>
           </div>
 
-          {activeTab === 'courses' && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {myCourses.map(course => (
-                <div key={course.id} className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg group hover:border-purple-500 transition">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="bg-gray-900 text-gray-400 text-xs px-2 py-1 rounded">{course.instrument}</span>
-                    <span className="text-xs px-2 py-1 rounded font-bold bg-green-500/20 text-green-400">Ativo</span>
+          <div className="bg-[#1a1a1a] rounded-lg border border-key-divider p-6 shadow-lg min-h-[400px]">
+            {activeTab === 'courses' && (
+              <div>
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><span>📚</span> Cursos Cadastrados</h2>
+                {courses.length === 0 ? <p className="text-gray-500 text-center py-10">Você não possui cursos.</p> : (
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-gray-700 text-gray-400 text-sm">
+                        <th className="pb-3 font-medium">Nome do Curso</th>
+                        <th className="pb-3 font-medium text-center">Status</th>
+                        <th className="pb-3 font-medium text-center">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {courses.map(course => (
+                        <tr key={course.id} className="border-b border-gray-800 hover:bg-[#252525] transition-colors">
+                          <td className="py-4 font-semibold text-white">{course.title}</td>
+                          <td className="py-4 text-center">
+                            <button onClick={() => toggleCourseStatus(course)} className={`px-3 py-1 text-xs rounded-full border cursor-pointer transition ${course.status === 'published' ? 'bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/30' : 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20 hover:bg-yellow-500/30'}`}>
+                              {course.status === 'published' ? 'Publicado' : 'Rascunho'}
+                            </button>
+                          </td>
+                          <td className="py-4 text-center">
+                            <button onClick={() => openModuleManager(course)} className="text-purple-400 hover:text-purple-300 font-medium text-sm">Gerir Módulos & Aulas</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'students' && (
+              <div>
+                <h2 className="text-xl font-bold mb-6 flex items-center gap-2"><span>👨‍🎓</span> Acompanhamento</h2>
+                {students.length === 0 ? <p className="text-gray-500 text-center py-10">Nenhum aluno matriculado.</p> : (
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="border-b border-gray-700 text-gray-400 text-sm">
+                        <th className="pb-3 font-medium">Aluno</th>
+                        <th className="pb-3 font-medium">Curso</th>
+                        <th className="pb-3 font-medium text-center">Ação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {students.map(st => (
+                        <tr key={`${st.id}-${st.course_id}`} className="border-b border-gray-800 hover:bg-[#252525] transition-colors">
+                          <td className="py-4 font-semibold text-white">{st.name}</td>
+                          <td className="py-4 text-gray-300 text-sm">{st.course_title}</td>
+                          <td className="py-4 text-center">
+                            <button onClick={() => handleRemoveStudent(st.id, st.course_id)} className="text-red-500 hover:text-red-400 text-sm font-medium">Remover Aluno</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+          </div>
+        </main>
+      </div>
+
+      {/* MODAL CURSO */}
+      {isCourseModalOpen && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-gray-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+            <h3 className="text-xl font-bold text-white mb-4">Novo Curso</h3>
+            <form onSubmit={handleCreateCourse} className="space-y-4">
+              <input type="text" placeholder="Título" value={newCourse.title} onChange={e => setNewCourse({...newCourse, title: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />
+              <input type="text" placeholder="Instrumento (ex: Violão)" value={newCourse.instrument} onChange={e => setNewCourse({...newCourse, instrument: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />
+              <div className="flex justify-end gap-3 mt-4">
+                <button type="button" onClick={() => setIsCourseModalOpen(false)} className="text-gray-400 hover:text-white">Cancelar</button>
+                <button type="submit" className="bg-purple-600 px-4 py-2 rounded text-white font-bold">Criar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL MÓDULOS E AULAS (F17 e F18 com Edição e Drag & Drop) */}
+      {isModuleModalOpen && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          <div className="bg-[#1a1a1a] border border-gray-700 rounded-2xl w-full max-w-4xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div className="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+              <h3 className="text-2xl font-bold text-white">Gerir: {selectedCourse?.title}</h3>
+              <button onClick={() => setIsModuleModalOpen(false)} className="text-gray-400 hover:text-white text-xl">✖</button>
+            </div>
+
+            {/* Criar Módulo */}
+            <form onSubmit={handleCreateModule} className="flex gap-2 mb-8">
+              <input type="text" placeholder="Nome do Novo Módulo" value={newModule.title} onChange={e => setNewModule({title: e.target.value})} className="flex-grow bg-[#252525] border border-gray-600 rounded p-2 text-white" required />
+              <button type="submit" className="bg-purple-600 px-4 py-2 rounded text-white font-bold">+ Módulo</button>
+            </form>
+
+            <div className="space-y-6">
+              {modules.map(mod => (
+                <div key={mod.id} className="bg-gray-800 border border-gray-700 rounded-lg p-4">
+                  {editingModule?.id === mod.id ? (
+                    <form onSubmit={(e) => handleUpdateModule(e, mod.id)} className="flex gap-2 mb-3">
+                      <input type="text" value={editingModule.title} onChange={e => setEditingModule({...editingModule, title: e.target.value})} className="flex-grow bg-gray-900 border border-gray-600 rounded p-2 text-white text-sm" required />
+                      <button type="submit" className="bg-green-600 px-3 py-1 rounded text-white font-bold text-sm">Salvar</button>
+                      <button type="button" onClick={() => setEditingModule(null)} className="bg-gray-600 px-3 py-1 rounded text-white font-bold text-sm">X</button>
+                    </form>
+                  ) : (
+                    <div className="flex justify-between items-center mb-3">
+                      <h4 className="text-lg font-bold text-purple-300">{mod.title}</h4>
+                      <div className="flex gap-2">
+                        <button onClick={() => setEditingModule(mod)} className="text-blue-400 hover:text-blue-300 text-sm font-semibold">✏️ Editar</button>
+                        <button onClick={() => handleDeleteModule(mod.id)} className="text-red-400 hover:text-red-300 text-sm font-semibold">🗑️ Excluir</button>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Aulas do Módulo */}
+                  <div className="space-y-3 mb-4">
+                    {mod.classes?.map(cls => (
+                      <div key={cls.id} className="bg-gray-900 p-3 rounded-lg border border-gray-700 flex flex-col gap-2">
+                        {editingClass?.id === cls.id ? (
+                          <form onSubmit={(e) => handleUpdateClass(e, cls.id)} className="flex flex-col gap-2">
+                            <input type="text" value={editingClass.title} onChange={e => setEditingClass({...editingClass, title: e.target.value})} className="bg-gray-800 border border-gray-600 rounded p-2 text-white text-sm" required />
+                            <input type="text" value={editingClass.video_url} onChange={e => setEditingClass({...editingClass, video_url: e.target.value})} className="bg-gray-800 border border-gray-600 rounded p-2 text-white text-sm" required />
+                            <div className="flex gap-2">
+                              <button type="submit" className="bg-green-600 px-3 py-1 rounded text-white font-bold text-sm">Salvar</button>
+                              <button type="button" onClick={() => setEditingClass(null)} className="bg-gray-600 px-3 py-1 rounded text-white font-bold text-sm">Cancelar</button>
+                            </div>
+                          </form>
+                        ) : (
+                          <>
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-semibold text-gray-200">▶ {cls.title}</span>
+                              <div className="flex gap-3">
+                                <button onClick={() => setActiveAttachmentClassId(cls.id === activeAttachmentClassId ? null : cls.id)} className="text-green-400 hover:text-green-300 text-xs font-semibold">📎 Anexar Arquivo</button>
+                                <button onClick={() => setEditingClass(cls)} className="text-blue-400 hover:text-blue-300 text-xs font-semibold">✏️ Editar</button>
+                                <button onClick={() => handleDeleteClass(cls.id)} className="text-red-400 hover:text-red-300 text-xs font-semibold">🗑️</button>
+                              </div>
+                            </div>
+
+                            {/* Lista de Documentos da Aula */}
+                            {cls.documents && cls.documents.length > 0 && (
+                              <div className="pl-4 mt-1 border-l border-gray-700 flex flex-col gap-1">
+                                {cls.documents.map(doc => (
+                                  <div key={doc.id} className="flex justify-between items-center">
+                                    <a href={doc.url} target="_blank" rel="noreferrer" className="text-xs text-blue-300 hover:underline">📄 {doc.name}</a>
+                                    <button onClick={() => handleDeleteDocument(doc.id)} className="text-red-500 hover:text-red-400 text-xs">✖</button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Área de Drag & Drop para Anexos */}
+                            {activeAttachmentClassId === cls.id && (
+                              <div className="mt-3 p-4 bg-gray-800 border border-dashed border-purple-500/50 rounded-lg animate-fadeIn">
+                                <p className="text-xs text-gray-400 mb-2">Envie PDFs, Documentos, Imagens ou Outros Vídeos</p>
+                                <input type="text" placeholder="Nome do arquivo (ex: Material em PDF)" value={docName} onChange={e => setDocName(e.target.value)} className="w-full mb-3 bg-gray-900 border border-gray-600 rounded p-2 text-white text-sm" />
+                                <DropZone 
+                                  accept="*/*" 
+                                  label="Arraste ou Clique para fazer Upload" 
+                                  onUploadSuccess={(url) => handleAddDocument(url)} 
+                                />
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                  <h3 className="text-xl font-bold mb-2 text-white">{course.title}</h3>
-                  <div className="text-sm text-gray-400 flex justify-between mb-4">
-                    <span>{course.students_count || 0} Alunos</span>
-                  </div>
-                  <button 
-                    onClick={() => openEditModal(course)}
-                    className="w-full bg-gray-700 group-hover:bg-purple-600 py-2 rounded text-sm font-semibold transition"
-                  >
-                    Editar Curso e Trilhas
-                  </button>
+
+                  {/* Add Nova Aula */}
+                  <form onSubmit={handleCreateClass} className="flex gap-2 mt-2 pt-3 border-t border-gray-700">
+                    <input type="text" placeholder="Título da Aula" value={newClass.module_id === mod.id ? newClass.title : ''} onChange={e => setNewClass({...newClass, title: e.target.value, module_id: mod.id})} className="flex-grow bg-[#252525] text-sm border border-gray-600 rounded p-2 text-white" required />
+                    <input type="text" placeholder="Link do Vídeo (YouTube)" value={newClass.module_id === mod.id ? newClass.video_url : ''} onChange={e => setNewClass({...newClass, video_url: e.target.value})} className="flex-grow bg-[#252525] text-sm border border-gray-600 rounded p-2 text-white" required />
+                    <button type="submit" disabled={newClass.module_id !== mod.id} className="bg-blue-600 disabled:bg-gray-600 px-4 py-2 rounded text-white text-sm font-bold">+ Nova Aula</button>
+                  </form>
                 </div>
               ))}
-              {myCourses.length === 0 && (
-                <p className="text-gray-500 col-span-full">Nenhum curso criado. Clique em "Criar Novo Curso".</p>
-              )}
             </div>
-          )}
-
-          {activeTab === 'students' && (
-            <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-hidden shadow-lg">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-gray-900 text-gray-400 text-sm">
-                    <th className="p-4 font-medium">Nome do Aluno</th>
-                    <th className="p-4 font-medium">Curso Matriculado</th>
-                    <th className="p-4 font-medium">Progresso</th>
-                  </tr>
-                </thead>
-                <tbody className="text-sm">
-                  {myStudents.map(student => (
-                    <tr key={student.id} className="border-t border-gray-700 hover:bg-gray-750">
-                      <td className="p-4 font-bold text-white flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
-                          {student.name.charAt(0)}
-                        </div>
-                        {student.name}
-                      </td>
-                      <td className="p-4 text-gray-300">{student.course_title}</td>
-                      <td className="p-4">
-                        <div className="w-full bg-gray-700 h-2 rounded">
-                          <div className="bg-purple-500 h-2 rounded" style={{width: `${student.progress || 0}%`}}></div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Modal Criar Curso */}
-      {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
-          <div className="bg-gray-800 w-full max-w-md p-6 rounded-xl border border-gray-600 shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white">Criar Novo Curso</h2>
-              <button onClick={() => setIsCreateModalOpen(false)} className="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
-            </div>
-            <form onSubmit={handleCreateCourse} className="space-y-4">
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Título do Curso</label>
-                <input type="text" required value={newCourseData.title} onChange={(e) => setNewCourseData({...newCourseData, title: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500" />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Instrumento Principal</label>
-                <input type="text" required value={newCourseData.instrument} onChange={(e) => setNewCourseData({...newCourseData, instrument: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500" />
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Descrição</label>
-                <textarea rows="3" required value={newCourseData.description} onChange={(e) => setNewCourseData({...newCourseData, description: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"></textarea>
-              </div>
-              <div className="flex gap-3 pt-4">
-                <button type="button" onClick={() => setIsCreateModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold">Cancelar</button>
-                <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold text-white">Criar Curso</button>
-              </div>
-            </form>
           </div>
         </div>
       )}
 
-      {/* Modal Editar Curso e Aulas */}
-      {isEditModalOpen && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 px-4">
-          <div className="bg-gray-800 w-full max-w-2xl p-6 rounded-xl border border-gray-600 shadow-2xl flex flex-col max-h-[90vh]">
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white">Editar Curso e Trilhas</h2>
-              <button onClick={() => setIsEditModalOpen(false)} className="text-gray-400 hover:text-white text-xl font-bold">&times;</button>
-            </div>
-            <form onSubmit={handleEditCourse} className="space-y-4 overflow-y-auto pr-2">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">Título do Curso</label>
-                  <input type="text" required value={editCourseData.title} onChange={(e) => setEditCourseData({...editCourseData, title: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500" />
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-1">Instrumento</label>
-                  <input type="text" required value={editCourseData.instrument} onChange={(e) => setEditCourseData({...editCourseData, instrument: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500" />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm text-gray-400 mb-1">Descrição</label>
-                <textarea rows="2" required value={editCourseData.description} onChange={(e) => setEditCourseData({...editCourseData, description: e.target.value})} className="w-full bg-gray-900 border border-gray-700 p-3 rounded-lg text-white outline-none focus:border-purple-500"></textarea>
-              </div>
-
-              {/* Lista de Exercícios */}
-              <div className="mt-6 pt-6 border-t border-gray-700">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-bold text-purple-400">Aulas / Exercícios na Trilha</h3>
-                  <button type="button" className="text-sm bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded">+ Adicionar Exercício</button>
-                </div>
-                <div className="bg-gray-900 p-4 rounded border border-gray-700 flex flex-col gap-2">
-                  {courseExercises.length > 0 ? (
-                    courseExercises.map((exercise, idx) => (
-                      <div key={exercise.id} className="flex items-center justify-between bg-gray-800 p-2 rounded">
-                        <span className="text-sm">{idx + 1}. {exercise.title} <span className="text-xs text-gray-500 ml-2">({exercise.type})</span></span>
-                        <div className="flex gap-2">
-                          <button type="button" className="text-purple-400 text-xs hover:underline">Editar</button>
-                          <button type="button" className="text-red-400 text-xs hover:underline">Excluir</button>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-xs text-gray-500 text-center">Nenhum exercício cadastrado. Eles aparecerão na trilha do aluno.</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Upload de Partituras */}
-              <div className="mt-6 pt-6 border-t border-gray-700">
-                <h3 className="font-bold text-purple-400 mb-4">📄 Enviar Partitura</h3>
-                <DropZone
-                  accept=".pdf,.xml,.mxl,.musicxml"
-                  label="PDF ou MusicXML até 10MB"
-                  onUploadSuccess={(url) => {
-                    console.log('Partitura enviada:', url);
-                    alert(`Partitura enviada com sucesso!\nURL: ${url}`);
-                  }}
-                />
-              </div>
-
-              <div className="flex gap-3 pt-4 border-t border-gray-700 mt-4">
-                <button type="button" onClick={() => setIsEditModalOpen(false)} className="flex-1 bg-gray-700 hover:bg-gray-600 py-3 rounded-lg font-bold">Cancelar</button>
-                <button type="submit" className="flex-1 bg-purple-600 hover:bg-purple-700 py-3 rounded-lg font-bold text-white">Salvar Alterações</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

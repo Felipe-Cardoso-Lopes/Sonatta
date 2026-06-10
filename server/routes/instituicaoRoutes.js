@@ -1,9 +1,35 @@
 const express = require('express');
 const router = express.Router();
-const { approveUser } = require('../controllers/instituicaoController');
-const { verifyToken } = require('../middlewares/authMiddleware'); // Seu middleware de JWT
 
-// Rota protegida: Apenas usuários logados (instituições) podem acessar
-router.put('/approve-user', verifyToken, approveUser);
+// Importação do middleware de segurança (JWT)
+const { verifyToken } = require('../middlewares/authMiddleware');
+
+// Importação centralizada de todas as funções do controller da instituição
+const { 
+  approveUser,
+  getTeachers, 
+  createTeacher,
+  updateProfile,    
+  updateSecurity,
+  updatePreferences
+} = require('../controllers/instituicaoController');
+
+// Aplica o middleware globalmente para TODAS as rotas abaixo desta linha.
+// Isso garante que apenas usuários logados acessem as funcionalidades.
+router.use(verifyToken);
+
+// --- Rotas de Gestão de Alunos/Usuários ---
+router.put('/approve-user', approveUser);
+
+// --- Rotas de Gestão de Professores (Task 14.1) ---
+router.get('/teachers', getTeachers);
+router.post('/teachers', createTeacher);
+
+// --- Rotas de Perfil (Task 20.2) ---
+router.put('/profile', updateProfile);
+
+// --- Rotas de Configurações de Conta institucional ---
+router.put('/security', verifyToken, updateSecurity);
+router.put('/preferences', verifyToken, updatePreferences);
 
 module.exports = router;

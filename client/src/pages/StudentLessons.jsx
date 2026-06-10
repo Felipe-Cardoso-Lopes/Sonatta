@@ -3,15 +3,7 @@ import axios from "axios";
 import { io } from "socket.io-client";
 import StudentSidebar from "../components/StudentSidebar";
 
-const CourseCard = ({
-  title,
-  professor,
-  teacher_name,
-  instrument,
-  is_enrolled,
-  onClick,
-  isSelected,
-}) => {
+const CourseCard = ({ title, professor, teacher_name, instrument, is_enrolled, onClick, isSelected }) => {
   const nomeDoProf = professor || teacher_name || "Professor";
 
   return (
@@ -31,13 +23,9 @@ const CourseCard = ({
           </div>
         </div>
         {is_enrolled ? (
-          <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded font-bold">
-            Matriculado
-          </span>
+          <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded font-bold">Matriculado</span>
         ) : (
-          <span className="text-xs bg-gray-800 px-2 py-1 rounded">
-            Disponível
-          </span>
+          <span className="text-xs bg-gray-800 px-2 py-1 rounded">Disponível</span>
         )}
       </div>
     </div>
@@ -50,6 +38,11 @@ function StudentLessons() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("enrolled");
 
+  // Estados dos Módulos/Aulas Gravadas
+  const [modules, setModules] = useState([]);
+  const [activeClass, setActiveClass] = useState(null);
+
+  // Estados do Chat
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -59,6 +52,7 @@ function StudentLessons() {
   const [isTeacherTyping, setIsTeacherTyping] = useState(false);
   const [hasNewNotification, setHasNewNotification] = useState(false);
 
+  // Estados de Avaliação
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
@@ -75,16 +69,105 @@ function StudentLessons() {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
-  useEffect(() => {
-    if (selectedCourse) {
-      activeTeacherIdRef.current = selectedCourse.teacher_id;
-    }
-  }, [selectedCourse]);
-
+  // ==========================
+  // BUSCA INICIAL DE CURSOS
+  // ==========================
   useEffect(() => {
     fetchCourses();
   }, []);
 
+  const fetchCourses = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/courses/student`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCourses(response.data);
+      if (response.data.length > 0) {
+        const enrolledCourses = response.data.filter(c => c.is_enrolled);
+        setSelectedCourse(enrolledCourses.length > 0 ? enrolledCourses[0] : response.data[0]);
+      }
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Erro ao buscar cursos", error);
+      setIsLoading(false);
+    }
+  };
+
+  // ==========================
+  // QUANDO UM CURSO É SELECIONADO...
+  // ==========================
+  useEffect(() => {
+    if (selectedCourse) {
+      activeTeacherIdRef.current = selectedCourse.teacher_id;
+      
+      // Busca módulos sempre, para mostrar como vitrine mesmo se não estiver matriculado!
+      fetchModulesAndClasses(selectedCourse.id, selectedCourse.is_enrolled);
+      
+      if (selectedCourse.is_enrolled) {
+        fetchCompletedLessons(selectedCourse.teacher_id);
+      }
+    }
+  }, [selectedCourse]);
+
+  const fetchModulesAndClasses = async (courseId, isEnrolled) => {
+    if (!courseId) return;
+    try {
+      const res = await axios.get(`${API_URL}/api/courses/${courseId}/modules`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setModules(res.data);
+      // Seleciona a primeira aula apenas se o aluno estiver matriculado
+      if (isEnrolled && res.data.length > 0 && res.data[0].classes.length > 0) {
+        setActiveClass(res.data[0].classes[0]);
+      } else {
+        setActiveClass(null);
+      }
+    } catch (err) {
+      console.error('Erro ao buscar módulos', err);
+    }
+  };
+
+  // ==========================
+  // MATRÍCULA E DESMATRÍCULA
+  // ==========================
+  const handleEnroll = async () => {
+    try {
+      await axios.post(
+        `${API_URL}/api/courses/student/enroll`,
+        { course_id: selectedCourse.id },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
+      alert("Matrícula realizada com sucesso!");
+      fetchCourses(); 
+    } catch (error) {
+      if (error.response?.status === 400 && error.response.data.message.includes('já está matriculado')) {
+         alert("Você já está matriculado neste curso.");
+      } else {
+         alert("Erro ao se matricular.");
+      }
+    }
+  };
+
+  const handleUnenroll = async () => {
+    if(window.confirm('Tem certeza que deseja cancelar sua matrícula neste curso? Todo o progresso será perdido.')) {
+      try {
+        await axios.post(
+          `${API_URL}/api/courses/unenroll`,
+          { course_id: selectedCourse.id },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert("Matrícula cancelada.");
+        setActiveClass(null);
+        fetchCourses();
+      } catch (error) {
+        alert("Erro ao desmatricular.");
+      }
+    }
+  };
+
+  // ==========================
+  // SOCKET E CHAT
+  // ==========================
   useEffect(() => {
     if (!userId || userId === "null" || userId === "undefined") return;
 
@@ -92,9 +175,7 @@ function StudentLessons() {
     setSocket(newSocket);
 
     newSocket.on("connect", () => {
-      console.log(`🔌 [Socket] Conectado! Avisando o servidor que meu ID é: ${userId}`);
       newSocket.emit("user_connected", userId);
-
       if (activeTeacherIdRef.current) {
         newSocket.emit("check_online", activeTeacherIdRef.current);
       }
@@ -109,25 +190,19 @@ function StudentLessons() {
     });
 
     newSocket.on("user_typing", ({ senderId }) => {
-      if (String(activeTeacherIdRef.current) === String(senderId))
-        setIsTeacherTyping(true);
+      if (String(activeTeacherIdRef.current) === String(senderId)) setIsTeacherTyping(true);
     });
 
     newSocket.on("user_stop_typing", ({ senderId }) => {
-      if (String(activeTeacherIdRef.current) === String(senderId))
-        setIsTeacherTyping(false);
+      if (String(activeTeacherIdRef.current) === String(senderId)) setIsTeacherTyping(false);
     });
 
     newSocket.on("online_status", ({ userId: checkedId, isOnline }) => {
-      if (String(activeTeacherIdRef.current) === String(checkedId)) {
-        setIsTeacherOnline(isOnline);
-      }
+      if (String(activeTeacherIdRef.current) === String(checkedId)) setIsTeacherOnline(isOnline);
     });
 
     newSocket.on("user_status_changed", ({ userId: changedId, status }) => {
-      if (String(activeTeacherIdRef.current) === String(changedId)) {
-        setIsTeacherOnline(status === "online");
-      }
+      if (String(activeTeacherIdRef.current) === String(changedId)) setIsTeacherOnline(status === "online");
     });
 
     return () => newSocket.disconnect();
@@ -158,34 +233,6 @@ function StudentLessons() {
     }
   }, [selectedCourse, isChatOpen, socket]);
 
-  const fetchCourses = async () => {
-    try {
-      const response = await axios.get(`${API_URL}/api/courses/student`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCourses(response.data);
-      if (response.data.length > 0) setSelectedCourse(response.data[0]);
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Erro ao buscar cursos", error);
-      setIsLoading(false);
-    }
-  };
-
-  const handleEnroll = async () => {
-    try {
-      await axios.post(
-        `${API_URL}/api/courses/student/enroll`,
-        { course_id: selectedCourse.id },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
-      alert("Matrícula realizada com sucesso!");
-      fetchCourses();
-    } catch (error) {
-      alert("Erro ao se matricular.");
-    }
-  };
-
   const openChat = () => {
     setIsChatOpen(true);
     setHasNewNotification(false);
@@ -194,16 +241,10 @@ function StudentLessons() {
   const handleTyping = (e) => {
     setNewMessage(e.target.value);
     if (socket && selectedCourse) {
-      socket.emit("typing", {
-        senderId: userId,
-        receiverId: selectedCourse.teacher_id,
-      });
+      socket.emit("typing", { senderId: userId, receiverId: selectedCourse.teacher_id });
       clearTimeout(typingTimeoutRef.current);
       typingTimeoutRef.current = setTimeout(() => {
-        socket.emit("stop_typing", {
-          senderId: userId,
-          receiverId: selectedCourse.teacher_id,
-        });
+        socket.emit("stop_typing", { senderId: userId, receiverId: selectedCourse.teacher_id });
       }, 2000);
     }
   };
@@ -213,10 +254,7 @@ function StudentLessons() {
     if (!newMessage.trim() || !selectedCourse) return;
 
     try {
-      socket?.emit("stop_typing", {
-        senderId: userId,
-        receiverId: selectedCourse.teacher_id,
-      });
+      socket?.emit("stop_typing", { senderId: userId, receiverId: selectedCourse.teacher_id });
       const res = await axios.post(
         `${API_URL}/api/messages`,
         { receiver_id: selectedCourse.teacher_id, message: newMessage },
@@ -229,50 +267,28 @@ function StudentLessons() {
     }
   };
 
+  // ==========================
+  // AVALIAÇÕES E REVIEWS
+  // ==========================
   const fetchCompletedLessons = async (teacherId) => {
     try {
-      const res = await axios.get(`${API_URL}/api/lessons/completed/${teacherId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await axios.get(`${API_URL}/api/lessons/completed/${teacherId}`, { headers: { Authorization: `Bearer ${token}` } });
       setCompletedLessons(res.data);
-    } catch (err) {
-      console.error('Erro ao buscar aulas concluídas:', err);
-    }
+    } catch (err) { console.error('Erro:', err); }
   };
 
   const handleSubmitReview = async () => {
-    if (reviewRating === 0) {
-      alert('Por favor, selecione uma nota.');
-      return;
-    }
-
+    if (reviewRating === 0) return alert('Selecione uma nota.');
     setIsSubmittingReview(true);
     try {
-      await axios.post(
-        `${API_URL}/api/reviews`,
-        {
-          lesson_id: selectedLesson.id,
-          rating: reviewRating,
-          comment: reviewComment || null
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      await axios.post(`${API_URL}/api/reviews`, { lesson_id: selectedLesson.id, rating: reviewRating, comment: reviewComment || null }, { headers: { Authorization: `Bearer ${token}` } });
       alert('Avaliação enviada com sucesso! ⭐');
       setIsReviewModalOpen(false);
       setReviewRating(0);
       setReviewComment('');
       setSelectedLesson(null);
       fetchCompletedLessons(selectedCourse.teacher_id);
-    } catch (err) {
-      if (err.response?.status === 409) {
-        alert('Você já avaliou esta aula.');
-      } else {
-        alert('Erro ao enviar avaliação.');
-      }
-    } finally {
-      setIsSubmittingReview(false);
-    }
+    } catch (err) { alert('Erro ao enviar avaliação.'); } finally { setIsSubmittingReview(false); }
   };
 
   const openReviewModal = (lesson) => {
@@ -283,18 +299,10 @@ function StudentLessons() {
   };
 
   useEffect(() => {
-    if (chatScrollRef.current)
-      chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
+    if (chatScrollRef.current) chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
   }, [messages, isChatOpen, isTeacherTyping]);
 
-  useEffect(() => {
-    if (selectedCourse?.teacher_id && selectedCourse?.is_enrolled) {
-      fetchCompletedLessons(selectedCourse.teacher_id);
-    }
-  }, [selectedCourse]);
-
-  const nomeProfSelected =
-    selectedCourse?.teacher_name || selectedCourse?.professor || "Professor";
+  const nomeProfSelected = selectedCourse?.teacher_name || selectedCourse?.professor || "Professor";
 
   return (
     <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative">
@@ -302,9 +310,11 @@ function StudentLessons() {
         <StudentSidebar />
       </div>
 
-      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8 overflow-hidden">
-        <aside className="w-full lg:w-1/3 bg-gray-800 rounded-lg p-4 flex flex-col gap-4 overflow-y-auto max-h-[calc(100vh-4rem)] shadow-lg">
-          <div className="flex gap-2 mb-2 p-1 bg-gray-900 rounded-lg">
+      <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8 overflow-hidden h-screen">
+        
+        {/* BARRA LATERAL ESQUERDA - LISTA DE CURSOS */}
+        <aside className="w-full lg:w-1/4 bg-gray-800 rounded-lg p-4 flex flex-col gap-4 overflow-y-auto max-h-full shadow-lg">
+          <div className="flex gap-2 mb-2 p-1 bg-gray-900 rounded-lg shrink-0">
             <button
               onClick={() => setActiveTab("enrolled")}
               className={`flex-1 py-2 rounded-md font-bold text-sm transition-all duration-300 ${activeTab === "enrolled" ? "bg-sidebar-bg text-white shadow-md" : "text-gray-400 hover:text-gray-200 hover:bg-gray-700"}`}
@@ -319,105 +329,111 @@ function StudentLessons() {
             </button>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 overflow-y-auto custom-scrollbar">
             {isLoading ? (
               <p className="text-gray-400 text-center py-4">Carregando...</p>
             ) : activeTab === "enrolled" ? (
               courses.filter((c) => c.is_enrolled).length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-400 text-sm mb-4">
-                    Você ainda não possui matrículas.
-                  </p>
-                  <button
-                    onClick={() => setActiveTab("discover")}
-                    className="text-purple-400 text-sm hover:underline font-bold"
-                  >
-                    Procurar cursos ›
-                  </button>
+                  <p className="text-gray-400 text-sm mb-4">Você ainda não possui matrículas.</p>
+                  <button onClick={() => setActiveTab("discover")} className="text-purple-400 text-sm hover:underline font-bold">Procurar cursos ›</button>
                 </div>
               ) : (
-                courses
-                  .filter((c) => c.is_enrolled)
-                  .map((course) => (
-                    <CourseCard
-                      key={course.id}
-                      {...course}
-                      isSelected={selectedCourse?.id === course.id}
-                      onClick={() => setSelectedCourse(course)}
-                    />
-                  ))
+                courses.filter((c) => c.is_enrolled).map((course) => (
+                  <CourseCard key={course.id} {...course} isSelected={selectedCourse?.id === course.id} onClick={() => setSelectedCourse(course)} />
+                ))
               )
             ) : courses.filter((c) => !c.is_enrolled).length === 0 ? (
-              <p className="text-gray-400 text-center py-8 text-sm">
-                Nenhum curso novo disponível no momento.
-              </p>
+              <p className="text-gray-400 text-center py-8 text-sm">Nenhum curso novo disponível no momento.</p>
             ) : (
-              courses
-                .filter((c) => !c.is_enrolled)
-                .map((course) => (
-                  <CourseCard
-                    key={course.id}
-                    {...course}
-                    isSelected={selectedCourse?.id === course.id}
-                    onClick={() => setSelectedCourse(course)}
-                  />
-                ))
+              courses.filter((c) => !c.is_enrolled).map((course) => (
+                <CourseCard key={course.id} {...course} isSelected={selectedCourse?.id === course.id} onClick={() => setSelectedCourse(course)} />
+              ))
             )}
           </div>
         </aside>
 
-        <section className="flex-grow flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-4rem)] pr-2">
+        {/* ÁREA CENTRAL - MÓDULOS E PLAYER DE VÍDEO */}
+        <section className="flex-grow flex flex-col lg:flex-row gap-6 overflow-y-auto pr-2 h-full">
           {selectedCourse ? (
             <>
-              <div className="relative w-full h-64 md:h-96 bg-gray-900 rounded-lg flex items-center justify-center border border-gray-700 shadow-lg group">
-                <div className="w-20 h-20 bg-purple-600/80 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform cursor-pointer">
-                  <span className="text-white text-3xl ml-1">▶</span>
-                </div>
-              </div>
-
-              <div className="flex-grow bg-gray-800 rounded-lg p-6 shadow-lg border border-gray-700">
-                <div className="flex justify-between items-start mb-2">
-                  <h2 className="text-2xl font-bold">{selectedCourse.title}</h2>
+              {/* ESQUERDA DO CENTRO: INFO / PLAYER */}
+              <div className="flex-grow flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pr-2">
+                <div className="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 shrink-0">
+                    <div>
+                      <h2 className="text-xl font-bold">{selectedCourse.title}</h2>
+                      <p className="text-sm text-gray-400">Prof. {nomeProfSelected}</p>
+                    </div>
+                    {selectedCourse.is_enrolled ? (
+                      <div className="flex gap-2">
+                        <button onClick={openChat} className="relative bg-blue-600 hover:bg-blue-700 py-2 px-4 rounded-lg font-bold transition-colors shadow-md text-white flex items-center gap-2 text-sm">
+                          💬 Falar com Prof.
+                          {hasNewNotification && !isChatOpen && (
+                            <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                              <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500 border-2 border-gray-800"></span>
+                            </span>
+                          )}
+                        </button>
+                        <button onClick={handleUnenroll} className="bg-red-600 hover:bg-red-700 py-2 px-4 rounded-lg font-bold transition-colors shadow-md text-white text-sm">
+                          Desmatricular
+                        </button>
+                      </div>
+                    ) : (
+                      <button onClick={handleEnroll} className="bg-green-600 hover:bg-green-700 py-2 px-6 rounded-lg font-bold transition-colors shadow-md text-white text-sm shadow-[0_0_10px_rgba(22,163,74,0.4)] animate-pulse">
+                        Inscrever-se Grátis
+                      </button>
+                    )}
                 </div>
 
                 {selectedCourse.is_enrolled ? (
-                  <div className="flex gap-4 mb-6 mt-6">
-                    <button className="flex-grow bg-sidebar-bg py-3 rounded-lg font-bold hover:bg-opacity-80 transition-colors shadow-md text-white">
-                      Continuar Aprendendo
-                    </button>
-                    <button
-                      onClick={openChat}
-                      className="relative bg-blue-600 hover:bg-blue-700 py-3 px-6 rounded-lg font-bold transition-colors shadow-md text-white flex items-center gap-2"
-                    >
-                      💬 Falar com Prof.
-                      {hasNewNotification && !isChatOpen && (
-                        <span className="absolute -top-2 -right-2 flex h-4 w-4">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-4 w-4 bg-red-500 border-2 border-gray-800"></span>
-                        </span>
-                      )}
-                    </button>
-                  </div>
+                  activeClass ? (
+                    <div className="flex flex-col gap-4">
+                      <div className="w-full aspect-video bg-black rounded-xl overflow-hidden border border-gray-700 shadow-2xl">
+                        <iframe className="w-full h-full" src={activeClass.video_url?.replace('watch?v=', 'embed/')} allowFullScreen></iframe>
+                      </div>
+                      <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
+                        <h1 className="text-2xl font-bold mb-2">{activeClass.title}</h1>
+                        <p className="text-gray-300 text-sm">{activeClass.description || "Nenhuma descrição."}</p>
+                        {activeClass.documents && activeClass.documents.length > 0 && (
+                          <div className="mt-6 pt-4 border-t border-gray-700">
+                            <h3 className="font-bold text-purple-300 mb-3 text-sm">Materiais de Apoio (Downloads)</h3>
+                            <div className="flex flex-wrap gap-3">
+                              {activeClass.documents.map(doc => (
+                                <a key={doc.id} href={doc.url} target="_blank" rel="noopener noreferrer" className="bg-gray-700 hover:bg-gray-600 px-3 py-1.5 rounded border border-gray-600 text-xs font-semibold flex items-center gap-2 transition text-white">
+                                  📄 {doc.name}
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-grow flex items-center justify-center bg-gray-800 rounded-lg border border-gray-700 text-gray-500 p-6 text-center">
+                      <p>Nenhuma aula selecionada ou o curso ainda não possui conteúdo.</p>
+                    </div>
+                  )
                 ) : (
-                  <button
-                    onClick={handleEnroll}
-                    className="mt-4 w-full bg-green-600 py-3 rounded-lg font-bold hover:bg-green-700 mb-6 transition text-white"
-                  >
-                    Inscrever-se neste Curso
-                  </button>
+                  <div className="flex-grow bg-gray-800 rounded-lg p-8 shadow-lg border border-gray-700 flex flex-col items-center justify-center text-center">
+                    <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mb-6">
+                      <span className="text-4xl">📚</span>
+                    </div>
+                    <h2 className="text-3xl font-bold mb-4">{selectedCourse.title}</h2>
+                    <p className="text-gray-400 max-w-lg mb-8">{selectedCourse.description}</p>
+                    <p className="text-sm text-yellow-400 font-semibold mb-4">Veja o conteúdo do curso na aba ao lado 👉</p>
+                  </div>
                 )}
-                
-                {completedLessons.length > 0 && (
-                  <div className="mt-4">
-                    <p className="text-sm text-gray-400 mb-2 font-semibold">Aulas para avaliar:</p>
+
+                {/* Área de Avaliações */}
+                {selectedCourse.is_enrolled && completedLessons.length > 0 && (
+                  <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 mt-4 shrink-0">
+                    <p className="text-sm text-gray-400 mb-3 font-semibold">Pendentes de Avaliação (Aulas ao Vivo):</p>
                     <div className="flex flex-col gap-2">
                       {completedLessons.map(lesson => (
-                        <div key={lesson.id} className="flex items-center justify-between bg-gray-700 px-4 py-2 rounded-lg">
+                        <div key={lesson.id} className="flex items-center justify-between bg-gray-900 px-4 py-3 rounded-lg border border-gray-700">
                           <span className="text-sm text-gray-200">{lesson.title}</span>
-                          <button
-                            onClick={() => openReviewModal(lesson)}
-                            className="text-xs bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-3 py-1 rounded-lg transition-colors"
-                          >
+                          <button onClick={() => openReviewModal(lesson)} className="text-xs bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-3 py-1.5 rounded-lg transition-colors">
                             ⭐ Avaliar
                           </button>
                         </div>
@@ -425,23 +441,48 @@ function StudentLessons() {
                     </div>
                   </div>
                 )}
-                
-                <div>
-                  <p className="text-sm text-gray-300 mt-3">
-                    {selectedCourse.description}
-                  </p>
-                </div>
               </div>
+
+              {/* DIREITA DO CENTRO: LISTA DE MÓDULOS E AULAS (Aba Lateral Direita) */}
+              <aside className="w-full lg:w-72 bg-[#1a1a1a] rounded-xl border border-gray-700 flex flex-col shadow-xl flex-shrink-0">
+                <div className="p-4 border-b border-gray-700 bg-gray-900 rounded-t-xl">
+                  <h2 className="font-bold text-base text-purple-300">Conteúdo do Curso</h2>
+                </div>
+                <div className="flex-grow overflow-y-auto p-4 space-y-4 custom-scrollbar">
+                  {modules.length === 0 ? <p className="text-sm text-gray-500 text-center mt-4">Nenhum módulo gravado.</p> : null}
+                  
+                  {modules.map(mod => (
+                    <div key={mod.id} className="mb-4">
+                      <h3 className="text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">{mod.title}</h3>
+                      <div className="space-y-1">
+                        {mod.classes?.map(cls => (
+                          <button 
+                            key={cls.id}
+                            onClick={() => selectedCourse.is_enrolled ? setActiveClass(cls) : alert("Matricule-se no curso para assistir as aulas!")}
+                            className={`w-full text-left p-3 rounded-lg text-sm transition-colors border ${
+                              activeClass?.id === cls.id 
+                                ? 'bg-purple-600/20 border-purple-500 text-purple-300 font-semibold' 
+                                : 'bg-gray-800 border-gray-700 text-gray-300 hover:bg-gray-700'
+                            }`}
+                          >
+                            {selectedCourse.is_enrolled ? (activeClass?.id === cls.id ? '▶' : '•') : '🔒'} {cls.title}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </aside>
             </>
           ) : (
             <div className="flex-grow flex items-center justify-center bg-gray-800 rounded-lg">
-              <p className="text-gray-400">Selecione um curso.</p>
+              <p className="text-gray-400">Selecione um curso na lista para visualizar o conteúdo.</p>
             </div>
           )}
         </section>
       </main>
 
-      {/* MODAL DE CHAT */}
+      {/* MODAL DE CHAT E AVALIAÇÃO CONTINUAM AQUI EMBAIXO INTACTOS */}
       {isChatOpen && selectedCourse && (
         <div className="fixed bottom-0 right-0 md:bottom-8 md:right-8 w-full md:w-80 bg-gray-800 border border-gray-600 rounded-t-xl md:rounded-xl shadow-2xl z-50 flex flex-col h-[450px]">
           <div className="bg-blue-600 p-3 flex justify-between items-center text-white shadow-md z-10">
@@ -473,7 +514,7 @@ function StudentLessons() {
 
           <div
             ref={chatScrollRef}
-            className="flex-grow p-4 bg-gray-900 overflow-y-auto flex flex-col gap-3"
+            className="flex-grow p-4 bg-gray-900 overflow-y-auto flex flex-col gap-3 custom-scrollbar"
           >
             {messages.map((msg) => (
               <div
@@ -524,7 +565,6 @@ function StudentLessons() {
         </div>
       )}
 
-      {/* MODAL DE AVALIAÇÃO (MOVIDO PARA CÁ) */}
       {isReviewModalOpen && selectedLesson && (
         <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4">
           <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-600">

@@ -3,47 +3,52 @@ const nodemailer = require('nodemailer');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Configuração do serviço de e-mail
+// --- Configuração do serviço de e-mail (Nodemailer) ---
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER, 
-    pass: process.env.EMAIL_PASS, 
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
-// LOGIN
+// ==========================================
+// 1. LOGIN DE USUÁRIOS
+// ==========================================
 const login = async (req, res) => {
   const { email, password } = req.body;
 
   try {
-    // Adicionado nickname na busca do banco de dados
+    // Busca dados essenciais do usuário no banco, incluindo nickname e tipo de professor
     const query = 'SELECT id, name, nickname, email, password_hash, role, is_verified, teacher_type FROM users WHERE email = $1';
     const result = await db.query(query, [email]);
 
+    // Retorna erro 401 genérico por segurança (não revela se o e-mail existe)
     if (result.rows.length === 0) {
       return res.status(401).json({ message: 'E-mail ou senha inválidos' });
     }
 
     const user = result.rows[0];
 
-    // Comparação de senha com bcrypt
+    // Validação criptográfica da senha usando bcrypt
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
       return res.status(401).json({ message: 'E-mail ou senha inválidos' });
     }
 
+    // Bloqueia o login se o e-mail não tiver sido verificado via código
     if (!user.is_verified) {
       return res.status(403).json({ message: 'Por favor, confirme seu e-mail antes de acessar.' });
     }
 
+    // Geração do token de sessão JWT (válido por 1 dia)
     const token = jwt.sign(
       { id: user.id, role: user.role },
       process.env.JWT_SECRET || 'secreta_super_segura',
       { expiresIn: '1d' }
     );
 
-    // Chaves de resposta ajustadas para combinar com o que o Login.jsx espera
+    // Payload retornado para o front-end armazenar no localStorage
     res.status(200).json({
       token,
       id: user.id,
@@ -59,7 +64,9 @@ const login = async (req, res) => {
   }
 };
 
-// VERIFICAÇÃO DE EMAIL
+// ==========================================
+// 2. VERIFICAÇÃO DE E-MAIL (ENVIO DE CÓDIGO)
+// ==========================================
 const sendVerificationEmail = async (req, res) => {
   const { email } = req.body;
 
@@ -67,12 +74,14 @@ const sendVerificationEmail = async (req, res) => {
     return res.status(400).json({ message: 'E-mail é obrigatório.' });
   }
 
+  // Gera um código numérico aleatório de 6 dígitos
   const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+  // Define a expiração do código para 15 minutos a partir de agora
   const expirationTime = new Date(Date.now() + 15 * 60000);
 
   try {
     const userExists = await db.query('SELECT id, is_verified FROM users WHERE email = $1', [email]);
-    
+
     if (userExists.rows.length === 0) {
       return res.status(404).json({ message: 'Usuário não encontrado.' });
     }
@@ -81,11 +90,13 @@ const sendVerificationEmail = async (req, res) => {
       return res.status(400).json({ message: 'Este e-mail já está verificado.' });
     }
 
+    // Atualiza o banco com o novo código e a data de expiração
     await db.query(
       'UPDATE users SET verification_code = $1, verification_expires = $2 WHERE email = $3',
       [verificationCode, expirationTime, email]
     );
 
+    // Template HTML do e-mail de verificação
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -110,6 +121,9 @@ const sendVerificationEmail = async (req, res) => {
   }
 };
 
+// ==========================================
+// 3. VALIDAÇÃO DO CÓDIGO DE E-MAIL
+// ==========================================
 const verifyEmailCode = async (req, res) => {
   const { email, code } = req.body;
 
@@ -129,6 +143,7 @@ const verifyEmailCode = async (req, res) => {
 
     const user = result.rows[0];
 
+    // Valida se o código está correto e se não está expirado
     if (user.verification_code !== code) {
       return res.status(400).json({ message: 'Código inválido.' });
     }
@@ -137,6 +152,7 @@ const verifyEmailCode = async (req, res) => {
       return res.status(400).json({ message: 'Código expirado. Solicite um novo.' });
     }
 
+    // Código válido: marca o usuário como verificado e limpa os campos de código
     await db.query(
       'UPDATE users SET is_verified = true, verification_code = NULL, verification_expires = NULL WHERE email = $1',
       [email]
@@ -149,48 +165,50 @@ const verifyEmailCode = async (req, res) => {
   }
 };
 
-const registerInstituicao = async (req, res) => {
-  const { nome, email, senha, telefone, cidade } = req.body;
+// ==========================================
+// 4. CADASTRO PÚBLICO DE INSTITUIÇÃO
+// ==========================================
+// Recebe os dados da Landing Page Pública e cria a escola em estado de quarentena ('pendente')
+const registerInstitution = async (req, res) => {
+  const { nome, email, telefone, cidade } = req.body;
 
-  if (!nome || !email || !senha) {
-    return res.status(400).json({ message: 'Nome, e-mail e senha são obrigatórios.' });
+  // 1. Validação de segurança básica no back-end
+  if (!nome || !email) {
+    return res.status(400).json({ message: 'Nome e e-mail são obrigatórios.' });
   }
 
   try {
-    // 1. Verifica se já existe usuário com este email
-    const userExists = await db.query('SELECT id FROM users WHERE email = $1', [email]);
-    if (userExists.rows.length > 0) {
-      return res.status(400).json({ message: 'Já existe uma conta com este e-mail.' });
+    // 2. Verifica se já existe uma instituição utilizando o mesmo e-mail para evitar duplicidade
+    const instExists = await db.query('SELECT id FROM instituicoes WHERE email = $1', [email]);
+    if (instExists.rows.length > 0) {
+      return res.status(400).json({ message: 'Este e-mail já está em uso por outra instituição.' });
     }
 
-    // 2. Cria a escola com status 'pendente'
-    const schoolResult = await db.query(
-      `INSERT INTO instituicoes (nome, email, telefone, cidade, status)
-       VALUES ($1, $2, $3, $4, 'pendente') RETURNING *`,
+    // 3. Inserção segura no banco de dados
+    // CRÍTICO: O status é fixado diretamente no código como 'pendente'. 
+    // Assim, nenhum payload malicioso do front-end conseguirá forçar a escola a nascer como 'ativa'.
+    const result = await db.query(
+      `INSERT INTO instituicoes (nome, email, telefone, cidade, status) 
+       VALUES ($1, $2, $3, $4, 'pendente') 
+       RETURNING id, nome, email, status`,
       [nome, email, telefone || null, cidade || null]
     );
 
-    const school = schoolResult.rows[0];
-
-    // 3. Cria o usuário administrador vinculado à escola
-    const salt = await bcrypt.genSalt(10);
-    const password_hash = await bcrypt.hash(senha, salt);
-
-    const userResult = await db.query(
-      `INSERT INTO users (name, email, password_hash, role, instituicao_id, is_verified)
-       VALUES ($1, $2, $3, 'instituicao', $4, false) RETURNING id, name, email, role`,
-      [nome, email, password_hash, school.id]
-    );
-
+    // 4. Retorno de sucesso para renderizar a mensagem verde no front-end
     res.status(201).json({
-      message: 'Cadastro realizado! Aguarde a aprovação da equipe Sonatta para acessar a plataforma.',
-      institution: { id: school.id, nome: school.nome, status: school.status }
+      message: 'Cadastro recebido com sucesso! Aguarde aprovação.',
+      institution: result.rows[0]
     });
-
   } catch (error) {
-    console.error('Erro ao cadastrar instituição:', error);
-    res.status(500).json({ message: 'Erro interno no servidor.' });
+    console.error('Erro ao registrar instituição:', error);
+    res.status(500).json({ message: 'Erro interno no servidor ao processar o cadastro.' });
   }
 };
 
-module.exports = { login, sendVerificationEmail, verifyEmailCode, registerInstituicao };
+// --- Exportação padronizada dos métodos ---
+module.exports = {
+  login,
+  sendVerificationEmail,
+  verifyEmailCode,
+  registerInstitution // Exportação corrigida para o novo fluxo
+};

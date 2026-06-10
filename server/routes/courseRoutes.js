@@ -8,7 +8,8 @@ const {
   getTeacherStudents, 
   getAllCoursesForStudent, 
   getEnrolledCourses,
-  enrollStudent 
+  enrollStudent,
+  unenrollStudent
 } = require('../controllers/courseController');
 
 // Rotas do Professor
@@ -17,10 +18,12 @@ router.get('/teacher', verifyToken, getTeacherCourses);
 router.get('/teacher/students', verifyToken, getTeacherStudents);
 router.put('/:id', verifyToken, updateCourse);  
 
-// Rotas do Aluno
+
+
 // Rotas do Aluno
 router.get('/student', verifyToken, getAllCoursesForStudent);
 router.get('/enrolled', verifyToken, getEnrolledCourses);
 router.post('/student/enroll', verifyToken, enrollStudent);
+router.post('/unenroll', verifyToken, unenrollStudent);
 
 module.exports = router;
