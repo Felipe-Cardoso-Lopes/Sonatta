@@ -16,6 +16,7 @@ export default defineConfig({
   reporter: 'html',
 
   use: {
+    // eslint-disable-next-line no-undef
     baseURL: process.env.BASE_URL || 'https://sonatta-tau.vercel.app',
     actionTimeout: 60000,      
     navigationTimeout: 90000,  
@@ -34,6 +35,7 @@ export default defineConfig({
   webServer: {
     command: 'npm run dev', // Comando para iniciar o seu frontend
     url: 'http://localhost:5173', // URL que o Playwright deve aguardar ficar disponível
+    // eslint-disable-next-line no-undef
     reuseExistingServer: !process.env.CI, // Reaproveita o servidor se você já tiver rodado "npm run dev" manualmente
     timeout: 120 * 1000,
   },

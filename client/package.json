@@ -16,10 +16,7 @@
     "react": "^19.1.0",
     "react-big-calendar": "^1.19.4",
     "react-dom": "^19.1.0",
-<<<<<<< HEAD
-=======
     "react-hot-toast": "^2.6.0",
->>>>>>> a80c743a0d011a8b044da243cb015a2deb9b1270
     "recharts": "^3.8.1",
     "socket.io-client": "^4.8.3"
   },
