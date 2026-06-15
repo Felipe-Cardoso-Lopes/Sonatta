@@ -1,62 +1,109 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
 import InstituicaoProfile from './InstituicaoProfile';
-import { BrowserRouter } from 'react-router-dom';
-import toast from 'react-hot-toast';
 
-// Mocks
 vi.mock('axios');
-vi.mock('react-hot-toast', () => ({
-  default: {
-    loading: vi.fn(() => 'toast-id'),
-    success: vi.fn(),
-    error: vi.fn(),
-  },
-  Toaster: () => <div data-testid="toaster" />
-}));
 
-describe('Componente InstituicaoProfile - Perfil Público', () => {
+describe('Componente InstituicaoProfile', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.setItem('token', 'fake-token');
+    
+    // Simula os dados que a página busca ao iniciar
+    Storage.prototype.getItem = vi.fn((key) => {
+      if (key === 'token') return 'fake-token';
+      if (key === 'userName') return 'Admin Teste';
+      if (key === 'userNickname') return 'Admin';
+      return null;
+    });
+    
+    Storage.prototype.setItem = vi.fn();
+    Storage.prototype.clear = vi.fn();
+
+    // Mock dos alertas e confirmações nativas do navegador
+    window.alert = vi.fn();
+    window.confirm = vi.fn(() => true);
   });
 
-  it('Deve renderizar os campos do formulário de perfil público', () => {
+  it('deve renderizar os formulários de perfil e segurança', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <InstituicaoProfile />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
-    expect(screen.getByText('Perfil Público da Escola')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Conte um pouco sobre a metodologia e história da instituição...')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('https://suaescola.com.br')).toBeInTheDocument();
+    // Valida a presença dos blocos e labels
+    expect(screen.getByText('Meu Perfil de Administrador')).toBeInTheDocument();
+    expect(screen.getByText('Dados do Usuário')).toBeInTheDocument();
+    expect(screen.getByText('Nome do Administrador')).toBeInTheDocument();
+    expect(screen.getByText('Apelido / Nickname')).toBeInTheDocument();
+    expect(screen.getByText('Segurança da Conta')).toBeInTheDocument();
   });
 
-  it('Deve chamar a API e exibir toast de sucesso ao submeter o formulário', async () => {
-    axios.put.mockResolvedValueOnce({ data: { message: 'Sucesso' } });
+  it('deve chamar a API ao atualizar o perfil', async () => {
+    axios.put.mockResolvedValueOnce({ data: { message: 'Success' } });
 
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <InstituicaoProfile />
-      </BrowserRouter>
+      </MemoryRouter>
     );
 
-    const descricaoInput = screen.getByPlaceholderText('Conte um pouco sobre a metodologia e história da instituição...');
-    const btnSalvar = screen.getByText('Salvar Perfil Público');
-
-    // Simula a digitação e submissão
-    fireEvent.change(descricaoInput, { target: { value: 'Nossa escola é excelente.' } });
-    fireEvent.click(btnSalvar);
+    const btnAtualizar = screen.getByText('Atualizar Perfil');
+    fireEvent.click(btnAtualizar);
 
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalledWith(
-        expect.stringContaining('/api/instituicoes/profile'),
-        expect.objectContaining({ descricao_longa: 'Nossa escola é excelente.' }),
-        { headers: { Authorization: 'Bearer fake-token' } }
+        expect.stringContaining('/api/users/profile'),
+        { name: 'Admin Teste', nickname: 'Admin', email: '' },
+        expect.any(Object)
       );
-      expect(toast.success).toHaveBeenCalledWith('Perfil público atualizado com sucesso!', { id: 'toast-id' });
+      expect(window.alert).toHaveBeenCalledWith('Informações atualizadas com sucesso!');
     });
+  });
+
+  it('deve chamar a API ao alterar a senha', async () => {
+    axios.put.mockResolvedValueOnce({ data: { message: 'Success' } });
+
+    render(
+      <MemoryRouter>
+        <InstituicaoProfile />
+      </MemoryRouter>
+    );
+
+    // Localizamos os inputs de senha pelos placeholders
+    const inputSenhaAtual = screen.getByPlaceholderText('********');
+    const inputNovaSenha = screen.getByPlaceholderText('Mínimo 6 caracteres');
+
+    fireEvent.change(inputSenhaAtual, { target: { value: 'senhaAntiga123' } });
+    fireEvent.change(inputNovaSenha, { target: { value: 'senhaNova123' } });
+
+    const btnAlterarSenha = screen.getByText('Alterar Senha de Acesso');
+    fireEvent.click(btnAlterarSenha);
+
+    await waitFor(() => {
+      expect(axios.put).toHaveBeenCalledWith(
+        expect.stringContaining('/api/users/change-password'),
+        { currentPassword: 'senhaAntiga123', newPassword: 'senhaNova123' },
+        expect.any(Object)
+      );
+      expect(window.alert).toHaveBeenCalledWith('Senha alterada com sucesso!');
+    });
+  });
+
+  it('deve limpar o localStorage e fazer logout', () => {
+    render(
+      <MemoryRouter>
+        <InstituicaoProfile />
+      </MemoryRouter>
+    );
+
+    const btnLogout = screen.getByText('🚪 Sair da Conta Administrativa');
+    fireEvent.click(btnLogout);
+
+    // Verifica se o aviso de confirmação apareceu e se a sessão foi limpa
+    expect(window.confirm).toHaveBeenCalled();
+    expect(localStorage.clear).toHaveBeenCalled();
   });
 });
