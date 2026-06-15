@@ -30,6 +30,15 @@ function SoloTeacherSidebar() {
           <img src="/assets/sonatta-logo.png" alt="Sonatta Logo" />
         </Link>
 
+ {/* Botão Meus Cursos */}
+        <NavIndicator to="/solo-teacher/courses">
+          <Link to="/solo-teacher/courses" className="transition-transform hover:scale-125">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
+              <img src="/assets/Gerenciamento.png" alt="Cursos" className="w-8 h-8 scale-150" />
+            </div>
+          </Link>
+        </NavIndicator>
+
         {/* Botão Dashboard (Overview) */}
         <NavIndicator to="/solo-teacher/overview">
           <Link to="/solo-teacher/overview" className="transition-transform hover:scale-125">
@@ -48,14 +57,7 @@ function SoloTeacherSidebar() {
           </Link>
         </NavIndicator>
 
-        {/* Botão Meus Cursos */}
-        <NavIndicator to="/solo-teacher/courses">
-          <Link to="/solo-teacher/courses" className="transition-transform hover:scale-125">
-            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
-              <img src="/assets/Gerenciamento.png" alt="Cursos" className="w-8 h-8 scale-150" />
-            </div>
-          </Link>
-        </NavIndicator>
+       
 
 
         {/* Botão Financeiro */}
