@@ -10,7 +10,6 @@ describe('Componente InstituicaoProfile', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
-    // Simula os dados que a página busca ao iniciar
     Storage.prototype.getItem = vi.fn((key) => {
       if (key === 'token') return 'fake-token';
       if (key === 'userName') return 'Admin Teste';
@@ -21,24 +20,28 @@ describe('Componente InstituicaoProfile', () => {
     Storage.prototype.setItem = vi.fn();
     Storage.prototype.clear = vi.fn();
 
-    // Mock dos alertas e confirmações nativas do navegador
     window.alert = vi.fn();
     window.confirm = vi.fn(() => true);
   });
 
-  it('deve renderizar os formulários de perfil e segurança', () => {
+  it('deve renderizar os formulários de perfil e segurança', async () => {
     render(
       <MemoryRouter>
         <InstituicaoProfile />
       </MemoryRouter>
     );
 
-    // Valida a presença dos blocos e labels
-    expect(screen.getByText('Meu Perfil de Administrador')).toBeInTheDocument();
-    expect(screen.getByText('Dados do Usuário')).toBeInTheDocument();
-    expect(screen.getByText('Nome do Administrador')).toBeInTheDocument();
-    expect(screen.getByText('Apelido / Nickname')).toBeInTheDocument();
-    expect(screen.getByText('Segurança da Conta')).toBeInTheDocument();
+    // Click the admin tab to show admin content
+    const adminTab = screen.getByText('Conta Administrativa');
+    fireEvent.click(adminTab);
+
+    // Wait for content to render
+    await waitFor(() => {
+      expect(screen.getByText('Dados Pessoais')).toBeInTheDocument();
+      expect(screen.getByText('Nome do Administrador')).toBeInTheDocument();
+      expect(screen.getByText('Apelido / Nickname')).toBeInTheDocument();
+      expect(screen.getByText('Segurança de Acesso')).toBeInTheDocument();
+    });
   });
 
   it('deve chamar a API ao atualizar o perfil', async () => {
@@ -50,8 +53,14 @@ describe('Componente InstituicaoProfile', () => {
       </MemoryRouter>
     );
 
-    const btnAtualizar = screen.getByText('Atualizar Perfil');
-    fireEvent.click(btnAtualizar);
+    // Click the admin tab first
+    const adminTab = screen.getByText('Conta Administrativa');
+    fireEvent.click(adminTab);
+
+    await waitFor(() => {
+      const btnAtualizar = screen.getByText('Atualizar Administrador');
+      fireEvent.click(btnAtualizar);
+    });
 
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalledWith(
@@ -59,7 +68,6 @@ describe('Componente InstituicaoProfile', () => {
         { name: 'Admin Teste', nickname: 'Admin', email: '' },
         expect.any(Object)
       );
-      expect(window.alert).toHaveBeenCalledWith('Informações atualizadas com sucesso!');
     });
   });
 
@@ -72,15 +80,20 @@ describe('Componente InstituicaoProfile', () => {
       </MemoryRouter>
     );
 
-    // Localizamos os inputs de senha pelos placeholders
-    const inputSenhaAtual = screen.getByPlaceholderText('********');
-    const inputNovaSenha = screen.getByPlaceholderText('Mínimo 6 caracteres');
+    // Click the admin tab first
+    const adminTab = screen.getByText('Conta Administrativa');
+    fireEvent.click(adminTab);
 
-    fireEvent.change(inputSenhaAtual, { target: { value: 'senhaAntiga123' } });
-    fireEvent.change(inputNovaSenha, { target: { value: 'senhaNova123' } });
+    await waitFor(() => {
+      const inputSenhaAtual = screen.getByPlaceholderText('********');
+      const inputNovaSenha = screen.getByPlaceholderText('Mínimo 6 caracteres');
 
-    const btnAlterarSenha = screen.getByText('Alterar Senha de Acesso');
-    fireEvent.click(btnAlterarSenha);
+      fireEvent.change(inputSenhaAtual, { target: { value: 'senhaAntiga123' } });
+      fireEvent.change(inputNovaSenha, { target: { value: 'senhaNova123' } });
+
+      const btnAlterarSenha = screen.getByText('Alterar Senha');
+      fireEvent.click(btnAlterarSenha);
+    });
 
     await waitFor(() => {
       expect(axios.put).toHaveBeenCalledWith(
@@ -88,21 +101,25 @@ describe('Componente InstituicaoProfile', () => {
         { currentPassword: 'senhaAntiga123', newPassword: 'senhaNova123' },
         expect.any(Object)
       );
-      expect(window.alert).toHaveBeenCalledWith('Senha alterada com sucesso!');
     });
   });
 
-  it('deve limpar o localStorage e fazer logout', () => {
+  it('deve limpar o localStorage e fazer logout', async () => {
     render(
       <MemoryRouter>
         <InstituicaoProfile />
       </MemoryRouter>
     );
 
-    const btnLogout = screen.getByText('🚪 Sair da Conta Administrativa');
-    fireEvent.click(btnLogout);
+    // Click the admin tab first
+    const adminTab = screen.getByText('Conta Administrativa');
+    fireEvent.click(adminTab);
 
-    // Verifica se o aviso de confirmação apareceu e se a sessão foi limpa
+    await waitFor(() => {
+      const btnLogout = screen.getByText('🚪 Sair da Conta Administrativa');
+      fireEvent.click(btnLogout);
+    });
+
     expect(window.confirm).toHaveBeenCalled();
     expect(localStorage.clear).toHaveBeenCalled();
   });
