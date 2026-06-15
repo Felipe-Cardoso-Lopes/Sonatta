@@ -32,4 +32,6 @@ jobs:
         env:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SUPABASE_URL: "https://teste.supabase.co"
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_URL }}
           NODE_ENV: test
