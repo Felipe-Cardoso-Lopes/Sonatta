@@ -9,6 +9,8 @@ function TeacherManagement() {
   const [activeTab, setActiveTab] = useState('courses'); 
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Modais e Estados F16-F18
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
@@ -105,14 +107,20 @@ function TeacherManagement() {
 
   // --- F16: Criar Curso & Mudar Status ---
   const handleCreateCourse = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API_URL}/api/courses/teacher`, newCourse, getAuthHeaders());
-      setIsCourseModalOpen(false);
-      setNewCourse({ title: '', description: '', instrument: '', status: 'draft' });
-      fetchCourses();
-    } catch (err) { alert('Erro ao criar curso'); }
-  };
+  e.preventDefault();
+  setIsSubmitting(true); // Desabilita o botão
+  try {
+    await axios.post(`${API_URL}/api/courses/teacher`, newCourse, getAuthHeaders());
+    alert('Curso cadastrado com sucesso!'); // Feedback
+    setIsCourseModalOpen(false);
+    setNewCourse({ title: '', description: '', instrument: '', status: 'draft' });
+    fetchCourses();
+  } catch (err) { 
+    alert(`Erro ao criar curso: ${err.response?.data?.message || err.message}`);
+  } finally {
+    setIsSubmitting(false); // Reabilita o botão
+  }
+};
 
   const toggleCourseStatus = async (course) => {
     const updatedStatus = course.status === 'published' ? 'draft' : 'published';

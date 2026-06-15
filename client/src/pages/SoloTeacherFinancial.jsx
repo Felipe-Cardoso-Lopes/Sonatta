@@ -33,7 +33,7 @@ function SoloTeacherFinancial() {
           
           <header className="mb-8 flex justify-between items-end">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Controlo Financeiro</h1>
+              <h1 className="text-3xl font-bold mb-2">Controle Financeiro</h1>
               <p className="text-gray-400">Acompanhe os seus ganhos, histórico de pagamentos e solicite saques.</p>
             </div>
             <button className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-lg flex items-center gap-2">

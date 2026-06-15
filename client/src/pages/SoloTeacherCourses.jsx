@@ -9,6 +9,8 @@ function SoloTeacherCourses() {
   const [activeTab, setActiveTab] = useState('courses'); 
   const [courses, setCourses] = useState([]);
   const [students, setStudents] = useState([]);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Modais e Estados F16-F19
   const [isCourseModalOpen, setIsCourseModalOpen] = useState(false);
@@ -103,15 +105,21 @@ function SoloTeacherCourses() {
   };
 
   // --- F16: Criar Curso & Mudar Status ---
-  const handleCreateCourse = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post(`${API_URL}/api/courses/teacher`, newCourse, getAuthHeaders());
-      setIsCourseModalOpen(false);
-      setNewCourse({ title: '', description: '', instrument: '', status: 'draft' });
-      fetchCourses();
-    } catch (err) { alert('Erro ao criar curso'); }
-  };
+const handleCreateCourse = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true); // Desabilita o botão
+  try {
+    await axios.post(`${API_URL}/api/courses/teacher`, newCourse, getAuthHeaders());
+    alert('Curso cadastrado com sucesso!'); // Feedback
+    setIsCourseModalOpen(false);
+    setNewCourse({ title: '', description: '', instrument: '', status: 'draft' });
+    fetchCourses();
+  } catch (err) { 
+    alert(`Erro ao criar curso: ${err.response?.data?.message || err.message}`);
+  } finally {
+    setIsSubmitting(false); // Reabilita o botão
+  }
+};
 
   const toggleCourseStatus = async (course) => {
     const updatedStatus = course.status === 'published' ? 'draft' : 'published';
@@ -253,17 +261,23 @@ function SoloTeacherCourses() {
         </main>
       </div>
 
-      {/* MODAL CURSO */}
+     {/* MODAL CURSO (Com Feedback visual e Responsividade) */}
       {isCourseModalOpen && (
-        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-          <div className="bg-[#1a1a1a] border border-gray-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+          {/* Adicionamos mx-4 para não colar nas bordas do telemóvel */}
+          <div className="bg-[#1a1a1a] border border-gray-700 rounded-2xl w-full max-w-lg p-6 shadow-2xl mx-4">
             <h3 className="text-xl font-bold text-white mb-4">Novo Curso</h3>
-            <form onSubmit={handleCreateCourse} className="space-y-4">
-              <input type="text" placeholder="Título" value={newCourse.title} onChange={e => setNewCourse({...newCourse, title: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />
-              <input type="text" placeholder="Instrumento (ex: Violão)" value={newCourse.instrument} onChange={e => setNewCourse({...newCourse, instrument: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />
-              <div className="flex justify-end gap-3 mt-4">
-                <button type="button" onClick={() => setIsCourseModalOpen(false)} className="text-gray-400 hover:text-white">Cancelar</button>
-                <button type="submit" className="bg-purple-600 px-4 py-2 rounded text-white font-bold">Criar</button>
+            <form onSubmit={handleCreateCourse} className="flex flex-col gap-4">
+              <input type="text" placeholder="Título do Curso" value={newCourse.title} onChange={e => setNewCourse({...newCourse, title: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded-lg p-3 text-white focus:border-purple-500 outline-none" required disabled={isSubmitting} />
+              <input type="text" placeholder="Instrumento (ex: Violão)" value={newCourse.instrument} onChange={e => setNewCourse({...newCourse, instrument: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded-lg p-3 text-white focus:border-purple-500 outline-none" required disabled={isSubmitting} />
+              <textarea placeholder="Descrição (Opcional)" value={newCourse.description} onChange={e => setNewCourse({...newCourse, description: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded-lg p-3 text-white focus:border-purple-500 outline-none resize-none" rows="3" disabled={isSubmitting} />
+              
+              <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-700">
+                <button type="button" onClick={() => setIsCourseModalOpen(false)} className="text-gray-400 hover:text-white px-4 py-2 font-semibold" disabled={isSubmitting}>Cancelar</button>
+                <button type="submit" disabled={isSubmitting} className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-white font-bold transition disabled:opacity-50 flex items-center gap-2">
+                  {isSubmitting ? <span className="animate-spin">⏳</span> : null}
+                  {isSubmitting ? 'Salvando...' : 'Criar Curso'}
+                </button>
               </div>
             </form>
           </div>

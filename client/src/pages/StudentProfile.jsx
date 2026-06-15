@@ -9,6 +9,7 @@ function StudentProfile() {
     nickname: '',
     email: '',
     birthDate: '',
+    avatar_url: '',
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -17,16 +18,19 @@ function StudentProfile() {
     name: '',
     nickname: '',
     email: '',
-    password: ''
+    password: '',
+    avatar_url: '',
   });
 
   const [loading, setLoading] = useState(true);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     fetchUserProfile();
   }, []);
 
-  const fetchUserProfile = async () => {
+const fetchUserProfile = async () => {
     try {
       const token = localStorage.getItem('token');
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -36,25 +40,26 @@ function StudentProfile() {
       });
 
       const userData = response.data;
-
-      // Formata a data de nascimento (evitando problemas de fuso horário)
       let dataNascimentoFormatada = 'Não informada';
       if (userData.birth_date) {
         dataNascimentoFormatada = new Date(userData.birth_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
       }
 
+      // Preencha o avatar_url
       setUser({
         name: userData.name,
         nickname: userData.nickname || '',
         email: userData.email,
         birthDate: dataNascimentoFormatada,
+        avatar_url: userData.avatar_url || '', // <-- NOVO
       });
 
       setFormData({
         name: userData.name,
         nickname: userData.nickname || '',
         email: userData.email,
-        password: ''
+        password: '',
+        avatar_url: userData.avatar_url || '', // <-- NOVO
       });
 
     } catch (error) {
@@ -63,13 +68,15 @@ function StudentProfile() {
       setLoading(false);
     }
   };
-
-  const handleChange = (e) => {
+  
+const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
+ const handleUpdateProfile = async (e) => {
+    e.preventDefault(); // Previne o recarregamento da página
+    setIsSubmitting(true);
+
     try {
       const token = localStorage.getItem('token');
       const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
@@ -78,17 +85,35 @@ function StudentProfile() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      alert(response.data.message);
+      alert('Perfil atualizado com sucesso! 🎉');
 
-      localStorage.setItem('userName', response.data.user.name);
-      localStorage.setItem('userNickname', response.data.user.nickname);
+      const updatedUser = response.data.user;
 
-      setIsEditing(false);
-      fetchUserProfile();
+      // Atualiza o localStorage
+      localStorage.setItem('userName', updatedUser.name);
+      if (updatedUser.nickname) localStorage.setItem('userNickname', updatedUser.nickname);
+      if (updatedUser.avatar_url) localStorage.setItem('userAvatar', updatedUser.avatar_url); 
+
+      // 1. ATUALIZA A TELA IMEDIATAMENTE COM A RESPOSTA DO PUT
+      // (Em vez de chamar o fetchUserProfile, que estava a apagar a foto)
+      setUser(prev => ({
+        ...prev,
+        name: updatedUser.name,
+        nickname: updatedUser.nickname || '',
+        email: updatedUser.email,
+        avatar_url: updatedUser.avatar_url || ''
+      }));
+
+      // Limpa a senha do formulário por segurança
+      setFormData(prev => ({ ...prev, password: '' }));
+
+      setIsEditing(false); // Fecha o modo de edição
 
     } catch (error) {
       console.error('Erro ao atualizar perfil:', error);
       alert(error.response?.data?.message || 'Erro ao atualizar perfil.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -119,20 +144,32 @@ function StudentProfile() {
             <div className="flex-1 flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
 
-                {/* Avatar */}
+              {/* Avatar */}
                 <div className="flex flex-col items-center gap-3 flex-shrink-0">
-                  <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-lg">
-                    {user.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  
+                  {/* Círculo do Avatar com overflow-hidden para a imagem não vazar */}
+                  <div className="w-32 h-32 bg-purple-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-lg overflow-hidden border-4 border-gray-800">
+                    {/* Se estiver editando, mostra a foto temporária do form, senão mostra a foto salva. */}
+                    {(isEditing ? formData.avatar_url : user.avatar_url) ? (
+                      <img 
+                        src={isEditing ? formData.avatar_url : user.avatar_url} 
+                        alt="Avatar do Aluno" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>{user.name ? user.name.charAt(0).toUpperCase() : 'U'}</span>
+                    )}
                   </div>
                   
-                  {/* Dropzone oculta/exibida com base no isEditing */}
+                  {/* Dropzone exibe apenas no modo de edição */}
                   {isEditing && (
                     <div className="w-48 animate-fadeIn">
                       <p className="text-xs text-gray-400 text-center mb-2">Foto de Perfil</p>
                       <DropZone
                         accept="image/*"
-                        label="JPG, PNG até 5MB"
-                        onUploadSuccess={(url) => console.log('Foto enviada:', url)}
+                        label="Alterar Foto"
+                        // AQUI ESTÁ A CORREÇÃO: Pega a url que o Supabase devolve e salva no formData
+                        onUploadSuccess={(url) => setFormData({ ...formData, avatar_url: url })}
                       />
                     </div>
                   )}
@@ -160,7 +197,15 @@ function StudentProfile() {
                       </div>
 
                       <div className="flex gap-2 mt-2">
-                        <button type="submit" className="bg-green-600 hover:bg-green-700 px-4 py-2 rounded font-semibold transition">Salvar</button>
+                        {/* O botão agora é type="submit" e não tem onClick, pois o <form> já tem onSubmit */}
+<button 
+  type="submit" 
+  disabled={isSubmitting}
+  className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded text-white font-bold transition disabled:opacity-50 flex items-center gap-2"
+>
+  {isSubmitting ? <span className="animate-spin">⏳</span> : null}
+  {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
+</button>
                         <button type="button" onClick={() => setIsEditing(false)} className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded font-semibold transition">Cancelar</button>
                       </div>
                     </form>
