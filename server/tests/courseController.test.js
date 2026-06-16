@@ -1,11 +1,8 @@
-process.env.JWT_SECRET = 'segredo-de-teste';
-process.env.SUPABASE_URL = 'http://localhost';
-process.env.SUPABASE_SERVICE_ROLE_KEY = 'dummy-key';
-
 const request = require('supertest');
 const { app } = require('../server');
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
+const { suppressExpectedConsoleError } = require('./helpers/console');
 
 jest.mock('../config/db', () => ({
   query: jest.fn(),
@@ -23,7 +20,11 @@ describe('Course Controller Tests', () => {
   const teacherToken = generateToken({ id: 10, role: 'professor' });
   const studentToken = generateToken({ id: 50, role: 'aluno' });
 
+  // O authMiddleware chama console.error ao receber um token inválido (comportamento esperado).
+  // suppressExpectedConsoleError() limita o silenciamento a este bloco.
   describe('RBAC & Auth Verification', () => {
+    suppressExpectedConsoleError();
+
     it('deve retornar 401 se nenhum token for fornecido', async () => {
       const response = await request(app).get('/api/courses/teacher');
       expect(response.status).toBe(401);
@@ -57,7 +58,11 @@ describe('Course Controller Tests', () => {
     });
   });
 
+  // Os controllers chamam console.error ao falhar no banco (comportamento de produção esperado).
+  // suppressExpectedConsoleError() garante que apenas testes de DB-failure suprimam esse ruído.
   describe('Teacher Area', () => {
+    suppressExpectedConsoleError();
+
     describe('POST /api/courses/teacher', () => {
       it('deve retornar 400 se campos obrigatórios faltarem', async () => {
         const response = await request(app)
@@ -188,6 +193,8 @@ describe('Course Controller Tests', () => {
   });
 
   describe('Student Area', () => {
+    suppressExpectedConsoleError();
+
     describe('GET /api/courses/student', () => {
       it('deve retornar 500 se o banco falhar', async () => {
         db.query.mockRejectedValueOnce(new Error('DB Error'));
