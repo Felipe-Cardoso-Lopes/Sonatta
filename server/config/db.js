@@ -12,7 +12,10 @@ const pool = new Pool({
 });
 
 pool.on('error', (err, client) => {
-  console.error('Erro inesperado no banco de dados', err);
+  if (process.env.NODE_ENV !== 'test') {
+    // Apenas err.message para evitar expor a connection string (DATABASE_URL) contida no objeto de erro
+    console.error('Erro inesperado no banco de dados:', err.message);
+  }
   process.exit(-1);
 });
 

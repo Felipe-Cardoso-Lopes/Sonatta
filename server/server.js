@@ -50,7 +50,9 @@ app.set("io", io);
 app.set("onlineUsers", onlineUsers);
 
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  if (process.env.NODE_ENV !== 'test') {
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  }
   next();
 });
 
