@@ -72,3 +72,25 @@ When a testing cycle is completed:
 Do not create production features.
 
 Focus only on testing implementation and validation.
+
+Review the newly created courseController.test.js.
+
+Produce a coverage assessment report containing:
+
+* Tested scenarios
+* Missing scenarios
+* RBAC coverage
+* Validation coverage
+* Error handling coverage
+* Database failure coverage
+
+Classify the result as:
+
+* Complete
+* Sufficient
+* Partial
+* Insufficient
+
+Do not modify the code yet.
+
+Only produce the assessment report.

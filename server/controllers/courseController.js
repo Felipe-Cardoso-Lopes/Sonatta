@@ -6,6 +6,10 @@ const createCourse = async (req, res) => {
   const { title, description, instrument } = req.body;
   const teacher_id = req.user.id; 
 
+  if (!title || !description || !instrument) {
+    return res.status(400).json({ message: 'Todos os campos (title, description, instrument) são obrigatórios.' });
+  }
+
   try {
     const result = await db.query(
       'INSERT INTO courses (title, description, instrument, teacher_id) VALUES ($1, $2, $3, $4) RETURNING *',
@@ -22,6 +26,14 @@ const updateCourse = async (req, res) => {
   const { id } = req.params;
   const { title, description, instrument } = req.body;
   const teacher_id = req.user.id; 
+
+  if (isNaN(id)) {
+    return res.status(400).json({ message: 'O ID do curso deve ser um número válido.' });
+  }
+
+  if (!title || !description || !instrument) {
+    return res.status(400).json({ message: 'Todos os campos (title, description, instrument) são obrigatórios.' });
+  }
 
   try {
     const checkOwnership = await db.query('SELECT * FROM courses WHERE id = $1 AND teacher_id = $2', [id, teacher_id]);
@@ -165,8 +177,15 @@ const unenrollStudent = async (req, res) => {
   const { course_id, student_id } = req.body; // Aceita desmatricular o próprio aluno ou o professor remover o aluno
   const targetId = student_id || req.user.id;
 
+  if (!course_id) {
+    return res.status(400).json({ message: 'O ID do curso é obrigatório.' });
+  }
+
   try {
-    await db.query('DELETE FROM enrollments WHERE user_id = $1 AND course_id = $2', [targetId, course_id]);
+    const result = await db.query('DELETE FROM enrollments WHERE user_id = $1 AND course_id = $2', [targetId, course_id]);
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Matrícula não encontrada.' });
+    }
     res.json({ message: 'Matrícula cancelada com sucesso.' });
   } catch (error) {
     res.status(500).json({ message: 'Erro ao desmatricular.' });

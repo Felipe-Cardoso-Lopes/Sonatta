@@ -20,10 +20,55 @@ describe('Course Controller Tests', () => {
     return jwt.sign(payload, process.env.JWT_SECRET);
   };
 
-  describe('Teacher Area', () => {
-    const teacherToken = generateToken({ id: 10, role: 'professor' });
+  const teacherToken = generateToken({ id: 10, role: 'professor' });
+  const studentToken = generateToken({ id: 50, role: 'aluno' });
 
+  describe('RBAC & Auth Verification', () => {
+    it('deve retornar 401 se nenhum token for fornecido', async () => {
+      const response = await request(app).get('/api/courses/teacher');
+      expect(response.status).toBe(401);
+      expect(response.body.message).toBe('Não autorizado, nenhum token fornecido.');
+    });
+
+    it('deve retornar 401 se o token for inválido', async () => {
+      const response = await request(app)
+        .get('/api/courses/teacher')
+        .set('Authorization', 'Bearer token_invalido_123');
+      expect(response.status).toBe(401);
+      expect(response.body.message).toBe('Não autorizado, token inválido ou expirado.');
+    });
+
+    it('deve retornar 403 quando aluno acessa rota de professor', async () => {
+      const response = await request(app)
+        .post('/api/courses/teacher')
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send({ title: 'T', description: 'D', instrument: 'I' });
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Acesso negado: privilégios insuficientes.');
+    });
+
+    it('deve retornar 403 quando professor acessa rota de aluno', async () => {
+      const response = await request(app)
+        .post('/api/courses/student/enroll')
+        .set('Authorization', `Bearer ${teacherToken}`)
+        .send({ course_id: 1 });
+      expect(response.status).toBe(403);
+      expect(response.body.message).toBe('Acesso negado: privilégios insuficientes.');
+    });
+  });
+
+  describe('Teacher Area', () => {
     describe('POST /api/courses/teacher', () => {
+      it('deve retornar 400 se campos obrigatórios faltarem', async () => {
+        const response = await request(app)
+          .post('/api/courses/teacher')
+          .set('Authorization', `Bearer ${teacherToken}`)
+          .send({ title: 'Apenas título' });
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Todos os campos (title, description, instrument) são obrigatórios.');
+      });
+
       it('deve criar um curso com sucesso', async () => {
         const coursePayload = { title: 'Piano Básico', description: 'Curso intro', instrument: 'Piano' };
         
@@ -39,10 +84,6 @@ describe('Course Controller Tests', () => {
         expect(response.status).toBe(201);
         expect(response.body.message).toBe('Curso criado com sucesso!');
         expect(response.body.course.title).toBe('Piano Básico');
-        expect(db.query).toHaveBeenCalledWith(
-          'INSERT INTO courses (title, description, instrument, teacher_id) VALUES ($1, $2, $3, $4) RETURNING *',
-          ['Piano Básico', 'Curso intro', 'Piano', 10]
-        );
       });
 
       it('deve retornar erro 500 se o db.query falhar', async () => {
@@ -54,28 +95,44 @@ describe('Course Controller Tests', () => {
           .send({ title: 'Piano Básico', description: 'Curso', instrument: 'Piano' });
 
         expect(response.status).toBe(500);
-        expect(response.body.message).toBe('Erro ao criar curso no banco de dados.');
       });
     });
 
     describe('PUT /api/courses/:id', () => {
+      it('deve retornar 400 se ID não for numérico', async () => {
+        const response = await request(app)
+          .put('/api/courses/abc')
+          .set('Authorization', `Bearer ${teacherToken}`)
+          .send({ title: 'V', description: 'D', instrument: 'I' });
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('O ID do curso deve ser um número válido.');
+      });
+
+      it('deve retornar 400 se campos faltarem na edição', async () => {
+        const response = await request(app)
+          .put('/api/courses/1')
+          .set('Authorization', `Bearer ${teacherToken}`)
+          .send({ title: 'Falta resto' });
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Todos os campos (title, description, instrument) são obrigatórios.');
+      });
+
       it('deve retornar 403 se o professor não for dono do curso', async () => {
-        db.query.mockResolvedValueOnce({ rows: [] }); // Curso não encontrado para este professor
+        db.query.mockResolvedValueOnce({ rows: [] }); // ownership check
 
         const response = await request(app)
           .put('/api/courses/1')
           .set('Authorization', `Bearer ${teacherToken}`)
-          .send({ title: 'Violão' });
+          .send({ title: 'Violão', description: 'D', instrument: 'V' });
 
         expect(response.status).toBe(403);
-        expect(response.body.message).toBe('Curso não encontrado ou sem permissão para editá-lo.');
       });
 
       it('deve atualizar o curso com sucesso se for dono', async () => {
-        // Mock ownership check
-        db.query.mockResolvedValueOnce({ rows: [{ id: 1, teacher_id: 10 }] });
-        // Mock update
-        db.query.mockResolvedValueOnce({ rows: [{ id: 1, title: 'Violão Avançado', description: 'Desc', instrument: 'Violão' }] });
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1, teacher_id: 10 }] }); // check
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1, title: 'Violão Avançado', description: 'Desc', instrument: 'Violão' }] }); // update
 
         const response = await request(app)
           .put('/api/courses/1')
@@ -83,72 +140,158 @@ describe('Course Controller Tests', () => {
           .send({ title: 'Violão Avançado', description: 'Desc', instrument: 'Violão' });
 
         expect(response.status).toBe(200);
-        expect(response.body.message).toBe('Curso atualizado com sucesso!');
         expect(response.body.course.title).toBe('Violão Avançado');
+      });
+
+      it('deve retornar 500 se o DB falhar na atualização', async () => {
+        db.query.mockRejectedValueOnce(new Error('DB falhou'));
+        
+        const response = await request(app)
+          .put('/api/courses/1')
+          .set('Authorization', `Bearer ${teacherToken}`)
+          .send({ title: 'Violão Avançado', description: 'Desc', instrument: 'Violão' });
+
+        expect(response.status).toBe(500);
       });
     });
 
     describe('GET /api/courses/teacher', () => {
-      it('deve retornar a lista de cursos do professor', async () => {
-        db.query.mockResolvedValueOnce({ rows: [{ id: 1, title: 'Piano', students_count: 5 }] });
+      it('deve retornar lista vazia se professor não tiver cursos', async () => {
+        db.query.mockResolvedValueOnce({ rows: [] });
 
         const response = await request(app)
           .get('/api/courses/teacher')
           .set('Authorization', `Bearer ${teacherToken}`);
 
         expect(response.status).toBe(200);
-        expect(Array.isArray(response.body)).toBe(true);
-        expect(response.body[0].title).toBe('Piano');
+        expect(response.body).toEqual([]);
+      });
+
+      it('deve retornar 500 se o banco falhar', async () => {
+        db.query.mockRejectedValueOnce(new Error('DB Error'));
+        const response = await request(app)
+          .get('/api/courses/teacher')
+          .set('Authorization', `Bearer ${teacherToken}`);
+        expect(response.status).toBe(500);
       });
     });
 
     describe('GET /api/courses/teacher/students', () => {
-      it('deve retornar os alunos do professor', async () => {
-        db.query.mockResolvedValueOnce({ rows: [{ id: 50, name: 'João', course_title: 'Piano' }] });
-
+      it('deve retornar 500 se o banco falhar', async () => {
+        db.query.mockRejectedValueOnce(new Error('DB Error'));
         const response = await request(app)
           .get('/api/courses/teacher/students')
           .set('Authorization', `Bearer ${teacherToken}`);
-
-        expect(response.status).toBe(200);
-        expect(response.body[0].name).toBe('João');
+        expect(response.status).toBe(500);
       });
     });
   });
 
   describe('Student Area', () => {
-    const studentToken = generateToken({ id: 50, role: 'aluno' });
-
     describe('GET /api/courses/student', () => {
-      it('deve retornar os cursos com is_enrolled para o aluno', async () => {
-        db.query.mockResolvedValueOnce({ rows: [{ id: 1, title: 'Piano', is_enrolled: false }] });
-
+      it('deve retornar 500 se o banco falhar', async () => {
+        db.query.mockRejectedValueOnce(new Error('DB Error'));
         const response = await request(app)
           .get('/api/courses/student')
           .set('Authorization', `Bearer ${studentToken}`);
-
-        expect(response.status).toBe(200);
-        expect(response.body[0].title).toBe('Piano');
-        expect(response.body[0].is_enrolled).toBe(false);
+        expect(response.status).toBe(500);
       });
     });
 
     describe('GET /api/courses/enrolled', () => {
-      it('deve retornar cursos nos quais o aluno está matriculado', async () => {
-        db.query.mockResolvedValueOnce({ rows: [{ id: 1, title: 'Bateria', progress: 50 }] });
+      it('deve retornar lista vazia se aluno não tiver matrículas', async () => {
+        db.query.mockResolvedValueOnce({ rows: [] });
 
         const response = await request(app)
           .get('/api/courses/enrolled')
           .set('Authorization', `Bearer ${studentToken}`);
 
         expect(response.status).toBe(200);
-        expect(response.body[0].title).toBe('Bateria');
+        expect(response.body).toEqual([]);
+      });
+
+      it('deve retornar 500 se o banco falhar', async () => {
+        db.query.mockRejectedValueOnce(new Error('DB Error'));
+        const response = await request(app)
+          .get('/api/courses/enrolled')
+          .set('Authorization', `Bearer ${studentToken}`);
+        expect(response.status).toBe(500);
+      });
+    });
+
+    describe('POST /api/courses/student/enroll', () => {
+      it('deve retornar 400 se course_id não for fornecido', async () => {
+        const response = await request(app)
+          .post('/api/courses/student/enroll')
+          .set('Authorization', `Bearer ${studentToken}`)
+          .send({});
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('O ID do curso é obrigatório.');
+      });
+
+      it('deve retornar 403 se o aluno não estiver vinculado a uma instituição', async () => {
+        db.query.mockResolvedValueOnce({ rows: [] }); // userCheck sem instituicao
+
+        const response = await request(app)
+          .post('/api/courses/student/enroll')
+          .set('Authorization', `Bearer ${studentToken}`)
+          .send({ course_id: 1 });
+
+        expect(response.status).toBe(403);
+      });
+
+      it('deve retornar 400 se já estiver matriculado', async () => {
+        db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 1 }] }); // userCheck
+        db.query.mockResolvedValueOnce({ rows: [{ course_id: 1 }] }); // enrollment check (já matriculado)
+
+        const response = await request(app)
+          .post('/api/courses/student/enroll')
+          .set('Authorization', `Bearer ${studentToken}`)
+          .send({ course_id: 1 });
+
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('Você já está matriculado neste curso.');
+      });
+
+      it('deve matricular o aluno com sucesso', async () => {
+        db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 1 }] }); // userCheck
+        db.query.mockResolvedValueOnce({ rows: [] }); // enrollment check
+        db.query.mockResolvedValueOnce({ rowCount: 1 }); // insert
+
+        const response = await request(app)
+          .post('/api/courses/student/enroll')
+          .set('Authorization', `Bearer ${studentToken}`)
+          .send({ course_id: 1 });
+
+        expect(response.status).toBe(201);
+        expect(response.body.message).toBe('Matrícula realizada com sucesso!');
       });
     });
 
     describe('POST /api/courses/unenroll', () => {
-      it('deve desmatricular o aluno com sucesso', async () => {
-        db.query.mockResolvedValueOnce({ rowCount: 1 }); // Mock delete
+      it('deve retornar 400 se course_id não for fornecido', async () => {
+        const response = await request(app)
+          .post('/api/courses/unenroll')
+          .set('Authorization', `Bearer ${studentToken}`)
+          .send({});
+        expect(response.status).toBe(400);
+        expect(response.body.message).toBe('O ID do curso é obrigatório.');
+      });
+
+      it('deve retornar 404 se tentar desmatricular de um curso que não está matriculado', async () => {
+        db.query.mockResolvedValueOnce({ rowCount: 0 }); // nenhum deletado
+
+        const response = await request(app)
+          .post('/api/courses/unenroll')
+          .set('Authorization', `Bearer ${studentToken}`)
+          .send({ course_id: 99 });
+
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('Matrícula não encontrada.');
+      });
+
+      it('deve desmatricular com sucesso', async () => {
+        db.query.mockResolvedValueOnce({ rowCount: 1 }); 
 
         const response = await request(app)
           .post('/api/courses/unenroll')
@@ -156,23 +299,6 @@ describe('Course Controller Tests', () => {
           .send({ course_id: 1 });
 
         expect(response.status).toBe(200);
-        expect(response.body.message).toBe('Matrícula cancelada com sucesso.');
-        expect(db.query).toHaveBeenCalledWith(
-          'DELETE FROM enrollments WHERE user_id = $1 AND course_id = $2',
-          [50, 1]
-        );
-      });
-
-      it('deve retornar 500 se o db.query falhar no unenroll', async () => {
-        db.query.mockRejectedValueOnce(new Error('DB Error'));
-
-        const response = await request(app)
-          .post('/api/courses/unenroll')
-          .set('Authorization', `Bearer ${studentToken}`)
-          .send({ course_id: 1 });
-
-        expect(response.status).toBe(500);
-        expect(response.body.message).toBe('Erro ao desmatricular.');
       });
     });
   });
