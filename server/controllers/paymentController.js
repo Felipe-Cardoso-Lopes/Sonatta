@@ -10,13 +10,21 @@ const client = new MercadoPagoConfig({
 // ========================
 const createCheckoutSession = async (req, res) => {
   const { plan_id } = req.body;
-  const escola = req.user;
+  const userId = req.user.id;
 
   if (!plan_id) {
     return res.status(400).json({ message: 'O plan_id é obrigatório.' });
   }
 
   try {
+    // Busca dados do usuário/instituição
+    const userResult = await db.query('SELECT email, instituicao_id FROM users WHERE id = $1', [userId]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Usuário não encontrado.' });
+    }
+    const escola = userResult.rows[0];
+    const instId = escola.instituicao_id || userId; // Fallback para userId se for um professor solo, por exemplo
+
     const result = await db.query('SELECT * FROM plans WHERE id = $1', [plan_id]);
 
     if (result.rows.length === 0) {
@@ -44,7 +52,7 @@ const createCheckoutSession = async (req, res) => {
           pending: `${process.env.FRONTEND_URL}/pagamento/pendente`,
         },
         auto_return: 'approved',
-        external_reference: `inst_${escola.id}_plan_${plan.name}`,
+        external_reference: `inst_${instId}_plan_${plan.name}`,
         notification_url: `${process.env.API_URL}/api/payments/webhook`,
       },
     });
@@ -130,8 +138,11 @@ const handleWebhook = async (req, res) => {
 // Feature 22 - Dashboard Financeiro
 // ========================
 const getInstitutionFinancialSummary = async (req, res) => {
-  const instId = req.user.instituicao_id;
+  const userId = req.user.id;
   try {
+    const userResult = await db.query('SELECT instituicao_id FROM users WHERE id = $1', [userId]);
+    const instId = userResult.rows[0]?.instituicao_id || userId;
+
     // Faturamento Líquido do Mês Atual
     const currentMonthResult = await db.query(`
       SELECT COALESCE(SUM(net_value), 0) as total 
@@ -158,20 +169,23 @@ const getInstitutionFinancialSummary = async (req, res) => {
 };
 
 const getInstitutionTransactions = async (req, res) => {
-  const instId = req.user.instituicao_id;
+  const userId = req.user.id;
   const { startDate, endDate, status } = req.query;
 
-  let query = 'SELECT * FROM institution_transactions WHERE instituicao_id = $1';
-  const params = [instId];
-  let paramIndex = 2;
-
-  if (startDate) { query += ` AND payment_date >= $${paramIndex++}`; params.push(startDate); }
-  if (endDate) { query += ` AND payment_date <= $${paramIndex++}`; params.push(`${endDate} 23:59:59`); }
-  if (status && status !== 'all') { query += ` AND status = $${paramIndex++}`; params.push(status); }
-
-  query += ' ORDER BY payment_date DESC LIMIT 100'; // Paginação simplificada (limite 100)
-
   try {
+    const userResult = await db.query('SELECT instituicao_id FROM users WHERE id = $1', [userId]);
+    const instId = userResult.rows[0]?.instituicao_id || userId;
+
+    let query = 'SELECT * FROM institution_transactions WHERE instituicao_id = $1';
+    const params = [instId];
+    let paramIndex = 2;
+
+    if (startDate) { query += ` AND payment_date >= $${paramIndex++}`; params.push(startDate); }
+    if (endDate) { query += ` AND payment_date <= $${paramIndex++}`; params.push(`${endDate} 23:59:59`); }
+    if (status && status !== 'all') { query += ` AND status = $${paramIndex++}`; params.push(status); }
+
+    query += ' ORDER BY payment_date DESC LIMIT 100'; // Paginação simplificada (limite 100)
+
     const result = await db.query(query, params);
     res.json(result.rows);
   } catch (error) {
