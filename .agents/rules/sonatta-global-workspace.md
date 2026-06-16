@@ -30,3 +30,15 @@ No diretório ./client, construa interfaces orientadas a alta performance. Utili
 5. Ciclo de Resolução Baseado em Testes
 
 O agente não deve considerar uma alteração como finalizada até ter certeza de sua estabilidade. Se o terminal do Watcher (Vitest ou Jest) apontar falhas, o agente deve analisar a stack trace de forma autônoma, aplicar a correção no escopo isolado e reavaliar. A entrega deve ser cirúrgica e passar em todos os testes.
+
+6. Análise de testes
+
+Toda nova funcionalidade deve ser analisada quanto à necessidade de testes unitários, integração ou E2E.
+
+Ao implementar código novo, a IA deve informar:
+
+* quais testes precisam ser criados;
+* quais testes existentes devem ser atualizados;
+* quais cenários de falha devem ser cobertos.
+
+Não gerar funcionalidades sem considerar estratégia de testes.
