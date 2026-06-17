@@ -10,7 +10,7 @@ const NavIndicator = ({ to, children }) => {
     <div className="relative flex items-center justify-center">
       {/* Barrinha indicadora que aparece se a rota estiver ativa */}
       {isActive && (
-        <div className="absolute -left-4 w-1.5 h-10 bg-white rounded-full"></div>
+        <div className="absolute -left-4 w-1.5 h-10 bg-white rounded-full shadow-[0_0_8px_#ffffff]"></div>
       )}
       {children}
     </div>
@@ -28,7 +28,7 @@ function SuperAdminSidebar() {
   };
 
   return (
-    <aside className="w-24 min-h-screen bg-gray-800 border-r border-gray-700 p-4 flex flex-col justify-between items-center">
+    <aside className="w-24 min-h-screen bg-gray-800 border-r border-gray-700 p-4 flex flex-col justify-between items-center shrink-0 z-20">
       <div className="flex flex-col items-center gap-6">
 
         {/* Logo Sonatta (Redireciona para o Dashboard / Torre de Controle) */}
@@ -38,18 +38,17 @@ function SuperAdminSidebar() {
 
         {/* Gestão de Escolas */}
         <NavIndicator to="/super-admin/schools">
-          <Link to="/super-admin/schools" className="transition-transform hover:scale-125" title="Gestão de Escolas">
-            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
+          <Link to="/super-admin/schools" className="transition-transform hover:scale-125 block" title="Gestão de Escolas">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
               <img src="/assets/Escola.png" alt="Gestão de Escolas" className="w-8 h-8 scale-150" />
             </div>
           </Link>
         </NavIndicator>
 
-        {/* Professores Solo (Task 14.2) */}
+        {/* Professores Solo (Link corrigido e integrado) */}
         <NavIndicator to="/super-admin/solo-teachers">
-          <Link to="/super-admin/solo-teachers" className="transition-transform hover:scale-125" title="Professores Solo">
-            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
-              {/* Altere o nome do arquivo da imagem abaixo de acordo com os seus assets */}
+          <Link to="/super-admin/solo-teachers" className="transition-transform hover:scale-125 block" title="Professores Solo">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
               <img src="/assets/Professor.png" alt="Professores Solo" className="w-8 h-8 scale-150" />
             </div>
           </Link>
@@ -57,8 +56,8 @@ function SuperAdminSidebar() {
 
         {/* Assinaturas SaaS */}
         <NavIndicator to="/super-admin/subscriptions">
-          <Link to="/super-admin/subscriptions" className="transition-transform hover:scale-125" title="Assinaturas SaaS">
-            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
+          <Link to="/super-admin/subscriptions" className="transition-transform hover:scale-125 block" title="Assinaturas SaaS">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
               <img src="/assets/Financeiro.png" alt="Assinaturas SaaS" className="w-8 h-8 scale-150" />
             </div>
           </Link>
@@ -66,8 +65,8 @@ function SuperAdminSidebar() {
 
         {/* Sistema e Logs */}
         <NavIndicator to="/super-admin/system">
-          <Link to="/super-admin/system" className="transition-transform hover:scale-125" title="Sistema e Logs">
-            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center">
+          <Link to="/super-admin/system" className="transition-transform hover:scale-125 block" title="Sistema e Logs">
+            <div className="w-14 h-14 bg-white rounded-[15px] flex items-center justify-center shadow-lg">
               <img src="/assets/Gerenciamento.png" alt="Sistema e Logs" className="w-8 h-8 scale-150" />
             </div>
           </Link>

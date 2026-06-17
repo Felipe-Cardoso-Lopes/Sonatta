@@ -16,12 +16,16 @@ function SuperAdminSoloTeachers() {
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const token = localStorage.getItem('token');
-  const userRole = localStorage.getItem('role');
+  
+  // CORREÇÃO AQUI: Alterado de 'role' para 'userRole' para coincidir com o resto do sistema
+  const userRole = localStorage.getItem('userRole'); 
+  
   const navigate = useNavigate();
 
   // Validação de acesso estrita para Super Admin
   useEffect(() => {
-    if (!token || userRole !== 'super_admin') {
+    // Usamos includes('super') para garantir que tanto 'super_admin' quanto 'super-admin' funcionem
+    if (!token || !userRole || !userRole.includes('super')) {
       navigate('/login');
     } else {
       fetchTeachers();
@@ -71,7 +75,7 @@ function SuperAdminSoloTeachers() {
         alert('Professor Solo adicionado com sucesso!');
         setIsModalOpen(false);
         setFormData({ name: '', email: '', password: '' });
-        fetchTeachers(); // Recarrega a tabela imediatamente
+        fetchTeachers(); // Recarrega a listagem imediatamente
       } else {
         alert(data.message || 'Erro ao registrar professor.');
       }
@@ -84,34 +88,38 @@ function SuperAdminSoloTeachers() {
 
   // Filtra a lista com base no termo de pesquisa
   const filteredTeachers = teachers.filter(teacher => 
-    teacher.name.toLowerCase().includes(searchTerm.toLowerCase())
+    teacher?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (!token || userRole !== 'super_admin') return null;
+  // Fallback visual se estiver a carregar o redirecionamento
+  if (!token || !userRole || !userRole.includes('super')) return null;
 
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
-      <SuperAdminSidebar />
+    <div className="flex h-screen bg-piano-black text-pure-white font-poppins relative">
+      <div className="shrink-0 z-20">
+        <SuperAdminSidebar />
+      </div>
+      
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        <main className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-6xl mx-auto">
+        <main className="flex-1 overflow-y-auto p-6 md:p-10 custom-scrollbar">
+          <div className="max-w-7xl mx-auto w-full">
             
             {/* Cabeçalho */}
             <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold mb-2">Professores Solo</h1>
-                <p className="text-gray-400">Gerencie professores independentes não vinculados a escolas.</p>
+                <p className="text-gray-400">Gerencie a rede de professores independentes cadastrados na plataforma.</p>
               </div>
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="bg-purple-600 hover:bg-purple-700 font-bold px-6 py-2.5 rounded-lg transition-colors shadow-lg"
+                className="bg-purple-600 hover:bg-purple-700 font-bold px-6 py-3 rounded-lg transition-colors shadow-lg flex items-center gap-2 whitespace-nowrap shrink-0"
               >
-                + Cadastrar Professor Solo
+                <span>+</span> Cadastrar Professor Solo
               </button>
             </header>
 
-            {/* Campo de Pesquisa */}
-            <div className="mb-6 max-w-md">
+            {/* Barra de Pesquisa */}
+            <div className="mb-8 max-w-md">
               <Input
                 placeholder="Pesquisar professor pelo nome..."
                 value={searchTerm}
@@ -119,83 +127,105 @@ function SuperAdminSoloTeachers() {
               />
             </div>
 
-            {/* Tabela de Professores Solo */}
-            <div className="bg-[#1a1a1a] rounded-lg border border-key-divider overflow-hidden">
-              {isLoading ? (
-                <p className="p-6 text-center text-gray-500">A carregar...</p>
-              ) : filteredTeachers.length === 0 ? (
-                <p className="p-6 text-center text-gray-500">Nenhum professor solo encontrado.</p>
-              ) : (
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-[#2a2a2a] border-b border-key-divider text-sm">
-                      <th className="p-4 font-semibold">Nome</th>
-                      <th className="p-4 font-semibold">E-mail</th>
-                      <th className="p-4 font-semibold text-center">Status</th>
-                      <th className="p-4 font-semibold text-center">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTeachers.map((teacher) => (
-                      <tr key={teacher.id} className="border-b border-key-divider hover:bg-[#252525] transition-colors">
-                        <td className="p-4 font-medium text-white">{teacher.name}</td>
-                        <td className="p-4 text-sm text-gray-400">{teacher.email}</td>
-                        <td className="p-4 text-center">
-                          <span className="px-2 py-1 rounded text-xs font-bold uppercase bg-green-900/50 text-green-400 border border-green-800">
-                            Ativo
-                          </span>
-                        </td>
-                        <td className="p-4 text-center">
-                          <button className="text-purple-400 hover:text-purple-300 text-sm font-semibold">
-                            Editar
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-            </div>
+            {/* Listagem de Professores - Modo Card (Grid) */}
+            {isLoading ? (
+              <div className="flex justify-center items-center py-20">
+                <p className="text-gray-500 animate-pulse text-lg">A carregar professores...</p>
+              </div>
+            ) : filteredTeachers.length === 0 ? (
+              <div className="bg-[#1a1a1a] border border-gray-700 rounded-xl p-12 text-center flex flex-col items-center justify-center">
+                <span className="text-5xl mb-4">🔍</span>
+                <p className="text-gray-400 text-lg">Nenhum professor solo encontrado com este filtro.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredTeachers.map((teacher) => (
+                  <div 
+                    key={teacher.id} 
+                    className="bg-[#1a1a1a] rounded-xl border border-gray-700 p-6 flex flex-col gap-4 shadow-lg hover:border-purple-500/50 transition-colors h-full group"
+                  >
+                    {/* Header do Cartão (Avatar + Info) */}
+                    <div className="flex items-center gap-4">
+                      {/* Avatar com proporção fixa */}
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center text-xl font-bold flex-shrink-0 shadow-inner border border-gray-600">
+                        {(teacher?.name || 'U').charAt(0).toUpperCase()}
+                      </div>
+                      
+                      {/* Textos com Truncate */}
+                      <div className="flex-col overflow-hidden w-full">
+                        <h3 className="font-bold text-lg text-white truncate" title={teacher?.name || 'Nome não definido'}>
+                          {teacher?.name || 'Nome não definido'}
+                        </h3>
+                        <p className="text-sm text-gray-400 truncate" title={teacher?.email || 'E-mail não definido'}>
+                          {teacher?.email || 'E-mail não definido'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Status Badge */}
+                    <div className="mt-2">
+                      <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20 inline-block">
+                        Ativo na Plataforma
+                      </span>
+                    </div>
+
+                    {/* Botões de Ação (Empurrados para o fundo via mt-auto) */}
+                    <div className="mt-auto pt-5 border-t border-gray-800 flex justify-end gap-3">
+                      <button className="text-sm font-semibold text-gray-400 hover:text-white px-3 py-1.5 rounded bg-gray-800 hover:bg-gray-700 transition-colors border border-gray-700">
+                        Detalhes
+                      </button>
+                      <button className="text-sm font-semibold text-white px-4 py-1.5 rounded bg-purple-600 hover:bg-purple-700 transition-colors shadow-md">
+                        Editar
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
           </div>
         </main>
       </div>
 
-      {/* Modal de Cadastro */}
+      {/* Modal de Cadastro (Adaptado visualmente para o Tema Escuro) */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50">
-          <div className="bg-[#1a1a1a] p-8 rounded-xl border border-key-divider w-full max-w-md shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/80 flex justify-center items-center p-4 z-50 animate-fadeIn">
+          <div className="bg-[#1a1a1a] p-8 rounded-2xl border border-gray-700 w-full max-w-md shadow-2xl relative">
             <button 
               onClick={() => setIsModalOpen(false)}
-              className="absolute top-4 right-4 text-gray-500 hover:text-white font-bold"
+              className="absolute top-5 right-5 text-gray-400 hover:text-white transition-colors text-xl font-bold"
             >
               ✕
             </button>
             
-            <h2 className="text-2xl font-bold mb-6">Cadastrar Professor Solo</h2>
+            <h2 className="text-2xl font-bold mb-6 text-purple-300">Cadastrar Professor Solo</h2>
             
-            <form onSubmit={handleCreateTeacher} className="flex flex-col gap-4">
+            <form onSubmit={handleCreateTeacher} className="flex flex-col gap-5">
               <div>
-                <label className="block text-xs text-gray-400 font-semibold mb-1">Nome Completo *</label>
+                <label className="block text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">Nome Completo *</label>
                 <Input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="Ex: João Silva" />
               </div>
               
               <div>
-                <label className="block text-xs text-gray-400 font-semibold mb-1">E-mail *</label>
+                <label className="block text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">E-mail *</label>
                 <Input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="contato@professor.com" />
               </div>
 
               <div>
-                <label className="block text-xs text-gray-400 font-semibold mb-1">Senha Provisória *</label>
-                <Input type="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Defina uma senha" />
+                <label className="block text-xs text-gray-400 font-semibold mb-1 uppercase tracking-wider">Senha Provisória *</label>
+                <Input type="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Defina uma senha segura" />
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="mt-4 w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 py-3 rounded-lg font-bold text-white transition-colors"
-              >
-                {isSubmitting ? 'A salvar...' : 'Confirmar Cadastro'}
-              </button>
+              <div className="border-t border-gray-700 pt-4 mt-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-700 disabled:cursor-not-allowed py-3 rounded-lg font-bold text-white transition-colors shadow-md flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? <span className="animate-spin">⏳</span> : null}
+                  {isSubmitting ? 'A guardar...' : 'Confirmar Cadastro'}
+                </button>
+              </div>
             </form>
           </div>
         </div>

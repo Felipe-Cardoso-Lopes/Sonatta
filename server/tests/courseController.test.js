@@ -180,6 +180,17 @@ describe('Course Controller Tests', () => {
         expect(response.status).toBe(500);
       });
     });
+    it('deve retornar a lista de cursos do professor com dados', async () => {
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1, title: 'Violão', instrument: 'Violão' }] });
+
+        const response = await request(app)
+          .get('/api/courses/teacher')
+          .set('Authorization', `Bearer ${teacherToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(1);
+        expect(response.body[0].title).toBe('Violão');
+      });
 
     describe('GET /api/courses/teacher/students', () => {
       it('deve retornar 500 se o banco falhar', async () => {
@@ -191,6 +202,16 @@ describe('Course Controller Tests', () => {
       });
     });
   });
+  it('deve retornar a lista de alunos matriculados nos cursos do professor', async () => {
+        db.query.mockResolvedValueOnce({ rows: [{ id: 50, name: 'João Aluno', course_title: 'Violão' }] });
+
+        const response = await request(app)
+          .get('/api/courses/teacher/students')
+          .set('Authorization', `Bearer ${teacherToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body[0].name).toBe('João Aluno');
+      });
 
   describe('Student Area', () => {
     suppressExpectedConsoleError();
@@ -204,6 +225,16 @@ describe('Course Controller Tests', () => {
         expect(response.status).toBe(500);
       });
     });
+    it('deve retornar a lista de cursos disponíveis para o aluno se matricular', async () => {
+        db.query.mockResolvedValueOnce({ rows: [{ id: 2, title: 'Teoria Musical', teacher_name: 'Beethoven' }] });
+
+        const response = await request(app)
+          .get('/api/courses/student')
+          .set('Authorization', `Bearer ${studentToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body[0].title).toBe('Teoria Musical');
+      });
 
     describe('GET /api/courses/enrolled', () => {
       it('deve retornar lista vazia se aluno não tiver matrículas', async () => {
@@ -225,6 +256,16 @@ describe('Course Controller Tests', () => {
         expect(response.status).toBe(500);
       });
     });
+    it('deve retornar os cursos nos quais o aluno já está matriculado', async () => {
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1, course_id: 2, title: 'Teoria Musical' }] });
+
+        const response = await request(app)
+          .get('/api/courses/enrolled')
+          .set('Authorization', `Bearer ${studentToken}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toHaveLength(1);
+      });
 
     describe('POST /api/courses/student/enroll', () => {
       it('deve retornar 400 se course_id não for fornecido', async () => {
