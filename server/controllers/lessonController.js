@@ -9,6 +9,12 @@ const createLesson = async (req, res) => {
 
   // Aqui poderíamos adicionar uma verificação se req.user.role === 'professor' ou 'admin'
 
+  // ---> VALIDAÇÃO ADICIONADA AQUI <---
+  if (!title || !instrument || !lesson_date) {
+    return res.status(400).json({ message: 'Os campos título, instrumento e data da aula são obrigatórios.' });
+  }
+  // -----------------------------------
+
   try {
     const result = await db.query(
       'INSERT INTO lessons (teacher_id, title, description, instrument, lesson_date) VALUES ($1, $2, $3, $4, $5) RETURNING *',
