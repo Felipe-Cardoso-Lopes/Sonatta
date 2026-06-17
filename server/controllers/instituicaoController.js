@@ -8,6 +8,11 @@ const bcrypt = require('bcryptjs'); // ou 'bcrypt'
 // APROVAÇÃO DE USUÁRIOS
 // ==========================================
 const approveUser = async (req, res) => {
+  // RBAC — whitelist estrita: apenas 'instituicao' pode executar esta ação
+  if (req.user.role !== 'instituicao') {
+    return res.status(403).json({ message: 'Acesso negado. Apenas instituições podem aprovar usuários.' });
+  }
+
   const { email, newRole } = req.body;
 
   if (!email || !newRole) {
@@ -16,10 +21,6 @@ const approveUser = async (req, res) => {
 
   if (newRole !== 'aluno' && newRole !== 'professor') {
     return res.status(400).json({ message: 'Cargo inválido. O usuário deve ser aluno ou professor.' });
-  }
-
-  if (req.user.role === 'aluno') {
-    return res.status(403).json({ message: 'Acesso negado. Apenas instituições podem aprovar usuários.' });
   }
 
   try {
@@ -54,6 +55,10 @@ const approveUser = async (req, res) => {
 // ==========================================
 
 const getTeachers = async (req, res) => {
+  if (req.user.role !== 'instituicao') {
+    return res.status(403).json({ message: 'Acesso negado: apenas instituições podem listar professores.' });
+  }
+
   const instituicao_id = req.user.id;
 
   try {
@@ -72,6 +77,10 @@ const getTeachers = async (req, res) => {
 };
 
 const createTeacher = async (req, res) => {
+  if (req.user.role !== 'instituicao') {
+    return res.status(403).json({ message: 'Acesso negado: apenas instituições podem cadastrar professores.' });
+  }
+
   const { name, email, password } = req.body;
   const instituicao_id = req.user.id;
 

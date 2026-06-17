@@ -10,6 +10,7 @@ const request = require('supertest');
 const { app } = require('../server');
 const db = require('../config/db');
 const jwt = require('jsonwebtoken');
+const { suppressExpectedConsoleError } = require('./helpers/console');
 
 // Mock do banco de dados
 jest.mock('../config/db', () => ({
@@ -35,6 +36,9 @@ jest.mock('mercadopago', () => {
 describe('Payment Controller Integration Tests', () => {
   let token;
   const mockUser = { id: 1, role: 'instituicao' };
+
+  // DB failure tests acionam console.error nos controllers (comportamento esperado de produção).
+  suppressExpectedConsoleError();
 
   beforeAll(() => {
     token = jwt.sign(mockUser, process.env.JWT_SECRET, { expiresIn: '1h' });

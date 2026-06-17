@@ -18,6 +18,18 @@ const transporter = nodemailer.createTransport({
 const login = async (req, res) => {
   const { email, password } = req.body;
 
+  // Validação antecipada de campos obrigatórios
+  if (!email || !password) {
+    return res.status(400).json({ message: 'E-mail e senha são obrigatórios.' });
+  }
+
+  // Guarda de segurança: JWT_SECRET deve estar configurado no ambiente
+  const jwtSecret = process.env.JWT_SECRET;
+  if (!jwtSecret) {
+    console.error('[login] JWT_SECRET não configurado no ambiente.');
+    return res.status(500).json({ message: 'Erro de configuração do servidor.' });
+  }
+
   try {
     // Busca dados essenciais do usuário no banco, incluindo nickname e tipo de professor
     const query = 'SELECT id, name, nickname, email, password_hash, role, is_verified, teacher_type FROM users WHERE email = $1';
@@ -44,7 +56,7 @@ const login = async (req, res) => {
     // Geração do token de sessão JWT (válido por 1 dia)
     const token = jwt.sign(
       { id: user.id, role: user.role },
-      process.env.JWT_SECRET || 'secreta_super_segura',
+      jwtSecret,
       { expiresIn: '1d' }
     );
 

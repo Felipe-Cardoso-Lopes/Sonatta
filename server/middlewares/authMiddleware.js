@@ -14,7 +14,9 @@ const verifyToken = async (req, res, next) => {
       // SOLUÇÃO: 'return' adicionado para encerrar o fluxo após o sucesso
       return next(); 
     } catch (error) {
-      console.error(error);
+      if (process.env.NODE_ENV !== 'test') {
+        console.error('Falha na verificação do token:', error.message);
+      }
       // SOLUÇÃO: 'return' adicionado para evitar ERR_HTTP_HEADERS_SENT
       return res.status(401).json({ message: 'Não autorizado, token inválido ou expirado.' });
     }
