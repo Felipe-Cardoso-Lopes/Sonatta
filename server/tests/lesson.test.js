@@ -63,4 +63,45 @@ describe('Rotas de Aulas (Lessons)', () => {
     expect(res.body[0].title).toBe('Aula de Violão Iniciante');
     expect(db.query).toHaveBeenCalledTimes(1);
   });
+  it('Validation: Deve retornar erro 400 se faltarem campos obrigatórios ao criar aula', async () => {
+    const aulaInvalida = {
+      description: 'Acordes básicos e ritmo'
+      // Faltando title, instrument e lesson_date propositalmente
+    };
+
+    const res = await request(app)
+      .post('/api/lessons')
+      .send(aulaInvalida);
+
+    expect(res.statusCode).toEqual(400);
+    expect(res.body).toHaveProperty('message'); 
+    // Garante que o sistema barrou antes de chamar o banco
+    expect(db.query).not.toHaveBeenCalled(); 
+  });
+
+  it('Database Failure: Deve retornar erro 500 se o banco falhar ao criar aula', async () => {
+    const novaAula = {
+      title: 'Aula Teste',
+      description: 'Desc',
+      instrument: 'Piano',
+      lesson_date: '2026-03-25T14:00:00Z'
+    };
+
+    // Força um erro no banco de dados
+    db.query.mockRejectedValueOnce(new Error('DB Connection Error'));
+
+    const res = await request(app)
+      .post('/api/lessons')
+      .send(novaAula);
+
+    expect(res.statusCode).toEqual(500);
+  });
+
+  it('Database Failure: Deve retornar erro 500 se o banco falhar ao listar aulas', async () => {
+    db.query.mockRejectedValueOnce(new Error('DB Connection Error'));
+
+    const res = await request(app).get('/api/lessons');
+
+    expect(res.statusCode).toEqual(500);
+  });
 });
