@@ -101,7 +101,8 @@ const getAllCoursesForStudent = async (req, res) => {
         u.name as teacher_name,
         EXISTS(SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.user_id = $1) as is_enrolled
        FROM courses c 
-       JOIN users u ON c.teacher_id = u.id`,
+       JOIN users u ON c.teacher_id = u.id
+       WHERE u.instituicao_id = (SELECT instituicao_id FROM users WHERE id = $1)`,
        [student_id]
     );
     res.json(result.rows);
@@ -148,6 +149,18 @@ const enrollStudent = async (req, res) => {
 
     if (userCheck.rows.length === 0 || !userCheck.rows[0].instituicao_id) {
       return res.status(403).json({ message: 'Apenas alunos vinculados a uma instituição podem se matricular em cursos.' });
+    }
+
+    // 1.5 Verifica se o curso pertence à mesma instituição do aluno
+    const courseCheck = await db.query(
+      `SELECT c.id FROM courses c 
+       JOIN users u ON c.teacher_id = u.id 
+       WHERE c.id = $1 AND u.instituicao_id = (SELECT instituicao_id FROM users WHERE id = $2)`,
+      [course_id, user_id]
+    );
+
+    if (courseCheck.rows.length === 0) {
+      return res.status(403).json({ message: 'Não é permitido se matricular em cursos de outra instituição.' });
     }
 
     // 2. Verifica se o aluno já está matriculado

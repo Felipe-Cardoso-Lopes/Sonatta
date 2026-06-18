@@ -67,6 +67,21 @@ Atualmente, há uma boa estrutura inicial com `Jest` e `Supertest` focando em ce
 
 ---
 
+### 3. Teacher + Student Security Sprint (Atualização Recente)
+
+Foco recente executado para sanar vazamentos de limites *Multi-Tenant* (isolamento entre instituições diferentes):
+
+#### Findings (Descobertas)
+- A consulta SQL de `getAllCoursesForStudent` (`courseController.js`) falhava em filtrar a `instituicao_id` correspondente.
+- A matrícula `enrollStudent` (`courseController.js`) permitia inscrições em turmas de concorrentes.
+- A busca global `getLessons` (`lessonController.js`) expunha todas as aulas sem filtrar quem a solicitava.
+
+#### Implementation Plan Executado
+- **Testes:** Criação da suíte `tests/teacherStudentSecurity.test.js` dedicada a falhas de RBAC e multi-tenancy.
+- **Correções de Produção:** Modificações nos controladores para injetar filtros rígidos utilizando `instituicao_id = (SELECT instituicao_id FROM users WHERE id = $1)`.
+
+---
+
 ## Verification Plan
 
 ### Automated Tests

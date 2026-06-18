@@ -58,11 +58,11 @@ Plataforma SaaS para gestão de escolas de música.
 
 ### Test Suites
 
-16
+17
 
 ### Testes
 
-188 passando
+195 passando
 
 ### Falhas
 
@@ -79,6 +79,7 @@ Security Sprint
 * User/Admin Public Routes — IDOR + auth bypass (Cycle 3B)
 * Auth Controller — send-code, verify-code, register-institution (Cycle 3C)
 * Institution Security
+* Teacher + Student Security (Multi-Tenant Isolation)
 
 ### Em andamento
 
@@ -86,7 +87,5 @@ Security Sprint
 
 ## Próximos Passos
 
-1. Teacher Controller
-2. Student Controller
-3. Payment Controller
-4. Playwright E2E
+1. Payment Controller Security
+2. Playwright E2E

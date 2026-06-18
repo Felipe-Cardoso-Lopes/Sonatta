@@ -290,6 +290,7 @@ describe('Course Controller Tests', () => {
 
       it('deve retornar 400 se já estiver matriculado', async () => {
         db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 1 }] }); // userCheck
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1 }] }); // courseCheck
         db.query.mockResolvedValueOnce({ rows: [{ course_id: 1 }] }); // enrollment check (já matriculado)
 
         const response = await request(app)
@@ -303,6 +304,7 @@ describe('Course Controller Tests', () => {
 
       it('deve matricular o aluno com sucesso', async () => {
         db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 1 }] }); // userCheck
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1 }] }); // courseCheck
         db.query.mockResolvedValueOnce({ rows: [] }); // enrollment check
         db.query.mockResolvedValueOnce({ rowCount: 1 }); // insert
 
