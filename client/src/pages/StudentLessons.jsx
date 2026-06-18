@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 import StudentSidebar from "../components/StudentSidebar";
+import ReviewModal from "../components/ReviewModal";
 
 const CourseCard = ({ title, professor, teacher_name, instrument, is_enrolled, onClick, isSelected }) => {
   const nomeDoProf = professor || teacher_name || "Professor";
@@ -38,11 +39,9 @@ function StudentLessons() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("enrolled");
 
-  // Estados dos Módulos/Aulas Gravadas
   const [modules, setModules] = useState([]);
   const [activeClass, setActiveClass] = useState(null);
 
-  // Estados do Chat
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -56,10 +55,6 @@ function StudentLessons() {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  const [reviewRating, setReviewRating] = useState(0);
-  const [reviewComment, setReviewComment] = useState('');
-  const [hoveredStar, setHoveredStar] = useState(0);
-  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
   const typingTimeoutRef = useRef(null);
   const chatScrollRef = useRef(null);
@@ -69,9 +64,6 @@ function StudentLessons() {
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
-  // ==========================
-  // BUSCA INICIAL DE CURSOS
-  // ==========================
   useEffect(() => {
     fetchCourses();
   }, []);
@@ -93,16 +85,10 @@ function StudentLessons() {
     }
   };
 
-  // ==========================
-  // QUANDO UM CURSO É SELECIONADO...
-  // ==========================
   useEffect(() => {
     if (selectedCourse) {
       activeTeacherIdRef.current = selectedCourse.teacher_id;
-      
-      // Busca módulos sempre, para mostrar como vitrine mesmo se não estiver matriculado!
       fetchModulesAndClasses(selectedCourse.id, selectedCourse.is_enrolled);
-      
       if (selectedCourse.is_enrolled) {
         fetchCompletedLessons(selectedCourse.teacher_id);
       }
@@ -116,7 +102,6 @@ function StudentLessons() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setModules(res.data);
-      // Seleciona a primeira aula apenas se o aluno estiver matriculado
       if (isEnrolled && res.data.length > 0 && res.data[0].classes.length > 0) {
         setActiveClass(res.data[0].classes[0]);
       } else {
@@ -127,9 +112,6 @@ function StudentLessons() {
     }
   };
 
-  // ==========================
-  // MATRÍCULA E DESMATRÍCULA
-  // ==========================
   const handleEnroll = async () => {
     try {
       await axios.post(
@@ -165,9 +147,6 @@ function StudentLessons() {
     }
   };
 
-  // ==========================
-  // SOCKET E CHAT
-  // ==========================
   useEffect(() => {
     if (!userId || userId === "null" || userId === "undefined") return;
 
@@ -267,9 +246,6 @@ function StudentLessons() {
     }
   };
 
-  // ==========================
-  // AVALIAÇÕES E REVIEWS
-  // ==========================
   const fetchCompletedLessons = async (teacherId) => {
     try {
       const res = await axios.get(`${API_URL}/api/lessons/completed/${teacherId}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -277,24 +253,9 @@ function StudentLessons() {
     } catch (err) { console.error('Erro:', err); }
   };
 
-  const handleSubmitReview = async () => {
-    if (reviewRating === 0) return alert('Selecione uma nota.');
-    setIsSubmittingReview(true);
-    try {
-      await axios.post(`${API_URL}/api/reviews`, { lesson_id: selectedLesson.id, rating: reviewRating, comment: reviewComment || null }, { headers: { Authorization: `Bearer ${token}` } });
-      alert('Avaliação enviada com sucesso! ⭐');
-      setIsReviewModalOpen(false);
-      setReviewRating(0);
-      setReviewComment('');
-      setSelectedLesson(null);
-      fetchCompletedLessons(selectedCourse.teacher_id);
-    } catch (err) { alert('Erro ao enviar avaliação.'); } finally { setIsSubmittingReview(false); }
-  };
-
-  const openReviewModal = (lesson) => {
-    setSelectedLesson(lesson);
-    setReviewRating(0);
-    setReviewComment('');
+ const openReviewModal = (lesson, type = 'lesson') => {
+    // Adicionamos a propriedade reviewType para diferenciar de onde veio
+    setSelectedLesson({ ...lesson, reviewType: type });
     setIsReviewModalOpen(true);
   };
 
@@ -312,7 +273,6 @@ function StudentLessons() {
 
       <main className="flex-grow p-4 md:p-8 flex flex-col lg:flex-row gap-8 overflow-hidden h-screen">
         
-        {/* BARRA LATERAL ESQUERDA - LISTA DE CURSOS */}
         <aside className="w-full lg:w-1/4 bg-gray-800 rounded-lg p-4 flex flex-col gap-4 overflow-y-auto max-h-full shadow-lg">
           <div className="flex gap-2 mb-2 p-1 bg-gray-900 rounded-lg shrink-0">
             <button
@@ -353,11 +313,9 @@ function StudentLessons() {
           </div>
         </aside>
 
-        {/* ÁREA CENTRAL - MÓDULOS E PLAYER DE VÍDEO */}
         <section className="flex-grow flex flex-col lg:flex-row gap-6 overflow-y-auto pr-2 h-full">
           {selectedCourse ? (
             <>
-              {/* ESQUERDA DO CENTRO: INFO / PLAYER */}
               <div className="flex-grow flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar pr-2">
                 <div className="flex justify-between items-center bg-gray-800 p-4 rounded-lg shadow-md border border-gray-700 shrink-0">
                     <div>
@@ -393,7 +351,13 @@ function StudentLessons() {
                         <iframe className="w-full h-full" src={activeClass.video_url?.replace('watch?v=', 'embed/')} allowFullScreen></iframe>
                       </div>
                       <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-                        <h1 className="text-2xl font-bold mb-2">{activeClass.title}</h1>
+                        <div className="flex justify-between items-start mb-2">
+                           <h1 className="text-2xl font-bold">{activeClass.title}</h1>
+                           {/* Passe 'course_class' como segundo parâmetro: */}
+<button onClick={() => openReviewModal(activeClass, 'course_class')} className="bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-4 py-2 rounded-lg text-sm shadow-md transition-colors flex items-center gap-2">
+  ⭐ Avaliar Aula
+</button>
+                        </div>
                         <p className="text-gray-300 text-sm">{activeClass.description || "Nenhuma descrição."}</p>
                         {activeClass.documents && activeClass.documents.length > 0 && (
                           <div className="mt-6 pt-4 border-t border-gray-700">
@@ -425,7 +389,6 @@ function StudentLessons() {
                   </div>
                 )}
 
-                {/* Área de Avaliações */}
                 {selectedCourse.is_enrolled && completedLessons.length > 0 && (
                   <div className="bg-gray-800 rounded-lg p-6 border border-gray-700 mt-4 shrink-0">
                     <p className="text-sm text-gray-400 mb-3 font-semibold">Pendentes de Avaliação (Aulas ao Vivo):</p>
@@ -443,7 +406,6 @@ function StudentLessons() {
                 )}
               </div>
 
-              {/* DIREITA DO CENTRO: LISTA DE MÓDULOS E AULAS (Aba Lateral Direita) */}
               <aside className="w-full lg:w-72 bg-[#1a1a1a] rounded-xl border border-gray-700 flex flex-col shadow-xl flex-shrink-0">
                 <div className="p-4 border-b border-gray-700 bg-gray-900 rounded-t-xl">
                   <h2 className="font-bold text-base text-purple-300">Conteúdo do Curso</h2>
@@ -482,7 +444,6 @@ function StudentLessons() {
         </section>
       </main>
 
-      {/* MODAL DE CHAT E AVALIAÇÃO CONTINUAM AQUI EMBAIXO INTACTOS */}
       {isChatOpen && selectedCourse && (
         <div className="fixed bottom-0 right-0 md:bottom-8 md:right-8 w-full md:w-80 bg-gray-800 border border-gray-600 rounded-t-xl md:rounded-xl shadow-2xl z-50 flex flex-col h-[450px]">
           <div className="bg-blue-600 p-3 flex justify-between items-center text-white shadow-md z-10">
@@ -508,7 +469,7 @@ function StudentLessons() {
               onClick={() => setIsChatOpen(false)}
               className="hover:text-gray-300 font-bold text-xl leading-none"
             >
-              &times;
+              ×
             </button>
           </div>
 
@@ -565,71 +526,19 @@ function StudentLessons() {
         </div>
       )}
 
+      {/* Altere o targetType para receber a propriedade dinâmica */}
       {isReviewModalOpen && selectedLesson && (
-        <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4">
-          <div className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-6 border border-gray-600">
-            
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-white">Como foi sua aula?</h2>
-              <button
-                onClick={() => setIsReviewModalOpen(false)}
-                className="text-gray-400 hover:text-white text-2xl leading-none"
-              >
-                &times;
-              </button>
-            </div>
-
-            <p className="text-sm text-gray-400 mb-6 text-center">
-              Avaliando: <span className="text-purple-400 font-semibold">{selectedLesson.title}</span>
-            </p>
-
-            <div className="flex justify-center gap-3 mb-6">
-              {[1, 2, 3, 4, 5].map(star => (
-                <button
-                  key={star}
-                  onClick={() => setReviewRating(star)}
-                  onMouseEnter={() => setHoveredStar(star)}
-                  onMouseLeave={() => setHoveredStar(0)}
-                  className="text-4xl transition-transform hover:scale-110"
-                >
-                  <span className={star <= (hoveredStar || reviewRating) ? 'text-yellow-400' : 'text-gray-600'}>
-                    ★
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            {reviewRating > 0 && (
-              <p className="text-center text-sm font-semibold mb-4 text-yellow-400">
-                {['', 'Muito ruim', 'Ruim', 'Regular', 'Boa', 'Excelente!'][reviewRating]}
-              </p>
-            )}
-
-            <textarea
-              value={reviewComment}
-              onChange={e => setReviewComment(e.target.value)}
-              placeholder="Deixe um comentário (opcional)..."
-              rows={3}
-              className="w-full bg-gray-900 border border-gray-600 rounded-lg px-4 py-3 text-sm text-white outline-none focus:border-purple-500 resize-none mb-6"
-            />
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setIsReviewModalOpen(false)}
-                className="flex-1 py-3 rounded-lg border border-gray-600 text-gray-400 hover:text-white hover:border-gray-400 transition-colors font-semibold text-sm"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleSubmitReview}
-                disabled={reviewRating === 0 || isSubmittingReview}
-                className="flex-1 py-3 rounded-lg bg-purple-600 hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-sm transition-colors"
-              >
-                {isSubmittingReview ? 'Enviando...' : 'Enviar Avaliação'}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ReviewModal
+          targetId={selectedLesson.id}
+          targetType={selectedLesson.reviewType} 
+          title={`Avaliando: ${selectedLesson.title}`}
+          onClose={() => setIsReviewModalOpen(false)}
+          onSuccess={() => {
+            setIsReviewModalOpen(false);
+            alert("Obrigado pelo seu feedback! ⭐");
+            fetchCompletedLessons(selectedCourse.teacher_id);
+          }}
+        />
       )}
     </div>
   );

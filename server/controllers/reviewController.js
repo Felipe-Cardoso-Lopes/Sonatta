@@ -1,111 +1,138 @@
 const db = require('../config/db');
 
-// POST /api/reviews — Criar uma avaliação
 const createReview = async (req, res) => {
-  const student_id = req.user.id;
-  const { lesson_id, rating, comment } = req.body;
-
-  // 1. Validação básica
-  if (!lesson_id || !rating) {
-    return res.status(400).json({ message: 'lesson_id e rating são obrigatórios.' });
-  }
-
-  if (rating < 1 || rating > 5) {
-    return res.status(400).json({ message: 'A nota deve ser entre 1 e 5.' });
-  }
+  const studentId = req.user.id;
+  const { target_id, target_type, rating, comment } = req.body;
 
   try {
-    // 2. Busca a aula e valida se pertence ao aluno e está concluída
-    const lessonResult = await db.query(
-      `SELECT * FROM lessons WHERE id = $1`,
-      [lesson_id]
-    );
+    const query = `
+      INSERT INTO reviews (student_id, target_id, target_type, rating, comment)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (student_id, target_id, target_type) 
+      DO UPDATE SET rating = EXCLUDED.rating, comment = EXCLUDED.comment, created_at = NOW()
+      RETURNING *;
+    `;
+    const result = await db.query(query, [studentId, target_id, target_type, rating, comment]);
+    
+    // ========================================================
+    // 🔔 SISTEMA DE NOTIFICAÇÃO AO PROFESSOR
+    // ========================================================
+    let teacherIdToNotify = null;
+    let messageToNotify = '';
 
-    if (lessonResult.rows.length === 0) {
-      return res.status(404).json({ message: 'Aula não encontrada.' });
+    if (target_type === 'teacher') {
+      teacherIdToNotify = target_id;
+      messageToNotify = `Recebeu uma nova avaliação de ⭐ ${rating} no seu perfil!`;
+    } else if (target_type === 'lesson') {
+      const getTeacher = await db.query(`SELECT teacher_id FROM lessons WHERE id = $1`, [target_id]);
+      if(getTeacher.rows.length > 0) teacherIdToNotify = getTeacher.rows[0].teacher_id;
+      messageToNotify = `A sua aula ao vivo recebeu uma avaliação de ⭐ ${rating}!`;
+    } else if (target_type === 'course_class') {
+      // CORREÇÃO: Alterado de "FROM classes" para "FROM module_classes"
+      const getTeacher = await db.query(`
+        SELECT co.teacher_id 
+        FROM module_classes c 
+        JOIN modules m ON c.module_id = m.id 
+        JOIN courses co ON m.course_id = co.id 
+        WHERE c.id = CAST($1 AS INTEGER)
+      `, [target_id]);
+      if(getTeacher.rows.length > 0) teacherIdToNotify = getTeacher.rows[0].teacher_id;
+      messageToNotify = `Uma aula do seu curso gravado recebeu uma avaliação de ⭐ ${rating}!`;
     }
 
-    const lesson = lessonResult.rows[0];
-
-    if (lesson.student_id !== student_id) {
-      return res.status(403).json({ message: 'Você não pode avaliar uma aula que não é sua.' });
+    if (teacherIdToNotify) {
+      try {
+        await db.query(`
+          INSERT INTO notifications (user_id, title, message, type, read, created_at)
+          VALUES ($1, 'Nova Avaliação! 🎉', $2, 'review', false, NOW())
+        `, [teacherIdToNotify, messageToNotify]);
+      } catch (err) {
+        console.log('Notificação ignorada: A tabela de notificações não existe ou a estrutura é diferente.');
+      }
     }
 
-    if (lesson.status !== 'concluida') {
-      return res.status(400).json({ message: 'Só é possível avaliar aulas concluídas.' });
-    }
-
-    // 3. Insere a avaliação
-    const reviewResult = await db.query(
-      `INSERT INTO reviews (student_id, teacher_id, lesson_id, rating, comment)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING *`,
-      [student_id, lesson.teacher_id, lesson_id, rating, comment || null]
-    );
-
-    // 4. Recalcula a média do professor (Task 10.2)
-    await db.query(
-      `UPDATE users
-       SET average_rating = (
-         SELECT ROUND(AVG(rating)::numeric, 2)
-         FROM reviews
-         WHERE teacher_id = $1
-       )
-       WHERE id = $1`,
-      [lesson.teacher_id]
-    );
-
-    return res.status(201).json({
-      message: 'Avaliação enviada com sucesso!',
-      review: reviewResult.rows[0]
-    });
-
+    res.status(201).json({ message: 'Avaliação guardada com sucesso!', review: result.rows[0] });
   } catch (error) {
-    // Trata tentativa de avaliação duplicada (constraint UNIQUE)
-    if (error.code === '23505') {
-      return res.status(409).json({ message: 'Você já avaliou esta aula.' });
-    }
-    console.error('[createReview] Erro:', error);
-    return res.status(500).json({ message: 'Erro interno no servidor.' });
+    console.error('Erro ao salvar review:', error);
+    res.status(500).json({ message: 'Erro interno ao salvar a avaliação.' });
   }
 };
 
-// GET /api/reviews/teacher/:teacherId — Buscar avaliações de um professor
-const getTeacherReviews = async (req, res) => {
-  const { teacherId } = req.params;
+const getTargetReviews = async (req, res) => {
+  const { target_type, target_id } = req.params;
 
   try {
-    const result = await db.query(
-      `SELECT 
-         r.id,
-         r.rating,
-         r.comment,
-         r.created_at,
-         u.name AS student_name,
-         u.nickname AS student_nickname
-       FROM reviews r
-       JOIN users u ON r.student_id = u.id
-       WHERE r.teacher_id = $1
-       ORDER BY r.created_at DESC`,
-      [teacherId]
-    );
+    let aggregateQuery;
+    let commentsQuery;
+    let queryParams = [target_id];
 
-    // Busca a média atual do professor
-    const teacherResult = await db.query(
-      `SELECT average_rating FROM users WHERE id = $1`,
-      [teacherId]
-    );
+    if (target_type === 'teacher') {
+      // CORREÇÃO: Alterado de "FROM classes" para "FROM module_classes" nas subqueries
+      aggregateQuery = `
+        SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(*) as total_reviews 
+        FROM reviews 
+        WHERE (target_type = 'teacher' AND target_id = CAST($1 AS VARCHAR))
+           OR (target_type = 'lesson' AND target_id IN (
+                SELECT CAST(id AS VARCHAR) FROM lessons WHERE teacher_id = CAST($1 AS INTEGER)
+           ))
+           OR (target_type = 'course_class' AND target_id IN (
+                SELECT CAST(c.id AS VARCHAR) 
+                FROM module_classes c
+                JOIN modules m ON c.module_id = m.id
+                JOIN courses co ON m.course_id = co.id
+                WHERE co.teacher_id = CAST($1 AS INTEGER)
+           ))
+      `;
 
-    return res.status(200).json({
-      average_rating: teacherResult.rows[0]?.average_rating || null,
-      total_reviews: result.rows.length,
-      reviews: result.rows
+      commentsQuery = `
+        SELECT r.rating, r.comment, r.created_at, u.name as student_name
+        FROM reviews r
+        JOIN users u ON r.student_id = u.id
+        WHERE (
+             (r.target_type = 'teacher' AND r.target_id = CAST($1 AS VARCHAR))
+          OR (r.target_type = 'lesson' AND r.target_id IN (
+                SELECT CAST(id AS VARCHAR) FROM lessons WHERE teacher_id = CAST($1 AS INTEGER)
+             ))
+          OR (r.target_type = 'course_class' AND r.target_id IN (
+                SELECT CAST(c.id AS VARCHAR) 
+                FROM module_classes c
+                JOIN modules m ON c.module_id = m.id
+                JOIN courses co ON m.course_id = co.id
+                WHERE co.teacher_id = CAST($1 AS INTEGER)
+             ))
+        )
+        AND r.comment IS NOT NULL AND r.comment != '' 
+        ORDER BY r.created_at DESC LIMIT 5
+      `;
+    } else {
+      aggregateQuery = `
+        SELECT ROUND(AVG(rating), 1) as average_rating, COUNT(*) as total_reviews 
+        FROM reviews WHERE target_type = $1 AND target_id = CAST($2 AS VARCHAR)
+      `;
+      commentsQuery = `
+        SELECT r.rating, r.comment, r.created_at, u.name as student_name
+        FROM reviews r
+        JOIN users u ON r.student_id = u.id
+        WHERE r.target_type = $1 AND r.target_id = CAST($2 AS VARCHAR) AND r.comment IS NOT NULL AND r.comment != '' 
+        ORDER BY r.created_at DESC LIMIT 5
+      `;
+      queryParams = [target_type, target_id];
+    }
+
+    const aggResult = await db.query(aggregateQuery, queryParams);
+    const commentsResult = await db.query(commentsQuery, queryParams);
+
+    res.json({
+      summary: {
+        average: aggResult.rows[0].average_rating || 0,
+        total: parseInt(aggResult.rows[0].total_reviews) || 0
+      },
+      recent_comments: commentsResult.rows
     });
-
   } catch (error) {
-    console.error('[getTeacherReviews] Erro:', error);
-    return res.status(500).json({ message: 'Erro interno no servidor.' });
+    console.error('Erro ao buscar reviews:', error);
+    res.status(500).json({ message: 'Erro ao carregar avaliações.' });
   }
 };
 
-module.exports = { createReview, getTeacherReviews };
+module.exports = { createReview, getTargetReviews };
