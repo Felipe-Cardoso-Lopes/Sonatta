@@ -7,10 +7,12 @@ const { verifyToken } = require('../middlewares/authMiddleware');
 
 router.post('/register', registerUser);
 router.post('/login', loginUser);
-router.put('/profile', verifyToken, updateUserProfile); 
-router.put('/complete/:id', completeRegistration);
+router.put('/profile', verifyToken, updateUserProfile);
+// verifyToken + ownership guard: apenas o próprio utilizador pode completar o seu registo
+router.put('/complete/:id', verifyToken, completeRegistration);
 router.get('/profile', verifyToken, getUserProfile);
-router.post('/preferences', saveMusicalPreferences);
+// verifyToken: userId é ignorado do body — utiliza req.user.id no controller
+router.post('/preferences', verifyToken, saveMusicalPreferences);
 router.get('/public/:id', getPublicProfile);
 
 module.exports = router;

@@ -41,24 +41,28 @@ Plataforma SaaS para gestão de escolas de música.
 
 * Course Controller
 * Super Admin Controller
+* Auth Controller (login)
+* User Security (complete/:id, preferences, admin/stats)
 * Institution Security
 
 ### Segurança
 
-* JWT
-* RBAC
+* JWT (sem fallback inseguro)
+* RBAC (checkRole)
+* IDOR (ownership guards)
 * Multi-Tenant
 * Proteção de Role Escalation
+* Rotas públicas protegidas
 
 ## Estado Atual
 
 ### Test Suites
 
-9
+16
 
 ### Testes
 
-91 passando
+188 passando
 
 ### Falhas
 
@@ -70,17 +74,19 @@ Security Sprint
 
 ### Concluído
 
-* Super Admin Security
+* Super Admin Security (Cycle 1)
+* Auth Controller — login (Cycle 3A)
+* User/Admin Public Routes — IDOR + auth bypass (Cycle 3B)
+* Auth Controller — send-code, verify-code, register-institution (Cycle 3C)
 * Institution Security
 
 ### Em andamento
 
-* Auth Controller Security
+* Finalização do Security Sprint
 
 ## Próximos Passos
 
-1. Auth Controller
-2. Teacher Controller
-3. Student Controller
-4. Payment Controller
-5. Playwright E2E
+1. Teacher Controller
+2. Student Controller
+3. Payment Controller
+4. Playwright E2E
