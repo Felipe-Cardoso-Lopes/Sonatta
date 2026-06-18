@@ -31,12 +31,15 @@ const createLesson = async (req, res) => {
 // @route   GET /api/lessons
 // @access  Privado (Alunos/Professores/Admins)
 const getLessons = async (req, res) => {
+  const user_id = req.user.id;
   try {
     const result = await db.query(
       `SELECT l.*, u.name as teacher_name 
        FROM lessons l 
        JOIN users u ON l.teacher_id = u.id 
-       ORDER BY l.lesson_date ASC`
+       WHERE u.instituicao_id = (SELECT instituicao_id FROM users WHERE id = $1)
+       ORDER BY l.lesson_date ASC`,
+      [user_id]
     );
     res.json(result.rows);
   } catch (error) {
