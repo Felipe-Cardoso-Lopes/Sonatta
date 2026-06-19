@@ -97,7 +97,7 @@ function InstituicaoRegister() { // <-- Nome da função atualizado
 
         {/* Feedback visual de Sucesso - Renderiza apenas se houver sucesso */}
         {successMessage && (
-          <div className="bg-green-900/50 border border-green-500 text-green-300 p-5 rounded-lg text-sm mb-6 text-center shadow-lg">
+          <div className="bg-green-900/50 border border-green-500 text-green-300 p-5 rounded-lg text-sm mb-6 text-center shadow-lg" data-testid="inst-reg-success-msg">
             <svg className="w-10 h-10 mx-auto mb-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -124,6 +124,7 @@ function InstituicaoRegister() { // <-- Nome da função atualizado
               <Input 
                 type="text" name="nome" 
                 value={formData.nome} onChange={handleChange} 
+                data-testid="inst-reg-name-input"
                 required placeholder="Ex: Escola Harmonia" 
               />
             </div>
@@ -133,6 +134,7 @@ function InstituicaoRegister() { // <-- Nome da função atualizado
               <Input 
                 type="email" name="email" 
                 value={formData.email} onChange={handleChange} 
+                data-testid="inst-reg-email-input"
                 required placeholder="contato@escola.com" 
               />
             </div>
@@ -142,6 +144,7 @@ function InstituicaoRegister() { // <-- Nome da função atualizado
               <Input 
                 type="text" name="telefone" 
                 value={formData.telefone} onChange={handleChange} 
+                data-testid="inst-reg-phone-input"
                 required placeholder="(61) 90000-0000" 
               />
             </div>
@@ -158,6 +161,7 @@ function InstituicaoRegister() { // <-- Nome da função atualizado
             <button
               type="submit"
               disabled={isSubmitting}
+              data-testid="inst-reg-submit-button"
               className="mt-4 w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 py-3 rounded-lg font-bold text-white transition-all shadow-lg hover:shadow-purple-500/20"
             >
               {isSubmitting ? 'Enviando solicitação...' : 'Solicitar Acesso'}

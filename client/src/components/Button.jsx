@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Button({ children, variant = 'primary', onClick, type = 'button', className = '' }) {
+function Button({ children, variant = 'primary', onClick, type = 'button', className = '', ...props }) {
   const baseClasses = "px-5 py-3 rounded-lg font-bold transition duration-300 ease-in-out cursor-pointer";
   let variantClasses = "";
 
@@ -19,6 +19,7 @@ function Button({ children, variant = 'primary', onClick, type = 'button', class
       type={type}
       onClick={onClick}
       className={`${baseClasses} ${variantClasses} ${className}`}
+      {...props}
     >
       {children}
     </button>

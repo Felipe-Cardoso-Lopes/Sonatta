@@ -289,7 +289,7 @@ function StudentLessons() {
             </button>
           </div>
 
-          <div className="flex flex-col gap-4 overflow-y-auto custom-scrollbar">
+          <div className="flex flex-col gap-4 overflow-y-auto custom-scrollbar" data-testid="course-list-container">
             {isLoading ? (
               <p className="text-gray-400 text-center py-4">Carregando...</p>
             ) : activeTab === "enrolled" ? (
@@ -338,7 +338,7 @@ function StudentLessons() {
                         </button>
                       </div>
                     ) : (
-                      <button onClick={handleEnroll} className="bg-green-600 hover:bg-green-700 py-2 px-6 rounded-lg font-bold transition-colors shadow-md text-white text-sm shadow-[0_0_10px_rgba(22,163,74,0.4)] animate-pulse">
+                      <button onClick={handleEnroll} data-testid="course-enroll-button" className="bg-green-600 hover:bg-green-700 py-2 px-6 rounded-lg font-bold transition-colors shadow-md text-white text-sm shadow-[0_0_10px_rgba(22,163,74,0.4)] animate-pulse">
                         Inscrever-se Grátis
                       </button>
                     )}
