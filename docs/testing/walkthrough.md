@@ -78,3 +78,31 @@ Melhorias:
 * Criação do jest.config.js
 * Remoção de logs sensíveis
 * Controle refinado de console.error
+
+---
+
+## Ciclo 4
+
+### Payment Security
+
+Realizamos auditoria focada no fluxo de pagamentos, assinaturas e webhooks da integração com Mercado Pago.
+
+> [!WARNING]
+> O painel financeiro das instituições e a rota de checkout estavam acessíveis por estudantes e professores, o que configurava uma violação grave de privilégios.
+
+#### Vulnerabilidades Encontradas
+* **Ausência de Controle de Acesso (RBAC)**: Rotas financeiras (`/api/payments/institution/summary`, `/api/payments/institution/transactions`, `/api/payments/checkout`) validavam apenas a presença do token, permitindo que alunos e professores acessassem métricas de negócio.
+
+#### Correções de Produção
+* **Restrição RBAC em Rotas**: Inserido o middleware `checkRole(['instituicao', 'super_admin'])` nas rotas do painel financeiro e na geração de checkout.
+
+#### Testes Criados
+Criado o arquivo `server/tests/paymentSecurity.test.js` cobrindo 17 cenários, dentre eles:
+* **Autenticação e RBAC**: Rejeitando estudantes/professores com HTTP 403 nas áreas financeiras.
+* **Multi-Tenant (IDOR Prevention)**: Garantia de que a `instituicao_id` injetada num possível ataque via `req.body` ou `req.query` é totalmente ignorada.
+* **Checkout Sessions**: Bloqueio contra escalada ou pagamento forjado em nome de outras instituições.
+* **Webhooks (Mercado Pago)**: Testes abrangentes de validação (`external_reference`), supressão de erro interno sem vazamento de stack traces e operação tolerante a falhas (eventos duplicados seguros via `ON CONFLICT` no PostgreSQL).
+
+#### Resultado Final
+* A suíte agora conta com 17 suítes e 205 testes passing.
+* Integração de pagamentos totalmente blindada contra *Privilege Escalation* e acessos cruzados.
