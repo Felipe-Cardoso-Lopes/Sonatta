@@ -62,7 +62,7 @@ Plataforma SaaS para gestão de escolas de música.
 
 ### Testes
 
-195 passando
+205 passando
 
 ### Falhas
 
@@ -75,11 +75,9 @@ Security Sprint
 ### Concluído
 
 * Super Admin Security (Cycle 1)
-* Auth Controller — login (Cycle 3A)
-* User/Admin Public Routes — IDOR + auth bypass (Cycle 3B)
-* Auth Controller — send-code, verify-code, register-institution (Cycle 3C)
-* Institution Security
-* Teacher + Student Security (Multi-Tenant Isolation)
+* Institution Security (Cycle 2)
+* Teacher + Student Security (Cycle 3)
+* Payment Security (Cycle 4)
 
 ### Em andamento
 
