@@ -17,7 +17,7 @@ export default defineConfig({
 
   use: {
     // eslint-disable-next-line no-undef
-    baseURL: process.env.BASE_URL || 'https://sonatta-tau.vercel.app',
+    baseURL: process.env.BASE_URL || 'http://localhost:5173',
     actionTimeout: 60000,      
     navigationTimeout: 90000,  
     headless: true,
