@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 # Estado Atual da Estratégia de Testes
 
 ## Ambiente
@@ -70,6 +71,8 @@ E2E
 - Primeira fase E2E validada
 - Correção do fluxo de perfil institucional concluída
 =======
+=======
+>>>>>>> 61164dd78705d3843c95d9bee1e8f327ba6a2ae4
 # Estado Atual do Projeto Sonatta
 
 ## Objetivo
@@ -159,4 +162,7 @@ Security Sprint
 
 1. Payment Controller Security
 2. Playwright E2E
+<<<<<<< HEAD
 >>>>>>> d8683c50cc9cf7fe5ad58eb672b8bd52d1b1952c
+=======
+>>>>>>> 61164dd78705d3843c95d9bee1e8f327ba6a2ae4
