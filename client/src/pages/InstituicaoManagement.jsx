@@ -106,6 +106,7 @@ function InstituicaoManagement() {
             {activeTab === 'professores' && (
               <button
                 onClick={() => setIsModalOpen(true)}
+                data-testid="add-teacher-button"
                 className="bg-purple-600 hover:bg-purple-700 font-bold px-6 py-3 rounded-lg transition-colors shadow-lg"
               >
                 + Adicionar Professor
@@ -199,22 +200,23 @@ function InstituicaoManagement() {
             <form onSubmit={handleCreateTeacher} className="flex flex-col gap-4">
               <div>
                 <label className="block text-xs text-gray-400 font-semibold mb-1">Nome Completo *</label>
-                <Input type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="Ex: Maria Silva" />
+                <Input type="text" name="name" value={formData.name} onChange={handleChange} data-testid="teacher-name-input" required placeholder="Ex: Maria Silva" />
               </div>
               
               <div>
                 <label className="block text-xs text-gray-400 font-semibold mb-1">E-mail *</label>
-                <Input type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="professor@escola.com" />
+                <Input type="email" name="email" value={formData.email} onChange={handleChange} data-testid="teacher-email-input" required placeholder="professor@escola.com" />
               </div>
 
               <div>
                 <label className="block text-xs text-gray-400 font-semibold mb-1">Senha de Acesso (Provisória) *</label>
-                <Input type="password" name="password" value={formData.password} onChange={handleChange} required placeholder="Defina uma senha" />
+                <Input type="password" name="password" value={formData.password} onChange={handleChange} data-testid="teacher-password-input" required placeholder="Defina uma senha" />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
+                data-testid="teacher-submit-button"
                 className="mt-4 w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 py-3 rounded-xl font-bold text-white transition-colors flex justify-center items-center gap-2 shadow-lg"
               >
                 {isSubmitting ? <span className="animate-spin">⏳</span> : null}

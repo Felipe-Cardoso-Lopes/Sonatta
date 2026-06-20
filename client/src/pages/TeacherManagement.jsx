@@ -186,7 +186,7 @@ function TeacherManagement() {
                   <p className="text-gray-400">Administre os seus cursos, módulos, aulas e acompanhe os seus alunos.</p>
                 </div>
                 {activeTab === 'courses' && (
-                  <button onClick={() => setIsCourseModalOpen(true)} className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg flex items-center gap-2">
+                  <button onClick={() => setIsCourseModalOpen(true)} data-testid="add-course-button" className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-xl font-bold transition shadow-lg flex items-center gap-2">
                     <span>+</span> Novo Curso
                   </button>
                 )}
@@ -403,7 +403,7 @@ function TeacherManagement() {
             <form onSubmit={handleCreateCourse} className="flex flex-col gap-4">
               <div>
                 <label className="text-xs text-gray-400 mb-1 block">Nome do Curso</label>
-                <input type="text" value={newCourse.title} onChange={e => setNewCourse({...newCourse, title: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded-lg p-3 text-white focus:border-purple-500 outline-none" required disabled={isSubmitting} />
+                <input type="text" value={newCourse.title} onChange={e => setNewCourse({...newCourse, title: e.target.value})} data-testid="course-title-input" className="w-full bg-[#252525] border border-gray-600 rounded-lg p-3 text-white focus:border-purple-500 outline-none" required disabled={isSubmitting} />
               </div>
               <div>
                 <label className="text-xs text-gray-400 mb-1 block">Instrumento Base</label>
@@ -416,7 +416,7 @@ function TeacherManagement() {
               
               <div className="flex justify-end gap-3 mt-4 pt-4 border-t border-gray-700">
                 <button type="button" onClick={() => setIsCourseModalOpen(false)} className="text-gray-400 hover:text-white px-4 py-2 font-semibold transition" disabled={isSubmitting}>Cancelar</button>
-                <button type="submit" disabled={isSubmitting} className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-white font-bold transition disabled:opacity-50 flex items-center gap-2">
+                <button type="submit" disabled={isSubmitting} data-testid="course-submit-button" className="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-white font-bold transition disabled:opacity-50 flex items-center gap-2">
                   {isSubmitting ? <span className="animate-spin">⏳</span> : null}
                   {isSubmitting ? 'Criando...' : 'Salvar Curso'}
                 </button>

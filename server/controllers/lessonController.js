@@ -31,12 +31,15 @@ const createLesson = async (req, res) => {
 // @route   GET /api/lessons
 // @access  Privado (Alunos/Professores/Admins)
 const getLessons = async (req, res) => {
+  const user_id = req.user.id;
   try {
     const result = await db.query(
       `SELECT l.*, u.name as teacher_name 
        FROM lessons l 
        JOIN users u ON l.teacher_id = u.id 
-       ORDER BY l.lesson_date ASC`
+       WHERE u.instituicao_id = (SELECT instituicao_id FROM users WHERE id = $1)
+       ORDER BY l.lesson_date ASC`,
+      [user_id]
     );
     res.json(result.rows);
   } catch (error) {
@@ -50,14 +53,20 @@ const getCompletedLessons = async (req, res) => {
   const { teacherId } = req.params;
 
   try {
+    // AQUI ESTÁ A CORREÇÃO:
+    // Trocámos o "NOT IN (SELECT lesson_id...)" por "NOT EXISTS" 
+    // verificando as novas colunas target_id e target_type
     const result = await db.query(
       `SELECT id, title, lesson_date 
        FROM lessons 
        WHERE student_id = $1 
          AND teacher_id = $2 
          AND status = 'concluida'
-         AND id NOT IN (
-           SELECT lesson_id FROM reviews WHERE student_id = $1
+         AND NOT EXISTS (
+           SELECT 1 FROM reviews 
+           WHERE student_id = $1 
+             AND target_id = CAST(lessons.id AS VARCHAR) 
+             AND target_type = 'lesson'
          )
        ORDER BY lesson_date DESC`,
       [student_id, teacherId]

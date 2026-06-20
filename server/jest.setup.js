@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-process.env.JWT_SECRET = 'test-jwt-secret';
+process.env.JWT_SECRET = 'segredo-de-teste';
 
 process.env.SUPABASE_URL = 'https://test.supabase.co';
 

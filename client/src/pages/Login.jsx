@@ -85,6 +85,7 @@ function Login() {
                 placeholder="seuemail@exemplo.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                data-testid="login-email-input"
                 required
               />
               <Input
@@ -94,6 +95,7 @@ function Login() {
                 placeholder="********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                data-testid="login-password-input"
                 required
               />
               <div className="mb-6 text-right">
@@ -104,7 +106,7 @@ function Login() {
                   Esqueceu a senha?
                 </Link>
               </div>
-              <Button type="submit" variant="primary" className="w-full">
+              <Button type="submit" variant="primary" className="w-full" data-testid="login-submit-button">
                 Entrar
               </Button>
             </form>

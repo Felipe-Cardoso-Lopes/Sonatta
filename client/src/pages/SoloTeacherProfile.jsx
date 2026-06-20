@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import SoloTeacherSidebar from '../components/SoloTeacherSidebar';
+import StarRating from '../components/StarRating';
 
 function SoloTeacherProfile() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ function SoloTeacherProfile() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState({ summary: { average: 0, total: 0 }, recent_comments: [] });
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -35,6 +37,7 @@ function SoloTeacherProfile() {
     }
 
     fetchUserProfile();
+    fetchTeacherReviews();
   }, [navigate]);
 
   const fetchUserProfile = async () => {
@@ -93,6 +96,17 @@ function SoloTeacherProfile() {
     }
   };
 
+  const fetchTeacherReviews = async () => {
+    try {
+      const teacherId = localStorage.getItem('userId');
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+      const res = await axios.get(`${API_URL}/api/reviews/teacher/${teacherId}`);
+      setReviews(res.data);
+    } catch (error) {
+      console.error('Nenhuma avaliação encontrada ou erro de conexão:', error);
+    }
+  };
+
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleUpdateProfile = async (e) => {
@@ -132,11 +146,11 @@ function SoloTeacherProfile() {
       </div>
 
       <main className="flex-grow p-6 md:p-12 overflow-y-auto">
-        <div className="w-full h-full flex flex-col gap-12 max-w-6xl mx-auto">
+        <div className="w-full h-full flex flex-col gap-10 max-w-6xl mx-auto">
 
           <section className="flex flex-col lg:flex-row gap-8 items-start">
-
-            {/* ====== COLUNA ESQUERDA: DADOS PESSOAIS ====== */}
+            
+            {/* ====== COLUNA ESQUERDA: DADOS PESSOAIS E SEGURANÇA ====== */}
             <div className="flex-1 flex flex-col gap-4 w-full">
               <h3 className="text-xl font-semibold text-purple-300 border-b border-gray-700 pb-2 mb-2">Dados Pessoais</h3>
 
@@ -192,102 +206,112 @@ function SoloTeacherProfile() {
 
               <div className="bg-gray-700 p-6 rounded-xl flex-1 w-full shadow-lg h-full">
                 {isEditing ? (
-                  <div className="flex flex-col gap-4">
-
+                  <div className="flex flex-col gap-4 animate-fadeIn">
                     <div>
                       <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Especialidade Principal</label>
                       <input form="profileForm" type="text" name="specialty" value={formData.specialty} onChange={handleChange} placeholder="Ex: Aulas de Violão e Teoria" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
                     </div>
-
                     <div>
                       <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Biografia / Sobre mim</label>
                       <textarea form="profileForm" name="bio" value={formData.bio} onChange={handleChange} placeholder="Apresente-se aos seus futuros alunos..." rows="4" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white resize-none" />
                     </div>
-
                     <div>
-                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Link do Vídeo de Apresentação (YouTube)</label>
+                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Link do Vídeo de Apresentação</label>
                       <input form="profileForm" type="url" name="videoUrl" value={formData.videoUrl} onChange={handleChange} placeholder="https://www.youtube.com/watch?v=..." className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
                     </div>
-
                     <div>
-                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">🎬 Link do YouTube (Vídeo Introdutório)</label>
+                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">🎬 Link do YouTube</label>
                       <input form="profileForm" type="url" name="youtubeIntroUrl" value={formData.youtubeIntroUrl} onChange={handleChange} placeholder="https://www.youtube.com/watch?v=..." className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
                     </div>
-
                     <div>
-                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">🎵 Link do Spotify (Perfil de Artista)</label>
+                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">🎵 Link do Spotify</label>
                       <input form="profileForm" type="url" name="spotifyArtistUrl" value={formData.spotifyArtistUrl} onChange={handleChange} placeholder="https://open.spotify.com/artist/..." className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
                     </div>
-
                     <div className="flex items-center gap-3 bg-gray-600 p-3 rounded-lg">
                       <input form="profileForm" type="checkbox" id="offersTrialLesson" name="offersTrialLesson" checked={formData.offersTrialLesson} onChange={(e) => setFormData({ ...formData, offersTrialLesson: e.target.checked })} className="w-5 h-5 accent-purple-500 cursor-pointer" />
                       <label htmlFor="offersTrialLesson" className="text-white text-sm cursor-pointer">
-                        Oferecer <strong>aula experimental gratuita</strong> na minha vitrine pública
+                        Oferecer <strong>aula experimental gratuita</strong> na vitrine
                       </label>
                     </div>
-
                   </div>
                 ) : (
                   <div className="flex flex-col h-full justify-start gap-4">
+                    
+                    {/* Badge de Reputação integrado na Vitrine */}
+                    <div className="bg-gray-800 rounded-lg p-4 border border-gray-600 flex items-center justify-between shadow-inner">
+                      <div>
+                        <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Reputação Pública</p>
+                        <div className="flex items-center gap-2">
+                          <span className="text-2xl text-yellow-400 font-bold">★ {Number(reviews.summary.average).toFixed(1)}</span>
+                          <span className="text-sm text-gray-400">({reviews.summary.total} avaliações)</span>
+                        </div>
+                      </div>
+                      <div className="hidden sm:block">
+                        <StarRating rating={Math.round(reviews.summary.average)} readonly={true} />
+                      </div>
+                    </div>
 
                     <div>
                       <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Especialidade Principal</p>
                       <p className="text-white text-lg font-medium">{user.specialty || 'Não informada'}</p>
                     </div>
-
                     <div>
                       <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Biografia</p>
                       <p className="text-gray-300 text-sm leading-relaxed">{user.bio || 'Nenhuma biografia adicionada até ao momento.'}</p>
                     </div>
-
-                    <div>
-                      <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Vídeo de Apresentação</p>
-                      {user.videoUrl ? (
-                        <a href={user.videoUrl} target="_blank" rel="noopener noreferrer" className="text-purple-400 hover:text-purple-300 hover:underline text-sm truncate block font-medium">
-                          {user.videoUrl}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {user.youtubeIntroUrl && (
+                        <a href={user.youtubeIntroUrl} target="_blank" rel="noopener noreferrer" className="bg-red-500/10 border border-red-500/20 text-red-400 hover:bg-red-500/20 px-3 py-2 rounded-lg text-sm truncate flex items-center gap-2 transition">
+                          🎬 YouTube
                         </a>
-                      ) : (
-                        <p className="text-gray-500 text-sm">Nenhum vídeo associado.</p>
+                      )}
+                      {user.spotifyArtistUrl && (
+                        <a href={user.spotifyArtistUrl} target="_blank" rel="noopener noreferrer" className="bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 px-3 py-2 rounded-lg text-sm truncate flex items-center gap-2 transition">
+                          🎵 Spotify Artista
+                        </a>
                       )}
                     </div>
-
-                    <div>
-                      <p className="text-xs text-gray-400 font-semibold uppercase mb-1">YouTube</p>
-                      {user.youtubeIntroUrl ? (
-                        <a href={user.youtubeIntroUrl} target="_blank" rel="noopener noreferrer" className="text-red-400 hover:text-red-300 hover:underline text-sm truncate block font-medium">
-                          🎬 {user.youtubeIntroUrl}
-                        </a>
-                      ) : (
-                        <p className="text-gray-500 text-sm">Nenhum link do YouTube adicionado.</p>
-                      )}
-                    </div>
-
-                    <div>
-                      <p className="text-xs text-gray-400 font-semibold uppercase mb-1">Spotify</p>
-                      {user.spotifyArtistUrl ? (
-                        <a href={user.spotifyArtistUrl} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300 hover:underline text-sm truncate block font-medium">
-                          🎵 {user.spotifyArtistUrl}
-                        </a>
-                      ) : (
-                        <p className="text-gray-500 text-sm">Nenhum perfil do Spotify adicionado.</p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className={`w-3 h-3 rounded-full ${user.offersTrialLesson ? 'bg-green-400' : 'bg-gray-600'}`}></span>
-                      <p className="text-sm text-gray-300">
-                        {user.offersTrialLesson
-                          ? <span className="text-green-400 font-semibold">Aula experimental gratuita ativada</span>
-                          : 'Aula experimental não oferecida'}
+                    <div className="flex items-center gap-2 mt-auto pt-4 border-t border-gray-600">
+                      <span className={`w-3 h-3 rounded-full ${user.offersTrialLesson ? 'bg-green-400 shadow-[0_0_8px_#4ade80]' : 'bg-gray-600'}`}></span>
+                      <p className="text-sm text-gray-300 font-semibold">
+                        {user.offersTrialLesson ? 'Disponível para aula experimental gratuita' : 'Aulas experimentais indisponíveis'}
                       </p>
                     </div>
-
                   </div>
                 )}
               </div>
             </div>
 
           </section>
+
+          {/* ====== SECÇÃO DE COMENTÁRIOS / PROVA SOCIAL ====== */}
+          {!isEditing && reviews.recent_comments.length > 0 && (
+            <section className="bg-gray-800 rounded-xl border border-gray-700 p-6 shadow-lg">
+              <h3 className="text-lg font-semibold text-purple-300 border-b border-gray-700 pb-2 mb-4">
+                Feedback dos Alunos
+              </h3>
+              <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
+                {reviews.recent_comments.map((review, idx) => (
+                  <div key={idx} className="min-w-[300px] bg-gray-700 rounded-xl p-5 border border-gray-600 flex flex-col gap-3 shadow-md">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                          {review.student_name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-white truncate max-w-[120px]">{review.student_name}</p>
+                          <p className="text-[10px] text-gray-400">{new Date(review.created_at).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                      </div>
+                      <StarRating rating={review.rating} readonly={true} />
+                    </div>
+                    <p className="text-sm text-gray-300 italic leading-relaxed line-clamp-3">"{review.comment}"</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
         </div>
       </main>
     </div>
