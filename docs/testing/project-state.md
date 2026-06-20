@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+W<<<<<<< HEAD
 <<<<<<< HEAD
 # Estado Atual da Estratégia de Testes
 
