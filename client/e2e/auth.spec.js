@@ -30,7 +30,7 @@ test.describe('Authentication and Authorization Flows', () => {
 
         // Captura o alert antes de clicar
         page.once('dialog', async dialog => {
-            expect(dialog.message()).toContain('Credenciais inválidas');
+            expect(dialog.message()).toContain('E-mail ou senha inválidos');
             await dialog.accept();
         });
 

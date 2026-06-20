@@ -20,7 +20,7 @@ Timeout: 10000ms
 
 Call log:
   - Expect "toHaveURL" with timeout 10000ms
-    24 × unexpected value "http://localhost:5173/login"
+    23 × unexpected value "http://localhost:5173/login"
 
 ```
 
@@ -87,7 +87,7 @@ Call log:
   30 | 
   31 |         // Captura o alert antes de clicar
   32 |         page.once('dialog', async dialog => {
-  33 |             expect(dialog.message()).toContain('Credenciais inválidas');
+  33 |             expect(dialog.message()).toContain('E-mail ou senha inválidos');
   34 |             await dialog.accept();
   35 |         });
   36 | 
