@@ -87,9 +87,11 @@ describe('TC-006: Matrícula de Aluno em Curso', () => {
     const jwt = require('jsonwebtoken');
     const token = jwt.sign({ id: 50, role: 'aluno' }, process.env.JWT_SECRET);
 
-    // Mock: aluno com instituicao_id
+    // Mock 1: aluno com instituicao_id
     db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 'a1b2c3d4-0001-0001-0001-000000000001' }] });
-    // Mock: matrícula já existe
+    // Mock 2: courseCheck (pertence à mesma instituição)
+    db.query.mockResolvedValueOnce({ rows: [{ id: 4 }] });
+    // Mock 3: matrícula já existe
     db.query.mockResolvedValueOnce({ rows: [{ user_id: 50, course_id: 4 }] });
 
     const response = await request(app)
@@ -105,11 +107,13 @@ describe('TC-006: Matrícula de Aluno em Curso', () => {
     const jwt = require('jsonwebtoken');
     const token = jwt.sign({ id: 50, role: 'aluno' }, process.env.JWT_SECRET);
 
-    // Mock: aluno com instituicao_id
+    // Mock 1: aluno com instituicao_id
     db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 'a1b2c3d4-0001-0001-0001-000000000001' }] });
-    // Mock: matrícula não existe ainda
+    // Mock 2: courseCheck (pertence à mesma instituição)
+    db.query.mockResolvedValueOnce({ rows: [{ id: 4 }] });
+    // Mock 3: matrícula não existe ainda
     db.query.mockResolvedValueOnce({ rows: [] });
-    // Mock: insert bem sucedido
+    // Mock 4: insert bem sucedido
     db.query.mockResolvedValueOnce({ rows: [] });
 
     const response = await request(app)

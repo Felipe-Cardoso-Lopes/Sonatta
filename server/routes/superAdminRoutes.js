@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('../middlewares/authMiddleware');
+const { verifyToken, checkRole } = require('../middlewares/authMiddleware');
 
 const { 
   getGlobalStats,
@@ -18,8 +18,9 @@ const {
   createSoloTeacher
 } = require('../controllers/superAdminController');
 
-// AQUI ESTAVA O ERRO: Tem que ser verifyToken, não authMiddleware!
-router.use(verifyToken);
+// Apenas super_admin pode aceder a qualquer rota deste router.
+// O verifyToken valida o JWT; o checkRole impede escalada de privilégios.
+router.use(verifyToken, checkRole(['super_admin']));
 
 // --- Rotas de Estatísticas ---
 router.get('/stats', getGlobalStats);

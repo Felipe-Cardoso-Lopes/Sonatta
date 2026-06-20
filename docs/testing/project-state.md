@@ -1,70 +1,89 @@
-# Estado Atual da Estratégia de Testes
+# Estado Atual do Projeto Sonatta
 
-## Ambiente
+## Objetivo
 
-- Jest configurado
-- jest.setup.js configurado
-- Suite completa executando
+Plataforma SaaS para gestão de escolas de música.
+
+## Stack
+
+### Frontend
+
+* React
+* Vite
+* Tailwind CSS
+* Axios
+
+### Backend
+
+* Node.js
+* Express
+
+### Banco de Dados
+
+* PostgreSQL
+* Supabase
+
+## Ambiente de Testes
+
+### Backend
+
+* Jest
+* Supertest
+
+### Frontend
+
+* Playwright (planejado)
+* Vitest (planejado)
 
 ## Cobertura Atual
 
-### Course Controller
+### Controllers Cobertos
 
-Status: Sufficient
+* Course Controller
+* Super Admin Controller
+* Auth Controller (login)
+* User Security (complete/:id, preferences, admin/stats)
+* Institution Security
 
-Cobertura:
+### Segurança
 
-- RBAC
-- 401
-- 403
-- 400
-- 404
-- 500
-- Happy paths
-- Unhappy paths
+* JWT (sem fallback inseguro)
+* RBAC (checkRole)
+* IDOR (ownership guards)
+* Multi-Tenant
+* Proteção de Role Escalation
+* Rotas públicas protegidas
 
-Total:
-- 25 testes
+## Estado Atual
 
-## Pendências
+### Test Suites
 
-### P0
+17
 
-- Auth
-- RBAC Global
-- Instituição
-- Payment
-- Super Admin
+### Testes
 
-### P1
+205 passando
 
-- Student
-- Enrollment
-- Schedule
+### Falhas
 
-## Último Marco
+0
 
-Backend test environment estabilizado.
-Todos os testes passando.
+## Sprint Atual
 
-## Current Quality Status
+Security Sprint
 
-Backend
-- Security Sprint: Complete
-- Payment Security Sprint: Complete
-- Teacher/Student Security Sprint: Complete
-- Auth Security Sprint: Complete
-- Multi-Tenant Isolation: Complete
-- RBAC Validation: Complete
-- Automated Security Tests: Passing
+### Concluído
 
-Frontend
-- Production Build: Passing
-- Playwright Setup: Complete
+* Super Admin Security (Cycle 1)
+* Institution Security (Cycle 2)
+* Teacher + Student Security (Cycle 3)
+* Payment Security (Cycle 4)
 
-E2E
-- Authentication Flow: Passing
-- Institution Profile Flow: Passing
-- Playwright Infrastructure: Stable
-- Primeira fase E2E validada
-- Correção do fluxo de perfil institucional concluída
+### Em andamento
+
+* Finalização do Security Sprint
+
+## Próximos Passos
+
+1. Payment Controller Security
+2. Playwright E2E

@@ -5,6 +5,7 @@ const request = require("supertest");
 const jwt = require("jsonwebtoken");
 const { app } = require('../server');
 const db = require("../config/db");
+const { suppressExpectedConsoleError } = require('./helpers/console');
 
 // Mock do banco de dados
 jest.mock("../config/db", () => ({
@@ -12,15 +13,9 @@ jest.mock("../config/db", () => ({
 }));
 
 describe("Middleware de Autenticação (protect)", () => {
-  // Silencia os console.error do seu código apenas durante os testes
-  // para o terminal não ficar poluído com o log de token inválido esperado.
-  beforeAll(() => {
-    jest.spyOn(console, "error").mockImplementation(() => {});
-  });
-
-  afterAll(() => {
-    console.error.mockRestore();
-  });
+  // O authMiddleware chama console.error para tokens inválidos (comportamento esperado).
+  // suppressExpectedConsoleError() limita o silenciamento ao escopo deste describe.
+  suppressExpectedConsoleError();
 
   beforeEach(() => {
     jest.resetAllMocks();

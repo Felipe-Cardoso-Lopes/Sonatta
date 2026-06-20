@@ -177,6 +177,12 @@ const completeRegistration = async (req, res) => {
   const { id } = req.params;
   const { nickname, birth_date } = req.body;
 
+  // Guarda de propriedade: apenas o próprio utilizador pode completar o seu registo.
+  // Impede IDOR onde qualquer utilizador autenticado alteraria dados de outro.
+  if (String(req.user.id) !== String(id)) {
+    return res.status(403).json({ message: 'Acesso negado: você só pode atualizar o seu próprio perfil.' });
+  }
+
   try {
     const result = await db.query(
       'UPDATE users SET nickname = $1, birth_date = $2 WHERE id = $3 RETURNING *',
@@ -195,7 +201,16 @@ const completeRegistration = async (req, res) => {
 };
 
 const saveMusicalPreferences = async (req, res) => {
-  const { userId, nivel, instrumentos, generos } = req.body;
+  // userId é sempre extraído do token (req.user.id).
+  // O corpo da requisição não é confiável para este fim — eliminando IDOR.
+  const userId = req.user.id;
+
+  // Guarda de propriedade: rejeita tentativas de gravar preferências de outro utilizador.
+  if (req.body.userId !== undefined && String(req.body.userId) !== String(userId)) {
+    return res.status(403).json({ message: 'Acesso negado: você só pode atualizar as suas próprias preferências.' });
+  }
+
+  const { nivel, instrumentos, generos } = req.body;
 
   try {
     const result = await db.query(
