@@ -9,7 +9,7 @@ function DropZone({ accept = "*/*", label, onUploadSuccess }) {
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-  const validateAndUpload = async (file) => {
+const validateAndUpload = async (file) => {
     setErrorMessage('');
     
     // Validação de 10MB no Cliente
@@ -19,36 +19,23 @@ function DropZone({ accept = "*/*", label, onUploadSuccess }) {
       return;
     }
 
+    const formData = new FormData();
+    formData.append('file', file);
     setStatus('uploading');
 
     try {
       const token = localStorage.getItem('token');
-      
-      // Passo 1: Solicitar URL pré-assinada ao Backend
-      const authRes = await axios.post(`${API_URL}/api/upload`, {
-        fileName: file.name,
-        fileType: file.type
-      }, {
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      });
-
-      const { signedUrl, token: supabaseToken, url: finalPublicUrl } = authRes.data;
-
-      // Passo 2: Fazer o upload diretamente para o Storage (ex: Supabase) ignorando o Vercel
-      await axios.put(signedUrl, file, {
-        headers: { 
-          'Content-Type': file.type,
-          'Authorization': `Bearer ${supabaseToken}` // Necessário no Supabase v2
-        },
+      const res = await axios.post(`${API_URL}/api/upload`, formData, {
+        // CORREÇÃO AQUI: Remova o 'Content-Type' para que o navegador gere o boundary corretamente!
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setStatus('success');
-      if (onUploadSuccess && finalPublicUrl) onUploadSuccess(finalPublicUrl);
+      if (onUploadSuccess && res.data.url) onUploadSuccess(res.data.url);
       
       // Reseta após 3 segundos
       setTimeout(() => setStatus('idle'), 3000);
     } catch (err) {
-      console.error(err);
       setStatus('error');
       setErrorMessage(err.response?.data?.message || 'Erro ao enviar o arquivo.');
     }
