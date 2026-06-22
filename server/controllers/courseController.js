@@ -1,9 +1,8 @@
 const db = require('../config/db');
 
 // ================= ÁREA DO PROFESSOR =================
-
 const createCourse = async (req, res) => {
-  // CORREÇÃO: Extraindo o 'status' que o front-end envia no payload
+  // 1. Adicionado o campo 'status' que vem do frontend
   const { title, description, instrument, status } = req.body;
   const teacher_id = req.user.id; 
 
@@ -12,7 +11,7 @@ const createCourse = async (req, res) => {
   }
 
   try {
-    // CORREÇÃO: Adicionando a coluna 'status' na query
+    // 2. Query atualizada para incluir a coluna 'status'
     const result = await db.query(
       'INSERT INTO courses (title, description, instrument, teacher_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [title, description, instrument, teacher_id, status || 'draft']
@@ -161,16 +160,16 @@ const enrollStudent = async (req, res) => {
     const userCheck = await db.query('SELECT instituicao_id FROM users WHERE id = $1', [user_id]);
     const student_inst_id = userCheck.rows[0].instituicao_id;
 
-    // CORREÇÃO DA REGRA DE NEGÓCIO: 
-    // Se o professor for de Instituição, o aluno DEVE ser da mesma instituição.
-    // Se o professor for Solo (teacher_inst_id = null), a matrícula é livre.
+    // 3. NOVA REGRA (CORREÇÃO DO ERRO 403):
+    // Só bloqueia se o professor for de uma Instituição e o aluno for de OUTRA.
+    // Se o professor for Solo (teacher_inst_id nulo), a matrícula é liberada para todos.
     if (teacher_inst_id) {
       if (!student_inst_id || student_inst_id !== teacher_inst_id) {
         return res.status(403).json({ message: 'Apenas alunos da mesma instituição podem acessar este curso.' });
       }
     }
 
-    // 3. Verifica se o aluno já está matriculado
+    // 4. Verifica se já está matriculado
     const check = await db.query(
       'SELECT * FROM enrollments WHERE user_id = $1 AND course_id = $2',
       [user_id, course_id]
@@ -180,7 +179,7 @@ const enrollStudent = async (req, res) => {
       return res.status(400).json({ message: 'Você já está matriculado neste curso.' });
     }
 
-    // 4. Realiza a matrícula
+    // 5. Salva a matrícula
     await db.query(
       'INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2)',
       [user_id, course_id]
