@@ -277,8 +277,21 @@ describe('Course Controller Tests', () => {
         expect(response.body.message).toBe('O ID do curso é obrigatório.');
       });
 
-      it('deve retornar 403 se o aluno não estiver vinculado a uma instituição', async () => {
-        db.query.mockResolvedValueOnce({ rows: [] }); // userCheck sem instituicao
+      it('deve retornar 404 se o curso não for encontrado', async () => {
+        db.query.mockResolvedValueOnce({ rows: [] }); // 1. courseCheck vazio
+
+        const response = await request(app)
+          .post('/api/courses/student/enroll')
+          .set('Authorization', `Bearer ${studentToken}`)
+          .send({ course_id: 1 });
+
+        expect(response.status).toBe(404);
+        expect(response.body.message).toBe('Curso não encontrado.');
+      });
+
+      it('deve retornar 403 se o aluno não for da mesma instituição', async () => {
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1, teacher_inst_id: 1 }] }); // 1. courseCheck (inst 1)
+        db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 2 }] }); // 2. userCheck (inst 2)
 
         const response = await request(app)
           .post('/api/courses/student/enroll')
@@ -286,12 +299,13 @@ describe('Course Controller Tests', () => {
           .send({ course_id: 1 });
 
         expect(response.status).toBe(403);
+        expect(response.body.message).toBe('Apenas alunos da mesma instituição podem acessar este curso.');
       });
 
       it('deve retornar 400 se já estiver matriculado', async () => {
-        db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 1 }] }); // userCheck
-        db.query.mockResolvedValueOnce({ rows: [{ id: 1 }] }); // courseCheck
-        db.query.mockResolvedValueOnce({ rows: [{ course_id: 1 }] }); // enrollment check (já matriculado)
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1, teacher_inst_id: 10 }] }); // 1. courseCheck
+        db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 10 }] }); // 2. userCheck
+        db.query.mockResolvedValueOnce({ rows: [{ course_id: 1 }] }); // 3. enrollment check (já existe)
 
         const response = await request(app)
           .post('/api/courses/student/enroll')
@@ -303,10 +317,10 @@ describe('Course Controller Tests', () => {
       });
 
       it('deve matricular o aluno com sucesso', async () => {
-        db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 1 }] }); // userCheck
-        db.query.mockResolvedValueOnce({ rows: [{ id: 1 }] }); // courseCheck
-        db.query.mockResolvedValueOnce({ rows: [] }); // enrollment check
-        db.query.mockResolvedValueOnce({ rowCount: 1 }); // insert
+        db.query.mockResolvedValueOnce({ rows: [{ id: 1, teacher_inst_id: 10 }] }); // 1. courseCheck
+        db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 10 }] }); // 2. userCheck
+        db.query.mockResolvedValueOnce({ rows: [] }); // 3. enrollment check (livre)
+        db.query.mockResolvedValueOnce({ rowCount: 1 }); // 4. insert
 
         const response = await request(app)
           .post('/api/courses/student/enroll')

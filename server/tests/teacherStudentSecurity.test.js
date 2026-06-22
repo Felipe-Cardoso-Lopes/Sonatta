@@ -83,18 +83,12 @@ describe('Teacher and Student Security Sprint Tests', () => {
     });
   });
 
-  describe('3. Multi-Tenant Isolation: Course Enrollment (Student)', () => {
+describe('3. Multi-Tenant Isolation: Course Enrollment (Student)', () => {
     it('NÃO deve permitir que um aluno se matricule no curso de OUTRA instituição', async () => {
-      // Mock 1: userCheck para o studentA (instituicao_id = 1)
-      db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: instA_id }] });
-
-      // Mock 2: enrollment check (ainda não matriculado)
-      db.query.mockResolvedValueOnce({ rows: [] });
-
-      // Mock 3: Verifica se o curso pertence à mesma instituição! (DEVE FALHAR SE NÃO PERTENCER)
-      // O controller atual não tem esse mock 3, ele vai direto pro INSERT, o que fará o teste falhar
-      // Vamos assumir que a nova query fará esse check e retornará 0 linhas se for de outra inst.
-      db.query.mockResolvedValueOnce({ rows: [] }); // Simula curso não encontrado ou não permitido
+      // Mock 1: courseCheck - curso pertence à Instituição 20
+      db.query.mockResolvedValueOnce({ rows: [{ id: 999, teacher_inst_id: 20 }] });
+      // Mock 2: userCheck - aluno pertence à Instituição 10
+      db.query.mockResolvedValueOnce({ rows: [{ instituicao_id: 10 }] });
 
       const response = await request(app)
         .post('/api/courses/student/enroll')
@@ -102,7 +96,7 @@ describe('Teacher and Student Security Sprint Tests', () => {
         .send({ course_id: 999 }); // Curso da Inst B
 
       expect(response.status).toBe(403);
-      expect(response.body.message).toContain('Não é permitido'); // ou algo similar
+      expect(response.body.message).toBe('Apenas alunos da mesma instituição podem acessar este curso.');
     });
   });
 
