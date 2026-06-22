@@ -284,30 +284,44 @@ const createSoloTeacher = async (req, res) => {
   }
 
   try {
-    // 1. Previne duplicidade de contas no sistema
+    // 1. Inicia a transação atômica
+    await db.query('BEGIN');
+
+    // 2. Previne duplicidade de contas no sistema
     const userExists = await db.query('SELECT id FROM users WHERE email = $1', [email]);
     if (userExists.rows.length > 0) {
+      await db.query('ROLLBACK');
       return res.status(400).json({ message: 'Já existe uma conta com este e-mail.' });
     }
 
-    // 2. Criptografa a senha para armazenamento seguro
+    // 3. Criptografa a senha para armazenamento seguro
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // 3. Insere no banco forçando a role 'solo_teacher' e sem vínculo institucional
+    // 4. Insere no banco forçando a role 'solo_teacher' e explicitamente definindo a instituição como NULL
     const result = await db.query(
-      `INSERT INTO users (name, email, password_hash, role, teacher_type, is_verified) 
-       VALUES ($1, $2, $3, 'solo_teacher', 'solo', true) 
+      `INSERT INTO users (name, email, password_hash, role, teacher_type, instituicao_id, is_verified) 
+       VALUES ($1, $2, $3, 'solo_teacher', 'solo', NULL, true) 
        RETURNING id, name, email, role, teacher_type`,
       [name, email, passwordHash]
     );
+
+    // 5. Confirma a transação
+    await db.query('COMMIT');
 
     res.status(201).json({ 
       message: 'Professor Solo cadastrado com sucesso!', 
       teacher: result.rows[0] 
     });
   } catch (error) {
-    console.error('Erro ao cadastrar professor solo:', error);
+    // Falhou? Desfaz as operações no banco de dados!
+    await db.query('ROLLBACK');
+    console.error('Erro de transação ao cadastrar professor solo:', error);
+    
+    if (error.code === '23505') {
+       return res.status(400).json({ message: 'Este e-mail já está em uso.' });
+    }
+    
     res.status(500).json({ message: 'Erro interno ao processar o cadastro.' });
   }
 };

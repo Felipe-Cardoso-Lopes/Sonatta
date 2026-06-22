@@ -4,7 +4,12 @@ const db = require('../config/db');
 
 const createCourse = async (req, res) => {
   const { title, description, instrument } = req.body;
-  const teacher_id = req.user.id; 
+  const teacher_id = req.user?.id; // Usando optional chaining por segurança
+
+  // Validação explícita de segurança para a captura do token JWT
+  if (!teacher_id) {
+    return res.status(401).json({ message: 'Acesso negado: ID do professor não encontrado no token.' });
+  }
 
   if (!title || !description || !instrument) {
     return res.status(400).json({ message: 'Todos os campos (title, description, instrument) são obrigatórios.' });
@@ -18,7 +23,7 @@ const createCourse = async (req, res) => {
     res.status(201).json({ message: 'Curso criado com sucesso!', course: result.rows[0] });
   } catch (error) {
     console.error('Erro ao criar curso:', error);
-    res.status(500).json({ message: 'Erro ao criar curso no banco de dados.' });
+    res.status(500).json({ message: 'Erro ao criar curso no banco de dados. Verifique a conexão e os dados.' });
   }
 };
 

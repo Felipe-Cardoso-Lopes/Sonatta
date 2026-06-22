@@ -19,22 +19,36 @@ function DropZone({ accept = "*/*", label, onUploadSuccess }) {
       return;
     }
 
-    const formData = new FormData();
-    formData.append('file', file);
     setStatus('uploading');
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`${API_URL}/api/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` },
+      
+      // Passo 1: Solicitar URL pré-assinada ao Backend
+      const authRes = await axios.post(`${API_URL}/api/upload`, {
+        fileName: file.name,
+        fileType: file.type
+      }, {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      });
+
+      const { signedUrl, token: supabaseToken, url: finalPublicUrl } = authRes.data;
+
+      // Passo 2: Fazer o upload diretamente para o Storage (ex: Supabase) ignorando o Vercel
+      await axios.put(signedUrl, file, {
+        headers: { 
+          'Content-Type': file.type,
+          'Authorization': `Bearer ${supabaseToken}` // Necessário no Supabase v2
+        },
       });
 
       setStatus('success');
-      if (onUploadSuccess && res.data.url) onUploadSuccess(res.data.url);
+      if (onUploadSuccess && finalPublicUrl) onUploadSuccess(finalPublicUrl);
       
       // Reseta após 3 segundos
       setTimeout(() => setStatus('idle'), 3000);
     } catch (err) {
+      console.error(err);
       setStatus('error');
       setErrorMessage(err.response?.data?.message || 'Erro ao enviar o arquivo.');
     }
