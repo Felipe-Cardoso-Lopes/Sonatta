@@ -188,7 +188,8 @@ function InstituicaoProfile() {
                   <div className="flex flex-col gap-5">
                     <div>
                       <label className={labelClass}>Sobre a Escola (Descrição)</label>
-                      <textarea 
+                      <textarea
+                        data-testid="institution-description-input"
                         value={publicProfile.descricao_longa}
                         onChange={e => setPublicProfile({ ...publicProfile, descricao_longa: e.target.value })}
                         rows="5"
