@@ -327,12 +327,14 @@ describe('Super Admin Controller — Security & Integration Tests', () => {
       expect(res.body.message).toBe('Nome, e-mail e senha são obrigatórios.');
     });
 
-    it('POST /api/super-admin/solo-teachers — deve retornar 400 em e-mail duplicado', async () => {
-      db.query.mockResolvedValueOnce({ rows: [{ id: 10 }] }); // already exists
+   it('POST /api/super-admin/solo-teachers — deve retornar 400 em e-mail duplicado', async () => {
+      db.query.mockResolvedValueOnce({}); // 1. BEGIN
+      db.query.mockResolvedValueOnce({ rows: [{ id: 10 }] }); // 2. SELECT email existente
+      db.query.mockResolvedValueOnce({}); // 3. ROLLBACK
 
       const res = await request(app)
         .post('/api/super-admin/solo-teachers')
-        .set('Authorization', `Bearer ${tokens.superAdmin}`)
+        .set('Authorization', `Bearer ${tokens.superAdmin}`) // <-- AQUI ERA O ERRO
         .send({ name: 'Dup Prof', email: 'dup@prof.com', password: 'senha123' });
 
       expect(res.status).toBe(400);
@@ -340,13 +342,22 @@ describe('Super Admin Controller — Security & Integration Tests', () => {
     });
 
     it('POST /api/super-admin/solo-teachers — deve criar professor solo com sucesso → 201', async () => {
-      db.query
-        .mockResolvedValueOnce({ rows: [] }) // email free
-        .mockResolvedValueOnce({ rows: [{ id: 20, name: 'Prof Solo', email: 'solo@prof.com', role: 'solo_teacher' }] });
+      db.query.mockResolvedValueOnce({}); // 1. BEGIN
+      db.query.mockResolvedValueOnce({ rows: [] }); // 2. SELECT email livre
+      db.query.mockResolvedValueOnce({
+        rows: [{
+          id: 5,
+          name: 'Prof Solo',
+          email: 'solo@prof.com',
+          role: 'solo_teacher',
+          teacher_type: 'solo'
+        }]
+      }); // 3. INSERT
+      db.query.mockResolvedValueOnce({}); // 4. COMMIT
 
       const res = await request(app)
         .post('/api/super-admin/solo-teachers')
-        .set('Authorization', `Bearer ${tokens.superAdmin}`)
+        .set('Authorization', `Bearer ${tokens.superAdmin}`) // <-- AQUI ERA O ERRO
         .send({ name: 'Prof Solo', email: 'solo@prof.com', password: 'senha123' });
 
       expect(res.status).toBe(201);

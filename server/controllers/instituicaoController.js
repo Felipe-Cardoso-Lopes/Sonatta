@@ -89,14 +89,19 @@ const createTeacher = async (req, res) => {
   }
 
   try {
+    // 1. Inicia a transação atômica
+    await db.query('BEGIN');
+
     const userExists = await db.query('SELECT id FROM users WHERE email = $1', [email]);
     if (userExists.rows.length > 0) {
+      await db.query('ROLLBACK');
       return res.status(400).json({ message: 'Este e-mail já está em uso por outro usuário.' });
     }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
+    // 2. Insere na tabela de autenticação base
     const result = await db.query(
       `INSERT INTO users (name, email, password_hash, role, teacher_type, instituicao_id, is_verified) 
        VALUES ($1, $2, $3, 'teacher', 'institucional', $4, true) 
@@ -104,12 +109,21 @@ const createTeacher = async (req, res) => {
       [name, email, passwordHash, instituicao_id]
     );
 
+    // 3. Confirma a transação no banco
+    await db.query('COMMIT');
+
     res.status(201).json({
       message: 'Professor cadastrado com sucesso!',
       teacher: result.rows[0]
     });
   } catch (error) {
-    console.error('Erro ao cadastrar professor:', error);
+    // Falhou? Desfaz tudo que foi tentado neste bloco!
+    await db.query('ROLLBACK');
+    console.error('Erro de transação ao cadastrar professor:', error);
+    
+    if (error.code === '23505') {
+      return res.status(400).json({ message: 'Este e-mail já está em uso.' });
+    }
     res.status(500).json({ message: 'Erro interno ao processar o cadastro.' });
   }
 };

@@ -1,15 +1,14 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Fluxo de Atualização do Perfil da Instituição', () => {
-  
   test.beforeEach(async ({ page }) => {
-    // Simula o login injetando o token diretamente para agilizar o teste E2E
     await page.goto('http://localhost:5173/login');
+
     await page.evaluate(() => {
       localStorage.setItem('token', 'test-token');
       localStorage.setItem('userRole', 'instituicao');
     });
-    // Navega para a página de perfil
+
     await page.goto('http://localhost:5173/instituicao/profile');
   });
 

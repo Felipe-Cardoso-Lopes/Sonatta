@@ -1,9 +1,9 @@
 const db = require('../config/db');
 
 // ================= ÁREA DO PROFESSOR =================
-
 const createCourse = async (req, res) => {
-  const { title, description, instrument } = req.body;
+  // 1. Adicionado o campo 'status' que vem do frontend
+  const { title, description, instrument, status } = req.body;
   const teacher_id = req.user.id; 
 
   if (!title || !description || !instrument) {
@@ -11,9 +11,10 @@ const createCourse = async (req, res) => {
   }
 
   try {
+    // 2. Query atualizada para incluir a coluna 'status'
     const result = await db.query(
-      'INSERT INTO courses (title, description, instrument, teacher_id) VALUES ($1, $2, $3, $4) RETURNING *',
-      [title, description, instrument, teacher_id]
+      'INSERT INTO courses (title, description, instrument, teacher_id, status) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [title, description, instrument, teacher_id, status || 'draft']
     );
     res.status(201).json({ message: 'Curso criado com sucesso!', course: result.rows[0] });
   } catch (error) {
@@ -101,7 +102,8 @@ const getAllCoursesForStudent = async (req, res) => {
         u.name as teacher_name,
         EXISTS(SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.user_id = $1) as is_enrolled
        FROM courses c 
-       JOIN users u ON c.teacher_id = u.id`,
+       JOIN users u ON c.teacher_id = u.id
+       WHERE u.instituicao_id = (SELECT instituicao_id FROM users WHERE id = $1)`,
        [student_id]
     );
     res.json(result.rows);
@@ -130,27 +132,44 @@ const getEnrolledCourses = async (req, res) => {
 };
 
 // F16/F19 - Matricular aluno num curso
-// F16/F19 - Matricular aluno num curso
 const enrollStudent = async (req, res) => {
   const { course_id } = req.body;
-  const user_id = req.user.id; // ID do utilizador que vem do verifyToken
+  const user_id = req.user.id; 
 
   if (!course_id) {
     return res.status(400).json({ message: 'O ID do curso é obrigatório.' });
   }
 
   try {
-    // 1. Verifica se o aluno tem um vínculo com instituição
-    const userCheck = await db.query(
-      'SELECT instituicao_id FROM users WHERE id = $1',
-      [user_id]
+    // 1. Busca os dados do curso e verifica a instituição do Professor
+    const courseCheck = await db.query(
+      `SELECT c.id, u.instituicao_id as teacher_inst_id 
+       FROM courses c 
+       JOIN users u ON c.teacher_id = u.id 
+       WHERE c.id = $1`,
+      [course_id]
     );
 
-    if (userCheck.rows.length === 0 || !userCheck.rows[0].instituicao_id) {
-      return res.status(403).json({ message: 'Apenas alunos vinculados a uma instituição podem se matricular em cursos.' });
+    if (courseCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Curso não encontrado.' });
     }
 
-    // 2. Verifica se o aluno já está matriculado
+    const teacher_inst_id = courseCheck.rows[0].teacher_inst_id;
+
+    // 2. Busca a instituição do Aluno
+    const userCheck = await db.query('SELECT instituicao_id FROM users WHERE id = $1', [user_id]);
+    const student_inst_id = userCheck.rows[0].instituicao_id;
+
+    // 3. NOVA REGRA (CORREÇÃO DO ERRO 403):
+    // Só bloqueia se o professor for de uma Instituição e o aluno for de OUTRA.
+    // Se o professor for Solo (teacher_inst_id nulo), a matrícula é liberada para todos.
+    if (teacher_inst_id) {
+      if (!student_inst_id || student_inst_id !== teacher_inst_id) {
+        return res.status(403).json({ message: 'Apenas alunos da mesma instituição podem acessar este curso.' });
+      }
+    }
+
+    // 4. Verifica se já está matriculado
     const check = await db.query(
       'SELECT * FROM enrollments WHERE user_id = $1 AND course_id = $2',
       [user_id, course_id]
@@ -160,7 +179,7 @@ const enrollStudent = async (req, res) => {
       return res.status(400).json({ message: 'Você já está matriculado neste curso.' });
     }
 
-    // 3. Realiza a matrícula
+    // 5. Salva a matrícula
     await db.query(
       'INSERT INTO enrollments (user_id, course_id) VALUES ($1, $2)',
       [user_id, course_id]

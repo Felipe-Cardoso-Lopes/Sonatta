@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import PrivateRoute from './components/PrivateRoute';
 
 // --- Páginas Públicas e de Autenticação ---
 import VerifyEmail from './pages/VerifyEmail';
@@ -73,21 +74,21 @@ function App() {
           <Route path="/pending-approval" element={<PendingApproval />} />
           
           {/* --- Rotas do Aluno --- */}
-          <Route path="/student/dashboard" element={<StudentDashboard />} />
+          <Route path="/student/dashboard" element={<PrivateRoute><StudentDashboard /></PrivateRoute>} />
           <Route path="/student/profile" element={<StudentProfile />} />
           <Route path="/lessons" element={<StudentLessons />} />
           <Route path="/practice" element={<StudentPractice />} />
           <Route path="/student/chat" element={<StudentChat />} /> 
 
           {/* --- Rotas do Professor Institucional --- */}
-          <Route path="/teacher/dashboard" element={<TeacherDashboard />} />
+          <Route path="/teacher/dashboard" element={<PrivateRoute><TeacherDashboard /></PrivateRoute>} />
           <Route path="/teacher/overview" element={<TeacherOverview />} />
           <Route path="/teacher/management" element={<TeacherManagement />} />
           <Route path="/teacher/profile" element={<TeacherProfile />} />
           <Route path="/teacher/chat" element={<TeacherChat />} />
           
           {/* --- Rotas do Professor Solo --- */}
-          <Route path="/solo-teacher/dashboard" element={<SoloTeacherDashboard />} />
+          <Route path="/solo-teacher/dashboard" element={<PrivateRoute><SoloTeacherDashboard /></PrivateRoute>} />
           <Route path="/solo-teacher/overview" element={<SoloTeacherOverview />} />
           <Route path="/solo-teacher/courses" element={<SoloTeacherCourses />} />
           <Route path="/solo-teacher/schedule" element={<SoloTeacherSchedule />} />
@@ -98,7 +99,7 @@ function App() {
           <Route path="/showcase/:teacherId" element={<SoloTeacherShowcase />} />
 
           {/* --- Rotas da Instituição --- */}
-          <Route path="/instituicao/dashboard" element={<InstituicaoDashboard />} />
+          <Route path="/instituicao/dashboard" element={<PrivateRoute><InstituicaoDashboard /></PrivateRoute>} />
           <Route path="/instituicao/overview" element={<InstituicaoOverview />} />
           <Route path="/instituicao/management" element={<InstituicaoManagement />} />
           <Route path="/instituicao/financial" element={<InstituicaoFinancial />} />
@@ -106,7 +107,7 @@ function App() {
           <Route path="/instituicao/profile" element={<InstituicaoProfile />} />
 
           {/* --- Rotas do Super Admin --- */}
-          <Route path="/super-admin/dashboard" element={<SuperAdminDashboard />} />
+          <Route path="/super-admin/dashboard" element={<PrivateRoute><SuperAdminDashboard /></PrivateRoute>} />
           <Route path="/super-admin/schools" element={<SuperAdminSchools />} />
           <Route path="/super-admin/subscriptions" element={<SuperAdminSubscriptions />} />
           <Route path="/super-admin/system" element={<SuperAdminSystem />} />

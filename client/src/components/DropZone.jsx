@@ -9,7 +9,7 @@ function DropZone({ accept = "*/*", label, onUploadSuccess }) {
 
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
-  const validateAndUpload = async (file) => {
+const validateAndUpload = async (file) => {
     setErrorMessage('');
     
     // Validação de 10MB no Cliente
@@ -26,7 +26,8 @@ function DropZone({ accept = "*/*", label, onUploadSuccess }) {
     try {
       const token = localStorage.getItem('token');
       const res = await axios.post(`${API_URL}/api/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${token}` },
+        // CORREÇÃO AQUI: Remova o 'Content-Type' para que o navegador gere o boundary corretamente!
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setStatus('success');
