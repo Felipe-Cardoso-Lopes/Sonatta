@@ -15,11 +15,11 @@ test.describe('Cadastro Público de Instituição', () => {
     //await expect(page.locator('text=O Nome da Escola deve ter pelo menos 3 caracteres.')).toBeVisible();
     //await expect(page.locator('text=Informe um e-mail válido.')).toBeVisible();
     //await expect(page.locator('text=Informe um telefone válido')).toBeVisible();
-  //}); 
+  //});
 
   test('Deve preencher e submeter o formulário com sucesso (Status Pendente)', async ({ page }) => {
     // Preenche os campos do formulário
-    await page.fill('input[name="nome"]', 'Escola E2E Playwright');
+    await page.fill('input[name="nome"]', 'PQS');
     await page.fill('input[name="email"]', `e2e-${Date.now()}@escola.com`); // E-mail dinâmico para evitar conflito de unicidade
     await page.fill('input[name="telefone"]', '11999999999');
     await page.fill('input[name="cidade"]', 'São Paulo - SP');
