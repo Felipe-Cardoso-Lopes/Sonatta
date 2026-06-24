@@ -21,14 +21,14 @@
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "nodemailer": "^8.0.5",
+    "nodemailer": "^9.0.1",
     "pdfkit": "^0.18.0",
     "pg": "^8.16.0",
     "socket.io": "^4.8.3",
     "ws": "^8.20.1"
   },
   "devDependencies": {
-    "jest": "^30.3.0",
+    "jest": "^30.4.2",
     "nodemon": "^3.1.10",
     "supertest": "^7.2.2"
   }
