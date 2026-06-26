@@ -65,29 +65,29 @@ function StudentDashboard() {
           </div>
           
           {/* Seção de Navegação por Cards */}
-         <section className="flex gap-12">
-            
+         <section className="flex flex-col sm:flex-row flex-wrap justify-center gap-8 sm:gap-12 w-full px-4">
+
             {/* Card Minhas Aulas */}
-            <Link to="/lessons" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
-                <img 
-                  src="/assets/Minhas Aulas.png" 
-                  alt="Minhas Aulas" 
-                  className="w-56 h-56 object-contain" 
+            <Link to="/lessons" className="group flex flex-col items-center text-center mx-auto">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img
+                  src="/assets/Minhas Aulas.png"
+                  alt="Minhas Aulas"
+                  className="w-56 h-56 object-contain"
                 />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
                 Minhas Aulas
               </span>
             </Link>
-            
+
             {/* Card Praticar */}
-            <Link to="/practice" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
-                <img 
-                  src="/assets/Praticar.png" 
-                  alt="Praticar" 
-                  className="w-56 h-56 object-contain" 
+            <Link to="/practice" className="group flex flex-col items-center text-center mx-auto">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img
+                  src="/assets/Praticar.png"
+                  alt="Praticar"
+                  className="w-56 h-56 object-contain"
                 />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">

@@ -32,7 +32,7 @@ function SuperAdminSaaS() {
         <Header />
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-6xl mx-auto">
-            <header className="mb-8 flex justify-between items-center">
+            <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold mb-2">Configuração SaaS</h1>
                 <p className="text-gray-400">Gerencie os planos, preços e limites da plataforma Sonatta.</p>

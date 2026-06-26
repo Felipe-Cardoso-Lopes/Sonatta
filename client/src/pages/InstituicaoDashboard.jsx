@@ -85,7 +85,7 @@ function InstituicaoDashboard() {
           <section className="flex flex-col xl:flex-row flex-wrap justify-center gap-8 md:gap-12 w-full px-4 md:px-0">
             
             <Link to="/instituicao/overview" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img src="/assets/Overview.png" alt="Visão Geral" className="w-32 h-32 object-contain" />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
@@ -94,7 +94,7 @@ function InstituicaoDashboard() {
             </Link>
             
             <Link to="/instituicao/management" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img src="/assets/Gerenciamento.png" alt="Gerenciamento" className="w-32 h-32 object-contain" />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
@@ -103,7 +103,7 @@ function InstituicaoDashboard() {
             </Link>
 
             <Link to="/instituicao/financial" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img src="/assets/Financeiro.png" alt="Financeiro" className="w-32 h-32 object-contain" />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">
@@ -112,7 +112,7 @@ function InstituicaoDashboard() {
             </Link>
 
             <Link to="/instituicao/settings" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img src="/assets/Escola.png" alt="Configurações da Escola" className="w-32 h-32 object-contain" />
               </div>
               <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 font-semibold text-xl mt-4 text-white group-hover:text-purple-400">

@@ -55,7 +55,7 @@ return (
               to="/solo-teacher/courses"
               className="group flex flex-col items-center text-center"
             >
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img
                   src="/assets/Gerenciamento.png"
                   alt="Gerenciamento"
@@ -72,7 +72,7 @@ return (
               to="/solo-teacher/overview"
               className="group flex flex-col items-center text-center"
             >
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img
                   src="/assets/Overview.png"
                   alt="Visão Geral"
@@ -89,7 +89,7 @@ return (
               to="/solo-teacher/schedule"
               className="group flex flex-col items-center text-center"
             >
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img
                   src="/assets/Agenda.png"
                   alt="Agenda"
@@ -108,7 +108,7 @@ return (
               to="/solo-teacher/financial"
               className="group flex flex-col items-center text-center"
             >
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
                 <img
                   src="/assets/Financeiro.png"
                   alt="Financeiro"
