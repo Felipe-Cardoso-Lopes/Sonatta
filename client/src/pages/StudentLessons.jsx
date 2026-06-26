@@ -266,7 +266,7 @@ function StudentLessons() {
   const nomeProfSelected = selectedCourse?.teacher_name || selectedCourse?.professor || "Professor";
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative overflow-x-hidden">
       <div className="shrink-0 z-20">
         <StudentSidebar />
       </div>

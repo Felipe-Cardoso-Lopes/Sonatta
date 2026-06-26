@@ -191,7 +191,7 @@ function TeacherOverview() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row relative overflow-x-hidden">
       <div className="shrink-0 z-20"><TeacherSidebar /></div>
       <main className="flex-grow p-6 md:p-10 flex flex-col h-screen overflow-hidden">
         <div className="max-w-6xl mx-auto w-full flex flex-col h-full gap-6">

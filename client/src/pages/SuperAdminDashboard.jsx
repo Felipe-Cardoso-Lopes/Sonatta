@@ -53,7 +53,7 @@ function SuperAdminDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-piano-black text-pure-white font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-piano-black text-pure-white font-poppins flex flex-col md:flex-row overflow-x-hidden">
       <SuperAdminSidebar />
 
       <div className="flex-grow flex flex-col h-screen overflow-y-auto custom-scrollbar">

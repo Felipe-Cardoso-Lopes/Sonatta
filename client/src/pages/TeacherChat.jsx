@@ -20,7 +20,7 @@ function TeacherChat() {
   ];
 
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
+    <div className="flex h-screen bg-piano-black text-pure-white font-poppins overflow-x-hidden">
       
       {/* 1. MÁGICA ACONTECENDO AQUI: Renderização condicional da Sidebar */}
       {teacherType === 'independente' ? <SoloTeacherSidebar /> : <TeacherSidebar />}

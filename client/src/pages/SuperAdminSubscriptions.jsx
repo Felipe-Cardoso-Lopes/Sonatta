@@ -49,7 +49,7 @@ function SuperAdminSubscriptions() {
   };
 
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
+    <div className="flex h-screen bg-piano-black text-pure-white font-poppins overflow-x-hidden">
       <SuperAdminSidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
 
@@ -71,7 +71,8 @@ function SuperAdminSubscriptions() {
               ) : subscriptions.length === 0 ? (
                 <p className="p-6 text-center text-gray-500">Nenhuma assinatura ativa no sistema.</p>
               ) : (
-                <table className="w-full text-left border-collapse">
+                <div className="w-full overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[700px]">
                   <thead>
                     <tr className="bg-[#2a2a2a] border-b border-key-divider text-sm">
                       <th className="p-4 font-semibold">Instituição</th>
@@ -110,6 +111,7 @@ function SuperAdminSubscriptions() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>

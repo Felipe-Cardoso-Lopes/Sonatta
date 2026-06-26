@@ -200,7 +200,7 @@ function SoloTeacherOverview() {
   };
 
   return (
-    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex flex-col md:flex-row relative">
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex flex-col md:flex-row relative overflow-x-hidden">
       <div className="shrink-0 z-20"><SoloTeacherSidebar /></div>
       <main className="flex-grow p-6 md:p-10 flex flex-col h-screen overflow-hidden">
         <div className="max-w-7xl mx-auto w-full flex flex-col h-full gap-6">

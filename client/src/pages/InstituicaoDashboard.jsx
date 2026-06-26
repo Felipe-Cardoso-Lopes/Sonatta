@@ -51,7 +51,7 @@ function InstituicaoDashboard() {
   const userName = "Instituição";
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row overflow-x-hidden">
       <InstituicaoSidebar />
 
       {/* Conteúdo Principal */}

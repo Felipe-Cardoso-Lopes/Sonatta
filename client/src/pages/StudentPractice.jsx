@@ -114,7 +114,7 @@ function StudentPractice() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex flex-col md:flex-row overflow-x-hidden">
       <div className="shrink-0 z-20">
         <StudentSidebar />
       </div>

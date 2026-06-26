@@ -26,7 +26,7 @@ function SoloTeacherDashboard() {
   }, [navigate]);
 return (
     // Alterado para flex-col md:flex-row para alinhar responsividade com a Instituição
-    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex flex-col md:flex-row overflow-x-hidden">
       {/* Menu Lateral do Professor Independente */}
       <SoloTeacherSidebar />
 

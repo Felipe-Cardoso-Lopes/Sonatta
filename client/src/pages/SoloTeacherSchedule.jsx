@@ -127,7 +127,7 @@ function SoloTeacherSchedule() {
   };
 
   return (
-    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row">
+    <div className="min-h-screen bg-new-bg text-white-text font-poppins flex flex-col md:flex-row overflow-x-hidden">
       <SoloTeacherSidebar />
 
       <main className="flex-grow p-4 md:p-8 flex flex-col gap-6">

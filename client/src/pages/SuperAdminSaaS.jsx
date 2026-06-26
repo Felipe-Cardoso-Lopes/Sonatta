@@ -26,7 +26,7 @@ function SuperAdminSaaS() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
+    <div className="flex h-screen bg-piano-black text-pure-white font-poppins overflow-x-hidden">
       <SuperAdminSidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <Header />

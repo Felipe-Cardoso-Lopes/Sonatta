@@ -47,7 +47,7 @@ function StudentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex overflow-x-hidden">
       {/* Sidebar Lateral Atualizada */}
       <StudentSidebar />
 
