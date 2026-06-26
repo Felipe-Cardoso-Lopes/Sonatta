@@ -172,10 +172,10 @@ function TeacherManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex">
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex overflow-x-hidden">
       <TeacherSidebar />
       <div className="flex-grow flex flex-col h-screen overflow-hidden">
-        <main className="flex-grow p-6 md:p-10 overflow-y-auto custom-scrollbar">
+        <main className="flex-grow pt-20 px-6 pb-6 md:p-10 overflow-y-auto custom-scrollbar">
           
           {viewMode === 'list' ? (
             // ==================== VIEW: LISTA DE CURSOS ====================
@@ -238,26 +238,28 @@ function TeacherManagement() {
                 {activeTab === 'students' && (
                   <div>
                     {students.length === 0 ? <p className="text-gray-500 text-center py-10">Nenhum aluno matriculado.</p> : (
-                      <table className="w-full text-left border-collapse">
-                        <thead>
-                          <tr className="border-b border-gray-700 text-gray-400 text-sm">
-                            <th className="pb-3 font-medium">Aluno</th>
-                            <th className="pb-3 font-medium">Curso</th>
-                            <th className="pb-3 font-medium text-center">Ação</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {students.map(st => (
-                            <tr key={`${st.id}-${st.course_id}`} className="border-b border-gray-800 hover:bg-[#252525]">
-                              <td className="py-4 font-semibold text-white">{st.name}</td>
-                              <td className="py-4 text-gray-300 text-sm">{st.course_title}</td>
-                              <td className="py-4 text-center">
-                                <button onClick={() => handleRemoveStudent(st.id, st.course_id)} className="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-3 py-1 rounded">Remover</button>
-                              </td>
+                      <div className="w-full overflow-x-auto">
+                        <table className="w-full text-left border-collapse min-w-[500px]">
+                          <thead>
+                            <tr className="border-b border-gray-700 text-gray-400 text-sm">
+                              <th className="pb-3 font-medium">Aluno</th>
+                              <th className="pb-3 font-medium">Curso</th>
+                              <th className="pb-3 font-medium text-center">Ação</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {students.map(st => (
+                              <tr key={`${st.id}-${st.course_id}`} className="border-b border-gray-800 hover:bg-[#252525]">
+                                <td className="py-4 font-semibold text-white">{st.name}</td>
+                                <td className="py-4 text-gray-300 text-sm">{st.course_title}</td>
+                                <td className="py-4 text-center">
+                                  <button onClick={() => handleRemoveStudent(st.id, st.course_id)} className="text-red-500 hover:text-red-400 text-sm font-bold bg-red-500/10 px-3 py-1 rounded">Remover</button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     )}
                   </div>
                 )}

@@ -26,17 +26,17 @@ function SoloTeacherFinancial() {
   ]);
 
   return (
-    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex">
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex overflow-x-hidden">
       <SoloTeacherSidebar />
       <div className="flex-grow flex flex-col h-screen overflow-hidden">
-        <main className="flex-grow p-8 overflow-y-auto">
-          
-          <header className="mb-8 flex justify-between items-end">
+        <main className="flex-grow p-6 md:p-8 overflow-y-auto">
+
+          <header className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
             <div>
               <h1 className="text-3xl font-bold mb-2">Controle Financeiro</h1>
               <p className="text-gray-400">Acompanhe os seus ganhos, histórico de pagamentos e solicite saques.</p>
             </div>
-            <button className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-lg flex items-center gap-2">
+            <button className="w-full sm:w-auto bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-semibold transition-colors shadow-lg flex items-center justify-center gap-2">
               <span>💸</span> Solicitar Saque
             </button>
           </header>
@@ -62,7 +62,7 @@ function SoloTeacherFinancial() {
             <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
               <span>📄</span> Histórico de Transacções
             </h2>
-            <div className="overflow-x-auto">
+            <div className="w-full overflow-x-auto">
               <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
                   <tr className="border-b border-gray-700 text-gray-400 text-sm">
