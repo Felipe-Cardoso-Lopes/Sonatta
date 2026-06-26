@@ -55,16 +55,16 @@ function InstituicaoFinancial() {
   ];
 
   return (
-    <div className="min-h-screen bg-piano-black text-white-text flex">
+    <div className="min-h-screen bg-piano-black text-white-text flex overflow-x-hidden">
       <InstituicaoSidebar />
-      <main className="flex-grow p-8 overflow-y-auto">
-        
-        <header className="flex justify-between items-end mb-8">
+      <main className="flex-grow p-6 md:p-8 overflow-y-auto">
+
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">Financeiro e Repasses</h1>
             <p className="text-gray-400">Acompanhe suas receitas, extrato de vendas e repasses da Sonatta.</p>
           </div>
-          <button onClick={exportToCSV} className="bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded-lg font-bold border border-gray-600 transition flex items-center gap-2">
+          <button onClick={exportToCSV} className="w-full sm:w-auto bg-gray-700 hover:bg-gray-600 px-6 py-2 rounded-lg font-bold border border-gray-600 transition flex items-center justify-center gap-2">
             📄 Exportar Extrato (CSV)
           </button>
         </header>
@@ -131,8 +131,8 @@ function InstituicaoFinancial() {
           <div className="p-4 bg-gray-900 border-b border-gray-700">
             <h3 className="font-bold text-white">Extrato Detalhado</h3>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-left min-w-[700px]">
               <thead>
                 <tr className="bg-gray-800 text-gray-400 text-xs uppercase tracking-wider">
                   <th className="p-4 font-semibold">Data</th>

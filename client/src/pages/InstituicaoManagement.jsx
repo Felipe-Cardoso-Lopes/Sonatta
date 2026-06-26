@@ -88,7 +88,7 @@ function InstituicaoManagement() {
 
   return (
     // TÓPICO 1 e 3: Contentor flexível (Mobile-First) e Sidebar
-    <div className="min-h-screen bg-piano-black text-white font-poppins flex flex-col md:flex-row relative">
+    <div className="min-h-screen bg-piano-black text-white font-poppins flex flex-col md:flex-row relative overflow-x-hidden">
       <div className="shrink-0 z-20">
         <InstituicaoSidebar />
       </div>
