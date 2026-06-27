@@ -111,7 +111,9 @@ const loginUser = async (req, res) => {
 const getUserProfile = async (req, res) => {
   try {
     const result = await db.query(
-      'SELECT id, name, nickname, email, role, birth_date, avatar_url FROM users WHERE id = $1', 
+      `SELECT id, name, nickname, email, role, birth_date, avatar_url,
+              specialty, bio, youtube_intro_url, spotify_artist_url, offers_trial_lesson
+       FROM users WHERE id = $1`,
       [req.user.id]
     );
 
@@ -128,18 +130,30 @@ const getUserProfile = async (req, res) => {
 
 const updateUserProfile = async (req, res) => {
   const id = req.user.id;
-  // 1. Extraímos o avatar_url do req.body
-  const { name, nickname, email, password, avatar_url } = req.body;
+  // 1. Extraímos o avatar_url e os campos da vitrine do req.body
+  const {
+    name, nickname, email, password, avatar_url,
+    specialty, bio, youtubeIntroUrl, spotifyArtistUrl, offersTrialLesson,
+  } = req.body;
 
   try {
-    // 2. Adicionamos o avatar_url na query com COALESCE (será o parâmetro $4)
-    let query = 'UPDATE users SET name = COALESCE($1, name), nickname = COALESCE($2, nickname), email = COALESCE($3, email), avatar_url = COALESCE($4, avatar_url)';
-    
-    // 3. Adicionamos o avatar_url ao array de valores
-    let values = [name, nickname, email, avatar_url];
-    
-    // 4. O próximo parâmetro dinâmico agora começa no 5
-    let valueIndex = 5;
+    // 2. Adicionamos o avatar_url e os campos da vitrine na query com COALESCE
+    let query = `UPDATE users SET
+      name = COALESCE($1, name),
+      nickname = COALESCE($2, nickname),
+      email = COALESCE($3, email),
+      avatar_url = COALESCE($4, avatar_url),
+      specialty = COALESCE($5, specialty),
+      bio = COALESCE($6, bio),
+      youtube_intro_url = COALESCE($7, youtube_intro_url),
+      spotify_artist_url = COALESCE($8, spotify_artist_url),
+      offers_trial_lesson = COALESCE($9, offers_trial_lesson)`;
+
+    // 3. Adicionamos os valores correspondentes ao array
+    let values = [name, nickname, email, avatar_url, specialty, bio, youtubeIntroUrl, spotifyArtistUrl, offersTrialLesson];
+
+    // 4. O próximo parâmetro dinâmico agora começa no 10
+    let valueIndex = 10;
 
     if (password && password.trim() !== '') {
       const salt = await bcrypt.genSalt(10);
@@ -149,8 +163,9 @@ const updateUserProfile = async (req, res) => {
       valueIndex++;
     }
 
-    // 5. Adicionamos avatar_url no RETURNING para devolver ao frontend
-    query += ` WHERE id = $${valueIndex} RETURNING id, name, nickname, email, role, avatar_url`;
+    // 5. Adicionamos avatar_url e os campos da vitrine no RETURNING para devolver ao frontend
+    query += ` WHERE id = $${valueIndex} RETURNING id, name, nickname, email, role, avatar_url,
+      specialty, bio, youtube_intro_url, spotify_artist_url, offers_trial_lesson`;
     values.push(id);
 
     const result = await db.query(query, values);

@@ -9,13 +9,13 @@ function SoloTeacherProfile() {
 
   const [user, setUser] = useState({
     name: '', nickname: '', email: '', birthDate: '',
-    specialty: '', bio: '', videoUrl: '',
+    specialty: '', bio: '',
     youtubeIntroUrl: '', spotifyArtistUrl: '', offersTrialLesson: false,
   });
 
   const [formData, setFormData] = useState({
     name: '', nickname: '', email: '', password: '',
-    birthDate: '', specialty: '', bio: '', videoUrl: '',
+    birthDate: '', specialty: '', bio: '',
     youtubeIntroUrl: '', spotifyArtistUrl: '', offersTrialLesson: false,
   });
 
@@ -65,7 +65,6 @@ function SoloTeacherProfile() {
         birthDate: dataNascimentoFormatada,
         specialty: userData.specialty || '',
         bio: userData.bio || '',
-        videoUrl: userData.video_url || '',
         youtubeIntroUrl: userData.youtube_intro_url || '',
         spotifyArtistUrl: userData.spotify_artist_url || '',
         offersTrialLesson: userData.offers_trial_lesson || false,
@@ -79,7 +78,6 @@ function SoloTeacherProfile() {
         birthDate: dataInputFormat,
         specialty: userData.specialty || '',
         bio: userData.bio || '',
-        videoUrl: userData.video_url || '',
         youtubeIntroUrl: userData.youtube_intro_url || '',
         spotifyArtistUrl: userData.spotify_artist_url || '',
         offersTrialLesson: userData.offers_trial_lesson || false,
@@ -214,10 +212,6 @@ function SoloTeacherProfile() {
                     <div>
                       <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Biografia / Sobre mim</label>
                       <textarea form="profileForm" name="bio" value={formData.bio} onChange={handleChange} placeholder="Apresente-se aos seus futuros alunos..." rows="4" className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white resize-none" />
-                    </div>
-                    <div>
-                      <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">Link do Vídeo de Apresentação</label>
-                      <input form="profileForm" type="url" name="videoUrl" value={formData.videoUrl} onChange={handleChange} placeholder="https://www.youtube.com/watch?v=..." className="w-full bg-gray-600 p-2 rounded outline-none focus:ring-2 focus:ring-purple-500 text-white" />
                     </div>
                     <div>
                       <label className="text-gray-400 text-xs font-semibold uppercase mb-1 block">🎬 Link do YouTube</label>
