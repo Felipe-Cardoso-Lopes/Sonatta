@@ -77,7 +77,21 @@ describe('Teacher and Student Security Sprint Tests', () => {
 
       expect(response.status).toBe(200);
       expect(db.query).toHaveBeenCalledWith(
-        expect.stringContaining('WHERE u.instituicao_id ='),
+        expect.stringContaining('u.instituicao_id = (SELECT instituicao_id FROM users WHERE id = $1)'),
+        expect.any(Array)
+      );
+    });
+
+    it('deve incluir cursos de professores solo (instituicao_id NULL) para qualquer aluno', async () => {
+      db.query.mockResolvedValueOnce({ rows: [] });
+
+      const response = await request(app)
+        .get('/api/courses/student')
+        .set('Authorization', `Bearer ${studentAToken}`);
+
+      expect(response.status).toBe(200);
+      expect(db.query).toHaveBeenCalledWith(
+        expect.stringContaining('u.instituicao_id IS NULL'),
         expect.any(Array)
       );
     });

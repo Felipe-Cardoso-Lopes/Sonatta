@@ -101,9 +101,10 @@ const getAllCoursesForStudent = async (req, res) => {
         c.id, c.title, c.instrument, c.description, c.teacher_id, 
         u.name as teacher_name,
         EXISTS(SELECT 1 FROM enrollments e WHERE e.course_id = c.id AND e.user_id = $1) as is_enrolled
-       FROM courses c 
+       FROM courses c
        JOIN users u ON c.teacher_id = u.id
-       WHERE u.instituicao_id = (SELECT instituicao_id FROM users WHERE id = $1)`,
+       WHERE u.instituicao_id IS NULL
+          OR u.instituicao_id = (SELECT instituicao_id FROM users WHERE id = $1)`,
        [student_id]
     );
     res.json(result.rows);
