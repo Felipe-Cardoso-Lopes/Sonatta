@@ -136,7 +136,7 @@ function SuperAdminSchools() {
   const currentList = activeTab === 'ativas' ? ativas : pendentes;
 
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
+    <div className="flex h-screen bg-piano-black text-pure-white font-poppins overflow-x-hidden">
       <SuperAdminSidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <main className="flex-1 overflow-y-auto p-8">
@@ -165,7 +165,7 @@ function SuperAdminSchools() {
             </div>
 
             {/* Sistema de Abas (Tabs) */}
-            <div className="flex gap-6 mb-6 border-b border-key-divider pb-2">
+            <div className="flex gap-6 mb-6 border-b border-key-divider pb-2 overflow-x-auto">
               <button
                 onClick={() => setActiveTab('ativas')}
                 className={`pb-2 font-bold text-sm transition-all ${activeTab === 'ativas' ? 'text-purple-400 border-b-2 border-purple-400' : 'text-gray-500 hover:text-gray-300'}`}
@@ -194,7 +194,8 @@ function SuperAdminSchools() {
                   {activeTab === 'ativas' ? 'Nenhuma instituição ativa encontrada.' : 'Nenhuma solicitação pendente no momento.'}
                 </p>
               ) : (
-                <table className="w-full text-left border-collapse">
+                <div className="w-full overflow-x-auto">
+                <table className="w-full text-left border-collapse min-w-[600px]">
                   <thead>
                     <tr className="bg-[#2a2a2a] border-b border-key-divider text-sm">
                       <th className="p-4 font-semibold">Nome / E-mail</th>
@@ -251,6 +252,7 @@ function SuperAdminSchools() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>
@@ -267,7 +269,7 @@ function SuperAdminSchools() {
             </div>
 
             <form onSubmit={handleCreateSchool} className="flex flex-col gap-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">Nome *</label>
                   <input type="text" name="nome" required value={formData.nome} onChange={handleChange} placeholder="Ex: Escola Harmonia" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />
@@ -278,7 +280,7 @@ function SuperAdminSchools() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">Telefone</label>
                   <input type="text" name="telefone" value={formData.telefone} onChange={handleChange} placeholder="(61) 99999-9999" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />
@@ -289,7 +291,7 @@ function SuperAdminSchools() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-400 font-semibold mb-1">Código do Aluno</label>
                   <input type="text" name="codigo_aluno" value={formData.codigo_aluno} onChange={handleChange} placeholder="Ex: ALU-XYZ01" className="w-full bg-gray-900 border border-gray-700 p-2.5 rounded-lg text-white text-sm outline-none focus:border-purple-500" />

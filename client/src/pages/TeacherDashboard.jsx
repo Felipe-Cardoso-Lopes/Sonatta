@@ -14,7 +14,7 @@ function TeacherDashboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex">
+    <div className="min-h-screen bg-dark-bg text-white-text font-poppins flex overflow-x-hidden">
       {/* Menu Lateral do Professor */}
       <TeacherSidebar />
 
@@ -32,14 +32,14 @@ function TeacherDashboard() {
           </div>
           
           {/* Seção de Navegação por Cards */}
-          <section className="flex gap-12">
+          <section className="flex flex-col sm:flex-row flex-wrap justify-center gap-8 sm:gap-12 w-full px-4">
 
             {/* Card Gerenciamento */}
-            <Link to="/teacher/management" className="group flex flex-col items-center text-center">
-             <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
-                <img 
-                  src="/assets/Gerenciamento.png" 
-                  alt="Gerenciamento" 
+            <Link to="/teacher/management" className="group flex flex-col items-center text-center mx-auto">
+             <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img
+                  src="/assets/Gerenciamento.png"
+                  alt="Gerenciamento"
                   className="w-32 h-32 object-contain" // Aumentado para manter o padrão visual do aluno
                 />
               </div>
@@ -47,13 +47,13 @@ function TeacherDashboard() {
                 Gerenciamento
               </span>
             </Link>
-            
+
             {/* Card Visão Geral */}
-            <Link to="/teacher/overview" className="group flex flex-col items-center text-center">
-              <div className="w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
-                <img 
-                  src="/assets/Overview.png" 
-                  alt="Visão Geral" 
+            <Link to="/teacher/overview" className="group flex flex-col items-center text-center mx-auto">
+              <div className="w-full max-w-[260px] sm:w-[260px] h-[390px] rounded-[15px] bg-white flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 shadow-xl border-2 border-transparent group-hover:border-purple-500">
+                <img
+                  src="/assets/Overview.png"
+                  alt="Visão Geral"
                   className="w-32 h-32 object-contain" // Aumentado para manter o padrão visual do aluno
                 />
               </div>

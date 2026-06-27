@@ -26,13 +26,13 @@ function SuperAdminSaaS() {
   }, []);
 
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins">
+    <div className="flex h-screen bg-piano-black text-pure-white font-poppins overflow-x-hidden">
       <SuperAdminSidebar />
       <div className="flex-1 flex flex-col h-screen overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-8">
           <div className="max-w-6xl mx-auto">
-            <header className="mb-8 flex justify-between items-center">
+            <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold mb-2">Configuração SaaS</h1>
                 <p className="text-gray-400">Gerencie os planos, preços e limites da plataforma Sonatta.</p>

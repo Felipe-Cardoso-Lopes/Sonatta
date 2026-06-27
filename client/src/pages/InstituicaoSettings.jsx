@@ -31,7 +31,7 @@ function InstituicaoSettings() {
   };
 
   return (
-    <div className="min-h-screen bg-piano-black text-white-text flex">
+    <div className="min-h-screen bg-piano-black text-white-text flex overflow-x-hidden">
       <InstituicaoSidebar />
       <main className="flex-grow p-8 overflow-y-auto">
         <h1 className="text-3xl font-bold mb-6">Configurações da Instituição</h1>
@@ -65,7 +65,7 @@ function InstituicaoSettings() {
                 <label className="block text-sm text-gray-400 mb-1">Senha Atual</label>
                 <input type="password" value={passwords.currentPassword} onChange={e => setPasswords({...passwords, currentPassword: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm text-gray-400 mb-1">Nova Senha</label>
                   <input type="password" value={passwords.newPassword} onChange={e => setPasswords({...passwords, newPassword: e.target.value})} className="w-full bg-[#252525] border border-gray-600 rounded p-3 text-white" required />

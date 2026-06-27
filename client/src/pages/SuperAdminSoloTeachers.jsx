@@ -95,7 +95,7 @@ function SuperAdminSoloTeachers() {
   if (!token || !userRole || !userRole.includes('super')) return null;
 
   return (
-    <div className="flex h-screen bg-piano-black text-pure-white font-poppins relative">
+    <div className="flex h-screen bg-piano-black text-pure-white font-poppins relative overflow-x-hidden">
       <div className="shrink-0 z-20">
         <SuperAdminSidebar />
       </div>

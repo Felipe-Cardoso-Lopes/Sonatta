@@ -172,7 +172,7 @@ function SoloTeacherCourses() {
   };
 
   return (
-    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex">
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex overflow-x-hidden">
       <SoloTeacherSidebar />
       <div className="flex-grow flex flex-col h-screen overflow-hidden">
         <main className="flex-grow p-6 md:p-10 overflow-y-auto custom-scrollbar">
@@ -238,7 +238,8 @@ function SoloTeacherCourses() {
                 {activeTab === 'students' && (
                   <div>
                     {students.length === 0 ? <p className="text-gray-500 text-center py-10">Nenhum aluno matriculado.</p> : (
-                      <table className="w-full text-left border-collapse">
+                      <div className="w-full overflow-x-auto">
+                      <table className="w-full text-left border-collapse min-w-[500px]">
                         <thead>
                           <tr className="border-b border-gray-700 text-gray-400 text-sm">
                             <th className="pb-3 font-medium">Aluno</th>
@@ -258,6 +259,7 @@ function SoloTeacherCourses() {
                           ))}
                         </tbody>
                       </table>
+                      </div>
                     )}
                   </div>
                 )}

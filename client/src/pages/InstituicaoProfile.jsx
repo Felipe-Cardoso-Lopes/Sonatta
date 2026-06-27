@@ -91,7 +91,7 @@ function InstituicaoProfile() {
   const btnClass = "text-white font-bold py-3 rounded-lg shadow-md transition flex items-center justify-center gap-2";
 
   return (
-    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex flex-col md:flex-row relative">
+    <div className="min-h-screen bg-piano-black text-white-text font-poppins flex flex-col md:flex-row relative overflow-x-hidden">
       <Toaster position="top-right" toastOptions={{ style: { background: '#252525', color: '#fff', border: '1px solid #374151' } }} />
 
       <div className="shrink-0 z-20">
