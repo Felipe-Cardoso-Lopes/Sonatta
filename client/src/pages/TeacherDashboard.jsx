@@ -32,7 +32,7 @@ function TeacherDashboard() {
           </div>
           
           {/* Seção de Navegação por Cards */}
-          <section className="flex flex-col sm:flex-row flex-wrap justify-center gap-8 sm:gap-12 w-full px-4">
+          <section className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-8 sm:gap-6 w-full max-w-2xl mx-auto px-4">
 
             {/* Card Gerenciamento */}
             <Link to="/teacher/management" className="group flex flex-col items-center text-center mx-auto">
