@@ -70,7 +70,7 @@ describe('Segurança Institucional — Criação de Professor', () => {
   it('deve criar professor com sucesso e vinculá-lo à instituição autenticada (ID=10)', async () => {
     db.query.mockResolvedValueOnce({}); // BEGIN
     db.query.mockResolvedValueOnce({ rows: [] }); // SELECT
-    db.query.mockResolvedValueOnce({ rows: [{ id: 2, name: 'Nova Prof', role: 'teacher' }] }); // INSERT
+    db.query.mockResolvedValueOnce({ rows: [{ id: 2, name: 'Nova Prof', role: 'professor' }] }); // INSERT
     db.query.mockResolvedValueOnce({}); // COMMIT
 
     const res = await request(app)
@@ -99,7 +99,7 @@ describe('Segurança Institucional — Prevenção de Escalada de Privilégio', 
   it('payload com "role: super_admin" deve ser ignorado', async () => {
     db.query.mockResolvedValueOnce({}); 
     db.query.mockResolvedValueOnce({ rows: [] }); 
-    db.query.mockResolvedValueOnce({ rows: [{ id: 100, role: 'teacher' }] });
+    db.query.mockResolvedValueOnce({ rows: [{ id: 100, role: 'professor' }] });
     db.query.mockResolvedValueOnce({});
 
     const res = await request(app)
@@ -109,14 +109,14 @@ describe('Segurança Institucional — Prevenção de Escalada de Privilégio', 
 
     expect(res.status).toBe(201);
     const insertSql = db.query.mock.calls[2][0];
-    expect(insertSql).toContain("'teacher'");
+    expect(insertSql).toContain("'professor'");
     expect(insertSql).not.toContain('super_admin');
   });
 
   it('payload com "instituicao_id" diferente deve ser ignorado', async () => {
     db.query.mockResolvedValueOnce({});
     db.query.mockResolvedValueOnce({ rows: [] });
-    db.query.mockResolvedValueOnce({ rows: [{ id: 101, role: 'teacher' }] });
+    db.query.mockResolvedValueOnce({ rows: [{ id: 101, role: 'professor' }] });
     db.query.mockResolvedValueOnce({});
 
     const res = await request(app)

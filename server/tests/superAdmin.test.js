@@ -349,8 +349,8 @@ describe('Super Admin Controller — Security & Integration Tests', () => {
           id: 5,
           name: 'Prof Solo',
           email: 'solo@prof.com',
-          role: 'solo_teacher',
-          teacher_type: 'solo'
+          role: 'professor',
+          teacher_type: 'independente'
         }]
       }); // 3. INSERT
       db.query.mockResolvedValueOnce({}); // 4. COMMIT
@@ -362,7 +362,8 @@ describe('Super Admin Controller — Security & Integration Tests', () => {
 
       expect(res.status).toBe(201);
       expect(res.body.message).toBe('Professor Solo cadastrado com sucesso!');
-      expect(res.body.teacher.role).toBe('solo_teacher');
+      expect(res.body.teacher.role).toBe('professor');
+      expect(res.body.teacher.teacher_type).toBe('independente');
     });
   });
 });

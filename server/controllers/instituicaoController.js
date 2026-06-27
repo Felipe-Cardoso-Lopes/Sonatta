@@ -63,9 +63,9 @@ const getTeachers = async (req, res) => {
 
   try {
     const result = await db.query(
-      `SELECT id, name, email, teacher_type, is_verified, created_at 
-       FROM users 
-       WHERE role = 'teacher' AND instituicao_id = $1
+      `SELECT id, name, email, teacher_type, is_verified, created_at
+       FROM users
+       WHERE role = 'professor' AND instituicao_id = $1
        ORDER BY created_at DESC`,
       [instituicao_id]
     );
@@ -103,8 +103,8 @@ const createTeacher = async (req, res) => {
 
     // 2. Insere na tabela de autenticação base
     const result = await db.query(
-      `INSERT INTO users (name, email, password_hash, role, teacher_type, instituicao_id, is_verified) 
-       VALUES ($1, $2, $3, 'teacher', 'institucional', $4, true) 
+      `INSERT INTO users (name, email, password_hash, role, teacher_type, instituicao_id, is_verified)
+       VALUES ($1, $2, $3, 'professor', 'institucional', $4, true)
        RETURNING id, name, email, role, teacher_type`,
       [name, email, passwordHash, instituicao_id]
     );

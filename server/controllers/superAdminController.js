@@ -262,9 +262,9 @@ const updateSaaSPlan = async (req, res) => {
 const getSoloTeachers = async (req, res) => {
   try {
     const result = await db.query(`
-      SELECT id, name, email, is_verified, created_at 
-      FROM users 
-      WHERE role = 'solo_teacher'
+      SELECT id, name, email, is_verified, created_at
+      FROM users
+      WHERE role = 'professor' AND teacher_type = 'independente'
       ORDER BY created_at DESC
     `);
     res.status(200).json(result.rows);
@@ -298,10 +298,10 @@ const createSoloTeacher = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(password, salt);
 
-    // 4. Insere no banco forçando a role 'solo_teacher' e explicitamente definindo a instituição como NULL
+    // 4. Insere no banco forçando role 'professor' / teacher_type 'independente' e instituição NULL
     const result = await db.query(
-      `INSERT INTO users (name, email, password_hash, role, teacher_type, instituicao_id, is_verified) 
-       VALUES ($1, $2, $3, 'solo_teacher', 'solo', NULL, true) 
+      `INSERT INTO users (name, email, password_hash, role, teacher_type, instituicao_id, is_verified)
+       VALUES ($1, $2, $3, 'professor', 'independente', NULL, true)
        RETURNING id, name, email, role, teacher_type`,
       [name, email, passwordHash]
     );
