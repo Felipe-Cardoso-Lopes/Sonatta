@@ -3,10 +3,8 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import StudentSidebar from '../components/StudentSidebar';
 
-// URL da API configurada para o seu ambiente local
-const API_URL = 'http://localhost:5000'; 
-
 function StudentDashboard() {
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
   const [displayName, setDisplayName] = useState('');
   const [showModal, setShowModal] = useState(false);
 
@@ -65,7 +63,7 @@ function StudentDashboard() {
           </div>
           
           {/* Seção de Navegação por Cards */}
-         <section className="flex flex-col sm:flex-row flex-wrap justify-center gap-8 sm:gap-12 w-full px-4">
+         <section className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-8 sm:gap-6 w-full max-w-2xl mx-auto px-4">
 
             {/* Card Minhas Aulas */}
             <Link to="/lessons" className="group flex flex-col items-center text-center mx-auto">
