@@ -7,7 +7,7 @@ import ProgressBar from "../components/ProgressBar";
 
 /**
  * Card individual de curso exibido na lateral.
- * Agora também recebe "progress" para exibir a barra de progresso.
+ * Recebe o campo "progress" para exibir a barra de progresso.
  */
 const CourseCard = ({
   title,
@@ -55,7 +55,7 @@ const CourseCard = ({
         )}
       </div>
 
-      {/* Exibe progresso apenas para cursos matriculados */}
+      {/* Exibe progresso apenas para cursos em que o aluno está matriculado */}
       {is_enrolled && <ProgressBar value={progress} />}
     </div>
   );
@@ -82,7 +82,11 @@ function StudentLessons() {
   const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const [completedLessons, setCompletedLessons] = useState([]);
   const [selectedLesson, setSelectedLesson] = useState(null);
-  
+
+  /**
+   * Guarda os IDs das aulas gravadas concluídas no curso selecionado.
+   * A fonte principal é o backend; localStorage é apenas fallback/cache.
+   */
   const [localCompletedClasses, setLocalCompletedClasses] = useState([]);
 
   const typingTimeoutRef = useRef(null);
@@ -99,8 +103,9 @@ function StudentLessons() {
 
   /**
    * Busca os cursos disponíveis para o aluno.
-   * O campo "progress" deve vir do backend.
-   * Caso ainda não exista, a ProgressBar exibirá 0%.
+   * Observação:
+   * - Se /api/courses/student não retornar progress para todos os cursos,
+   *   o progresso do curso selecionado será corrigido depois pelo endpoint /progress/classes.
    */
   const fetchCourses = async () => {
     try {
@@ -112,6 +117,7 @@ function StudentLessons() {
 
       if (response.data.length > 0) {
         const enrolledCourses = response.data.filter((c) => c.is_enrolled);
+
         setSelectedCourse(
           enrolledCourses.length > 0 ? enrolledCourses[0] : response.data[0]
         );
@@ -124,33 +130,87 @@ function StudentLessons() {
     }
   };
 
+  /**
+   * Sempre que o curso selecionado muda:
+   * - carrega módulos/aulas;
+   * - carrega aulas ao vivo concluídas;
+   * - carrega progresso granular real do backend;
+   * - sincroniza selectedCourse e courses para manter cabeçalho e card lateral iguais.
+   */
   useEffect(() => {
-    if (selectedCourse) {
-      activeTeacherIdRef.current = selectedCourse.teacher_id;
-      fetchModulesAndClasses(selectedCourse.id, selectedCourse.is_enrolled);
+    if (!selectedCourse) return;
 
-      if (selectedCourse.is_enrolled) {
-        fetchCompletedLessons(selectedCourse.teacher_id);
-        
-        // Buscar progresso real persistido
-        const fetchClassProgress = async () => {
-          try {
-            const res = await axios.get(`${API_URL}/api/courses/${selectedCourse.id}/progress/classes`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
-            setLocalCompletedClasses(res.data.completedClasses || []);
-            localStorage.setItem(`completed_classes_${selectedCourse.id}`, JSON.stringify(res.data.completedClasses || []));
-            setSelectedCourse(prev => ({ ...prev, progress: res.data.progress }));
-          } catch (err) {
-            // Fallback
-            const stored = localStorage.getItem(`completed_classes_${selectedCourse.id}`);
-            setLocalCompletedClasses(stored ? JSON.parse(stored) : []);
-          }
-        };
-        fetchClassProgress();
-      }
+    activeTeacherIdRef.current = selectedCourse.teacher_id;
+
+    fetchModulesAndClasses(selectedCourse.id, selectedCourse.is_enrolled);
+
+    if (!selectedCourse.is_enrolled) {
+      setLocalCompletedClasses([]);
+      return;
     }
-  }, [selectedCourse]);
+
+    fetchCompletedLessons(selectedCourse.teacher_id);
+
+    const fetchClassProgress = async () => {
+      try {
+        const res = await axios.get(
+          `${API_URL}/api/courses/${selectedCourse.id}/progress/classes`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const completedClasses = res.data.completedClasses || [];
+        const newProgress = res.data.progress ?? selectedCourse.progress ?? 0;
+
+        setLocalCompletedClasses(completedClasses);
+
+        localStorage.setItem(
+          `completed_classes_${selectedCourse.id}`,
+          JSON.stringify(completedClasses)
+        );
+
+        /**
+         * Atualiza o cabeçalho do curso.
+         */
+        setSelectedCourse((prev) =>
+          prev && prev.id === selectedCourse.id
+            ? { ...prev, progress: newProgress }
+            : prev
+        );
+
+        /**
+         * Atualiza o card lateral correspondente.
+         * Essa é a correção que evita cabeçalho com 100% e card lateral com 0%.
+         */
+        setCourses((prevCourses) =>
+          prevCourses.map((course) =>
+            course.id === selectedCourse.id
+              ? { ...course, progress: newProgress }
+              : course
+          )
+        );
+      } catch (err) {
+        console.error("Erro ao buscar progresso das aulas:", err);
+
+        /**
+         * Fallback visual: tenta reaproveitar o cache local.
+         * A fonte oficial continua sendo o backend.
+         */
+        try {
+          const stored = localStorage.getItem(
+            `completed_classes_${selectedCourse.id}`
+          );
+
+          setLocalCompletedClasses(stored ? JSON.parse(stored) : []);
+        } catch {
+          setLocalCompletedClasses([]);
+        }
+      }
+    };
+
+    fetchClassProgress();
+  }, [selectedCourse?.id]);
 
   const fetchModulesAndClasses = async (courseId, isEnrolled) => {
     if (!courseId) return;
@@ -216,29 +276,56 @@ function StudentLessons() {
     }
   };
 
+  /**
+   * Marca uma aula gravada como concluída.
+   * Regra do MVP:
+   * - conclusão é permanente;
+   * - se já estiver concluída, não envia nova requisição;
+   * - backend é a fonte real da persistência;
+   * - frontend faz atualização otimista para melhor UX.
+   */
   const handleToggleClassCompletion = async (e, classId) => {
     e.stopPropagation();
+
     if (!selectedCourse?.is_enrolled) return;
-    
+
     const courseId = selectedCourse.id;
-    
-    // Atualização otimista
-    let updatedCompleted = [...localCompletedClasses, classId];
-    updatedCompleted = [...new Set(updatedCompleted)];
+
+    if (localCompletedClasses.includes(classId)) return;
+
+    const previousCompletedClasses = localCompletedClasses;
+    const updatedCompleted = [...new Set([...localCompletedClasses, classId])];
+
     setLocalCompletedClasses(updatedCompleted);
-    
+
     try {
-      const res = await axios.post(`${API_URL}/api/courses/${courseId}/classes/${classId}/complete`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      const newProgress = res.data.progress;
-      setSelectedCourse(prev => ({ ...prev, progress: newProgress }));
-      setCourses(prev => prev.map(c => c.id === courseId ? { ...c, progress: newProgress } : c));
-      
-      localStorage.setItem(`completed_classes_${courseId}`, JSON.stringify(updatedCompleted));
+      const res = await axios.post(
+        `${API_URL}/api/courses/${courseId}/classes/${classId}/complete`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const newProgress = res.data.progress ?? 0;
+
+      setSelectedCourse((prev) =>
+        prev && prev.id === courseId ? { ...prev, progress: newProgress } : prev
+      );
+
+      setCourses((prevCourses) =>
+        prevCourses.map((course) =>
+          course.id === courseId ? { ...course, progress: newProgress } : course
+        )
+      );
+
+      localStorage.setItem(
+        `completed_classes_${courseId}`,
+        JSON.stringify(updatedCompleted)
+      );
     } catch (err) {
-      setLocalCompletedClasses(localCompletedClasses);
+      console.error("Erro ao atualizar progresso da aula:", err);
+      setLocalCompletedClasses(previousCompletedClasses);
       alert("Erro ao atualizar progresso da aula.");
     }
   };
@@ -527,7 +614,6 @@ function StudentLessons() {
                     )}
                   </div>
 
-                  {/* Barra de progresso no cabeçalho do curso selecionado */}
                   {selectedCourse.is_enrolled && (
                     <div className="mt-4">
                       <ProgressBar value={selectedCourse.progress} />
@@ -694,13 +780,22 @@ function StudentLessons() {
                                 : "🔒"}{" "}
                               {cls.title}
                             </button>
+
                             {selectedCourse.is_enrolled && (
                               <button
-                                onClick={(e) => handleToggleClassCompletion(e, cls.id)}
+                                onClick={(e) =>
+                                  handleToggleClassCompletion(e, cls.id)
+                                }
                                 className="absolute right-3 top-1/2 -translate-y-1/2 text-base hover:scale-110 transition-transform"
-                                title="Marcar como concluída"
+                                title={
+                                  localCompletedClasses.includes(cls.id)
+                                    ? "Aula concluída"
+                                    : "Marcar como concluída"
+                                }
                               >
-                                {localCompletedClasses.includes(cls.id) ? "✅" : "⬜"}
+                                {localCompletedClasses.includes(cls.id)
+                                  ? "✅"
+                                  : "⬜"}
                               </button>
                             )}
                           </div>
