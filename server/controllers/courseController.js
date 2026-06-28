@@ -212,6 +212,184 @@ const unenrollStudent = async (req, res) => {
   }
 };
 
+const updateCourseProgress = async (req, res) => {
+  const { courseId } = req.params;
+  const { aulasConcluidas } = req.body;
+  const user_id = req.user.id;
+
+  if (aulasConcluidas === undefined || aulasConcluidas === null) {
+    return res.status(400).json({ message: 'O campo aulasConcluidas é obrigatório.' });
+  }
+  
+  if (!Number.isInteger(aulasConcluidas) || aulasConcluidas < 0) {
+    return res.status(400).json({ message: 'aulasConcluidas deve ser um número inteiro maior ou igual a 0.' });
+  }
+
+  try {
+    // 1. Validar se o aluno está matriculado
+    const checkEnrollment = await db.query(
+      'SELECT progress FROM enrollments WHERE user_id = $1 AND course_id = $2',
+      [user_id, courseId]
+    );
+
+    if (checkEnrollment.rows.length === 0) {
+      return res.status(403).json({ message: 'Aluno não matriculado neste curso.' });
+    }
+
+    // 2. Contar o total de aulas do curso
+    const countQuery = await db.query(
+      `SELECT COUNT(mc.id) as total_aulas
+       FROM module_classes mc
+       JOIN modules m ON mc.module_id = m.id
+       WHERE m.course_id = $1`,
+      [courseId]
+    );
+
+    const totalAulasDoCurso = parseInt(countQuery.rows[0].total_aulas, 10);
+
+    // 3. Validar se aulasConcluidas não excede totalAulasDoCurso
+    if (aulasConcluidas > totalAulasDoCurso) {
+      return res.status(400).json({ message: 'aulasConcluidas não pode ser maior que o total de aulas do curso.' });
+    }
+
+    // 4. Calcular o progresso
+    let progress = 0;
+    if (totalAulasDoCurso > 0) {
+      progress = Math.round((aulasConcluidas / totalAulasDoCurso) * 100);
+    }
+    
+    // Limitar entre 0 e 100 (segurança extra)
+    if (progress < 0) progress = 0;
+    if (progress > 100) progress = 100;
+
+    // 5. Atualizar a tabela
+    await db.query(
+      'UPDATE enrollments SET progress = $1 WHERE course_id = $2 AND user_id = $3',
+      [progress, courseId, user_id]
+    );
+
+    res.json({ message: 'Progresso atualizado com sucesso.', progress });
+  } catch (error) {
+    console.error('Erro ao atualizar progresso:', error);
+    res.status(500).json({ message: 'Erro interno ao atualizar progresso.' });
+  }
+};
+
+const getCompletedClassesForCourse = async (req, res) => {
+  const { courseId } = req.params;
+  const user_id = req.user.id;
+
+  try {
+    // 1. Validar matrícula
+    const checkEnrollment = await db.query(
+      'SELECT progress FROM enrollments WHERE user_id = $1 AND course_id = $2',
+      [user_id, courseId]
+    );
+
+    if (checkEnrollment.rows.length === 0) {
+      return res.status(403).json({ message: 'Aluno não matriculado neste curso.' });
+    }
+
+    // 2. Buscar aulas concluídas
+    const completedClasses = await db.query(
+      'SELECT class_id FROM student_class_progress WHERE student_id = $1 AND course_id = $2 AND completed = TRUE',
+      [user_id, courseId]
+    );
+
+    const classIds = completedClasses.rows.map(row => row.class_id);
+
+    res.json({
+      progress: checkEnrollment.rows[0].progress,
+      completedClasses: classIds
+    });
+  } catch (error) {
+    console.error('Erro ao buscar aulas concluídas:', error);
+    res.status(500).json({ message: 'Erro interno ao buscar aulas.' });
+  }
+};
+
+const markClassAsCompleted = async (req, res) => {
+  const { courseId, classId } = req.params;
+  const user_id = req.user.id;
+
+  try {
+    // 1. Validar matrícula e isolamento multi-tenant
+    const checkEnrollment = await db.query(
+      `SELECT e.progress, u.instituicao_id as student_inst_id, c.teacher_id 
+       FROM enrollments e
+       JOIN users u ON e.user_id = u.id
+       JOIN courses c ON e.course_id = c.id
+       WHERE e.user_id = $1 AND e.course_id = $2`,
+      [user_id, courseId]
+    );
+
+    if (checkEnrollment.rows.length === 0) {
+      return res.status(403).json({ message: 'Aluno não matriculado neste curso.' });
+    }
+
+    const { student_inst_id, teacher_id } = checkEnrollment.rows[0];
+    const teacherCheck = await db.query('SELECT instituicao_id FROM users WHERE id = $1', [teacher_id]);
+    const teacher_inst_id = teacherCheck.rows[0].instituicao_id;
+
+    if (teacher_inst_id && student_inst_id !== teacher_inst_id) {
+       return res.status(403).json({ message: 'Acesso negado: Isolamento Multi-Tenant.' });
+    }
+
+    // 2. Validar se a classe pertence ao curso
+    const classCheck = await db.query(
+      `SELECT mc.id 
+       FROM module_classes mc
+       JOIN modules m ON mc.module_id = m.id
+       WHERE mc.id = $1 AND m.course_id = $2`,
+      [classId, courseId]
+    );
+
+    if (classCheck.rows.length === 0) {
+      return res.status(404).json({ message: 'Aula não encontrada neste curso.' });
+    }
+
+    // 3. Inserir no banco com ON CONFLICT DO NOTHING (idempotente)
+    await db.query(
+      `INSERT INTO student_class_progress (student_id, course_id, class_id, completed) 
+       VALUES ($1, $2, $3, TRUE) 
+       ON CONFLICT (student_id, course_id, class_id) DO NOTHING`,
+      [user_id, courseId, classId]
+    );
+
+    // 4. Recalcular o progresso total
+    const countQuery = await db.query(
+      `SELECT COUNT(mc.id) as total_aulas
+       FROM module_classes mc
+       JOIN modules m ON mc.module_id = m.id
+       WHERE m.course_id = $1`,
+      [courseId]
+    );
+    const totalAulasDoCurso = parseInt(countQuery.rows[0].total_aulas, 10);
+
+    const completedQuery = await db.query(
+      'SELECT COUNT(id) as concluidas FROM student_class_progress WHERE student_id = $1 AND course_id = $2 AND completed = TRUE',
+      [user_id, courseId]
+    );
+    const aulasConcluidas = parseInt(completedQuery.rows[0].concluidas, 10);
+
+    let progress = 0;
+    if (totalAulasDoCurso > 0) {
+      progress = Math.round((aulasConcluidas / totalAulasDoCurso) * 100);
+    }
+    if (progress < 0) progress = 0;
+    if (progress > 100) progress = 100;
+
+    await db.query(
+      'UPDATE enrollments SET progress = $1 WHERE course_id = $2 AND user_id = $3',
+      [progress, courseId, user_id]
+    );
+
+    res.json({ message: 'Aula marcada como concluída.', progress, completedClasses: aulasConcluidas });
+  } catch (error) {
+    console.error('Erro ao concluir aula:', error);
+    res.status(500).json({ message: 'Erro interno ao concluir aula.' });
+  }
+};
 
 module.exports = { 
   createCourse, 
@@ -221,5 +399,8 @@ module.exports = {
   getAllCoursesForStudent, 
   getEnrolledCourses,
   enrollStudent,
-  unenrollStudent
+  unenrollStudent,
+  updateCourseProgress,
+  getCompletedClassesForCourse,
+  markClassAsCompleted
 };

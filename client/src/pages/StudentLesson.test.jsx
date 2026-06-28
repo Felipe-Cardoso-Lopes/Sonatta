@@ -50,6 +50,10 @@ describe("Fluxo Principal - Aulas do Aluno (StudentLessons)", () => {
       // Como o componente agora recebe o 'teacher_name' correto, ele vai renderizar o professor
       const professorNames = screen.getAllByText(/Prof. Carlos Silva/i);
       expect(professorNames.length).toBeGreaterThan(0);
+      
+      // Verifica se o progresso de 45% é exibido
+      const progressText = screen.getAllByText(/45%/i);
+      expect(progressText.length).toBeGreaterThan(0);
     });
   });
 });
