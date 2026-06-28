@@ -303,8 +303,20 @@ const getCompletedClassesForCourse = async (req, res) => {
       completedClasses: classIds
     });
   } catch (error) {
-    console.error('Erro ao buscar aulas concluídas:', error);
-    res.status(500).json({ message: 'Erro interno ao buscar aulas.' });
+    console.error('Erro ao buscar aulas concluídas:', error.message || error);
+    
+    // 42P01 = undefined_table in PostgreSQL
+    if (error.code === '42P01') {
+      return res.status(500).json({ 
+        message: 'A tabela student_class_progress não existe. O administrador precisa rodar o script docs/database/student_class_progress.sql no banco.',
+        detail: error.message
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Erro interno ao buscar aulas.',
+      detail: error.message 
+    });
   }
 };
 
@@ -386,8 +398,19 @@ const markClassAsCompleted = async (req, res) => {
 
     res.json({ message: 'Aula marcada como concluída.', progress, completedClasses: aulasConcluidas });
   } catch (error) {
-    console.error('Erro ao concluir aula:', error);
-    res.status(500).json({ message: 'Erro interno ao concluir aula.' });
+    console.error('Erro ao concluir aula:', error.message || error);
+    
+    if (error.code === '42P01') {
+      return res.status(500).json({ 
+        message: 'A tabela student_class_progress não existe. O administrador precisa rodar o script docs/database/student_class_progress.sql no banco.',
+        detail: error.message
+      });
+    }
+    
+    res.status(500).json({ 
+      message: 'Erro interno ao concluir aula.',
+      detail: error.message 
+    });
   }
 };
 
