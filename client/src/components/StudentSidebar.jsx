@@ -42,11 +42,11 @@ function StudentSidebar() {
         />
       )}
 
-      <aside
-        className={`fixed md:static top-0 left-0 h-full w-24 min-h-screen bg-gray-800 border-r border-gray-700 p-4 flex flex-col justify-between items-center z-50 transition-transform duration-300 ${
-          isMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
-        }`}
-      >
+    <aside
+  className={`fixed md:static top-0 left-0 h-screen md:h-auto w-24 bg-gray-800 border-r border-gray-700 p-4 flex flex-col justify-between items-center z-50 transition-transform duration-300 shrink-0 ${
+    isMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
+  }`}
+>
         <div className="flex flex-col items-center gap-6">
 
           {/* Logo Sonatta */}

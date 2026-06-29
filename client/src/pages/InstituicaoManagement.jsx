@@ -220,7 +220,7 @@ function InstituicaoManagement() {
                 className="mt-4 w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-50 py-3 rounded-xl font-bold text-white transition-colors flex justify-center items-center gap-2 shadow-lg"
               >
                 {isSubmitting ? <span className="animate-spin">⏳</span> : null}
-                {isSubmitting ? 'A registar...' : 'Confirmar Registo'}
+                {isSubmitting ? 'A registar...' : 'Confirmar Registro'}
               </button>
             </form>
           </div>
