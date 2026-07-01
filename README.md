@@ -1,117 +1,183 @@
 # 🎶 Sonatta
 
-O **Sonatta** é uma plataforma de gestão e aprendizado musical que conecta alunos, professores particulares e instituições de ensino. O sistema centraliza a rotina educacional, oferecendo ferramentas para agendamento de aulas, acompanhamento de progresso, gestão financeira e comunicação direta.
+> **Cloud-ready SaaS platform for music schools built with React, Node.js, Express, PostgreSQL, and modern software engineering practices.**
+
+Sonatta is an end-to-end Software-as-a-Service (SaaS) platform designed to simplify the management of music schools by connecting students, teachers, and educational institutions in a single ecosystem.
+
+The platform focuses on **security**, **scalability**, **multi-tenant architecture**, **real-time communication**, **payment processing**, and **automated testing**, providing a complete digital experience for music education.
 
 ---
 
-## 🚀 Tecnologias Utilizadas
+# 🚀 Project Highlights
 
-**Frontend:**
-- React (com Vite)
+- 🔐 JWT Authentication & Role-Based Access Control (RBAC)
+- 🏫 Multi-tenant architecture for institutions
+- 💬 Real-time messaging with Socket.IO
+- 📅 Lesson scheduling with conflict validation
+- 💳 Mercado Pago payment integration
+- 📁 File uploads with Supabase Storage
+- 🔔 Real-time notification system
+- ⭐ Teacher review system
+- 📊 Student learning progress tracking
+- 🧪 Automated Unit, Integration and End-to-End Tests
+- ⚙️ GitHub Actions Continuous Integration
+
+---
+
+# 🏗️ Architecture
+
+```
+                 React + Vite
+                       │
+                  REST API
+                       │
+               Node.js + Express
+                       │
+          JWT Authentication (RBAC)
+                       │
+                 PostgreSQL
+                       │
+              Supabase Storage
+                       │
+      Mercado Pago • Socket.IO
+```
+
+---
+
+# 🛠 Tech Stack
+
+## Backend
+
+- Node.js
+- Express.js
+- PostgreSQL
+- JWT Authentication
+- Socket.IO
+- Multer
+- Mercado Pago SDK
+- Supabase Storage
+
+---
+
+## Frontend
+
+- React
+- Vite
 - Tailwind CSS
-- React Router DOM
+- React Router
 - Axios
-- Socket.io Client
-
-**Backend:**
-- Node.js com Express
-- PostgreSQL (via Supabase)
-- Socket.io (Comunicação em tempo real)
-- Supabase Storage (Hospedagem de imagens e arquivos)
-- Multer (Gerenciamento de uploads)
-- Mercado Pago (Integração de pagamentos)
-- JWT (Autenticação e controle de acesso)
-
-**Testes e CI/CD:**
-- Jest & Supertest (Testes unitários e de integração no backend)
-- Playwright (Testes E2E)
-- GitHub Actions (Pipelines automatizados)
+- Socket.IO Client
 
 ---
 
-## 👥 Arquitetura de Perfis (RBAC)
+## Testing
 
-O Sonatta opera com controle de acesso baseado em papéis:
-
-1. **Aluno:** Acesso a aulas, práticas, chat com professores e notificações.
-2. **Professor Solo:** Gestão de alunos, agenda, upload de materiais didáticos e vitrine profissional.
-3. **Instituição:** Gerenciamento de múltiplos professores e alunos, visão financeira e relatórios.
-4. **Super Admin:** Torre de controle global, gestão de assinaturas SaaS e cadastro de instituições parceiras.
+- Jest
+- Supertest
+- Playwright
 
 ---
 
-## 🛠️ Funcionalidades Principais
+## DevOps & CI
 
-- **Autenticação Segura:** Login, registro e proteção de rotas via JWT com RBAC.
-- **Chat em Tempo Real:** Comunicação direta entre alunos e professores via Socket.io.
-- **Sistema de Notificações:** Alertas em tempo real integrados à barra lateral.
-- **Agendamento de Aulas:** Sistema de reservas com validação de conflitos de horário.
-- **Sistema de Avaliações:** Alunos avaliam professores após aulas concluídas.
-- **Gestão de Arquivos:** Upload de fotos de perfil e partituras com drag and drop.
-- **Vitrine do Professor Solo:** Página pública com iframes de YouTube e Spotify.
-- **Gestão de Escolas:** Fluxo completo de cadastro e aprovação de instituições parceiras.
-- **Integração de Pagamentos:** Checkout via Mercado Pago com webhook de confirmação.
+- Git
+- GitHub
+- GitHub Actions
 
 ---
 
-## ⚙️ Como Executar o Projeto Localmente
+# 🔐 Security
 
-### Pré-requisitos
-- Node.js v20 ou superior
-- Conta ativa no Supabase
+The project follows modern backend security practices, including:
 
-### 1. Backend
-
-```bash
-cd server
-npm install
-```
-
-Crie o arquivo `server/.env`:
-
-```env
-PORT=5000
-DATABASE_URL=sua_string_de_conexao_postgresql
-JWT_SECRET=seu_segredo_jwt
-NODE_ENV=development
-```
-
-Inicie o servidor:
-
-```bash
-npm run dev
-```
-
-### 2. Frontend
-
-```bash
-cd client
-npm install
-```
-
-Crie o arquivo `client/.env`:
-
-```env
-VITE_API_URL=http://localhost:5000
-```
-
-Inicie a aplicação:
-
-```bash
-npm run dev
-```
+- JWT Authentication
+- Role-Based Access Control (RBAC)
+- Protected Routes
+- Input Validation
+- Password Encryption
+- Multi-Tenant Isolation
 
 ---
 
-## 🧪 Testes Automatizados
+# 👥 User Roles
 
-**Backend (Jest):**
+### 🎓 Student
+
+- Enroll in courses
+- Access lessons
+- Track learning progress
+- Chat with teachers
+- Receive notifications
+
+---
+
+### 🎼 Independent Teacher
+
+- Manage students
+- Schedule lessons
+- Upload learning materials
+- Public professional profile
+- YouTube & Spotify integration
+
+---
+
+### 🏫 Institution
+
+- Manage teachers
+- Manage students
+- Financial dashboard
+- Reports
+- Course management
+
+---
+
+### 👑 Super Admin
+
+- Institution approval
+- SaaS subscription management
+- Platform administration
+- Global monitoring
+
+---
+
+# ⭐ Core Features
+
+- Authentication & Authorization
+- Student Dashboard
+- Teacher Dashboard
+- Institution Dashboard
+- Course Management
+- Lesson Scheduling
+- Student Progress Tracking
+- Teacher Marketplace
+- Notifications
+- Chat
+- Reviews
+- File Upload
+- Financial Management
+- Payment Integration
+- Reporting System
+
+---
+
+# 🧪 Automated Testing
+
+## Backend
+
+- Unit Tests (Jest)
+- Integration Tests (Supertest)
+
 ```bash
 cd server
 npm test
 ```
 
-**E2E (Playwright):**
+---
+
+## Frontend
+
+End-to-End Tests with Playwright.
+
 ```bash
 cd client
 npx playwright test
@@ -119,8 +185,151 @@ npx playwright test
 
 ---
 
-## 👥 Autores
+# ⚙️ Running Locally
 
-Projeto Integrador desenvolvido pelos alunos Felipe Cardoso, Kayo Muller, Guilherme Barros e João Roberto do **Centro Universitário de Brasília (CEUB)**.
+## Prerequisites
 
-*Todos os direitos reservados.*
+- Node.js 20+
+- PostgreSQL
+- Supabase Account
+
+---
+
+## Backend
+
+```bash
+cd server
+npm install
+```
+
+Create:
+
+```env
+PORT=5000
+DATABASE_URL=your_postgresql_connection
+JWT_SECRET=your_secret
+NODE_ENV=development
+```
+
+Run:
+
+```bash
+npm run dev
+```
+
+---
+
+## Frontend
+
+```bash
+cd client
+npm install
+```
+
+Create:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+Run:
+
+```bash
+npm run dev
+```
+
+---
+
+# 📂 Repository Structure
+
+```
+client/
+ ├── src/
+ ├── public/
+
+server/
+ ├── controllers/
+ ├── middleware/
+ ├── models/
+ ├── routes/
+ ├── services/
+ ├── tests/
+```
+
+---
+
+# 📈 Engineering Highlights
+
+This project demonstrates practical experience with:
+
+- REST API Design
+- Authentication & Authorization
+- Backend Architecture
+- Software Security
+- Database Modeling
+- Automated Testing
+- CI/CD Pipelines
+- Real-Time Communication
+- Payment Gateway Integration
+- File Storage
+- Multi-Tenant Systems
+
+---
+
+# 🚧 Roadmap
+
+## ✅ Completed
+
+- Authentication
+- RBAC
+- Chat
+- Notifications
+- Payments
+- Teacher Marketplace
+- Institution Management
+- File Upload
+- Automated Tests
+- CI Pipeline
+
+## 🔄 Planned
+
+- Kubernetes Deployment
+- AWS Infrastructure
+- Observability
+- Performance Improvements
+- API Documentation
+- Mobile Application
+
+---
+
+# 📸 Screenshots
+
+> Screenshots will be added soon.
+
+- Login
+- Student Dashboard
+- Teacher Dashboard
+- Institution Dashboard
+- Marketplace
+- Chat
+
+---
+
+# 👨‍💻 Authors
+
+Developed by:
+
+- Felipe Cardoso Lopes
+- Kayo Muller
+- Guilherme Barros
+- João Roberto
+
+Students of **Centro Universitário de Brasília (CEUB)**.
+
+---
+
+# 📄 License
+
+This project was developed for educational and portfolio purposes.
+
+All rights reserved.
